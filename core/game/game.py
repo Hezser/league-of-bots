@@ -1,6 +1,8 @@
 from elements.bot import Bot
 from core import graphical
+from time import sleep
 import threading
+import pygame
 
 window = None
 elems = []
@@ -8,15 +10,18 @@ bot = None
 
 def run():
     # Instantiate the graphical environment
-    window = graphical.init()
-    graphical_thread = threading.Thread(target=graphical.start, args=(window, elems), daemon=True)
+    graphical_thread = threading.Thread(target=graphical.run, args=(elems,), daemon=True)
+    graphical_thread.start()
     # Create the bot
     bot = Bot(0, 0)
     elems.append(bot)
     # Listen to user input
-    input_thread = threading.Thread(target=listen_input, args=(), daemon=True)
+    # input_thread = threading.Thread(target=listen_input, args=(), daemon=True)
+    # input_thread.start()
     # Remove unused graphical elements
-    garbage_collector = threading.Thread(target=collect_garbage, args=(), daemon=True)
+    # garbage_collector = threading.Thread(target=collect_garbage, args=(), daemon=True)
+    # garbage_collector.start()
+    graphical_thread.join()
 
 def listen_input():
     while True:
