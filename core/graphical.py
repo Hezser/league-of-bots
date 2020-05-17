@@ -17,10 +17,11 @@ def init():
     window = pygame.display.set_mode((WIDTH, HEIGHT))
     return window
 
-def run(elems):
+def run(elems, elems_lock):
     window = init()
     while True:
-        update(window, elems)
+        with elems_lock:
+            update(window, elems)
         # Around 60 fps (would need a timer to properly measure fps due to the execution time of the drawing)
         sleep(0.017)
 

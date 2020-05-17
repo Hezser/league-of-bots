@@ -9,7 +9,7 @@ class Ability:
         self.y = y
         self.alive = True
 
-    def start_ability(window, end_x, end_y):                                                  
+    def start_ability(end_x, end_y):                                                  
         # We convert the vector (x, y) to a basis where (self.x, self.y) is the origin
         alpha_x = self.x - self.x
         alpha_y = self.y - self.y 
