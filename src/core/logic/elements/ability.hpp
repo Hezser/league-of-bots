@@ -19,7 +19,7 @@ class Ability: public Elem {
         void setCd(time_t cd);
         std::chrono::steady_clock::time_point getLastUsed();
         virtual bool cast(std::vector<int> target) = 0;
-        virtual void update(double ms) = 0;
+        virtual void update(float ms) = 0;
 
     protected:
         Bot* m_bot;
@@ -33,7 +33,7 @@ class SaiQAbility: public Ability {
     public: 
         SaiQAbility(Bot* bot);
         bool cast(std::vector<int> target) override;
-        void update(double ms) override;
+        void update(float ms) override;
 
     private:
         MovementManager* m_movement_manager;
@@ -43,21 +43,21 @@ class SaiWAbility: public Ability {
     public:                        
         SaiWAbility(class Bot* bot);
         bool cast(std::vector<int> target) override;
-        void update(double ms) override;
+        void update(float ms) override;
 };
 
 class SaiEAbility: public Ability {        
     public:                        
         SaiEAbility(class Bot* bot);
         bool cast(std::vector<int> target) override;
-        void update(double ms) override;
+        void update(float ms) override;
 };
 
 class SaiRAbility: public Ability {        
     public:                        
         SaiRAbility(class Bot* bot);
         bool cast(std::vector<int> target) override;
-        void update(double ms) override;
+        void update(float ms) override;
 };
 
 #endif

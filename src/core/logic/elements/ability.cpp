@@ -27,7 +27,7 @@ std::chrono::steady_clock::time_point Ability::getLastUsed() {
 /* class SaiQAbility */
 
 SaiQAbility::SaiQAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
-        bot, 2000), m_movement_manager{new MovementManager(this, 3.00)} {}
+        bot, 2000), m_movement_manager{new MovementManager(this, 2.0f)} {}
 
 bool SaiQAbility::cast(std::vector<int> target) {
     m_bot->mutex.lock();
@@ -42,7 +42,7 @@ bool SaiQAbility::cast(std::vector<int> target) {
     return true;
 }
 
-void SaiQAbility::update(double ms) {
+void SaiQAbility::update(float ms) {
     if (!m_movement_manager->update(ms)) {
         m_alive = false;
     }
@@ -58,7 +58,7 @@ bool SaiWAbility::cast(std::vector<int> target) {
     return true; 
 }
 
-void SaiWAbility::update(double ms) {
+void SaiWAbility::update(float ms) {
 
 }
 
@@ -71,7 +71,7 @@ bool SaiEAbility::cast(std::vector<int> target) {
     return true; 
 }
 
-void SaiEAbility::update(double ms) {
+void SaiEAbility::update(float ms) {
     
 }
 
@@ -84,6 +84,6 @@ bool SaiRAbility::cast(std::vector<int> target) {
     return true; 
 }
 
-void SaiRAbility::update(double ms) {
+void SaiRAbility::update(float ms) {
 
 }

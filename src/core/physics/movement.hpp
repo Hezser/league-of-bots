@@ -39,7 +39,7 @@ Move* constructInstantMove(std::vector<int> start, std::vector<int> target, Move
 class MovementManager {
     public:
         MovementManager(Elem* elem, float velocity);
-        bool update(double ms);
+        bool update(float ms);
         void request(Move* move);
         float getVelocity();
         void setVelocity(float velocity);

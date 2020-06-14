@@ -1,6 +1,7 @@
 #include <chrono>
 #include <vector>
 #include <iostream>
+#include <thread>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -10,7 +11,8 @@
 #include "../logic/elements/ability.hpp"
 
 int main() {
-    std::chrono::steady_clock::time_point last_update = std::chrono::steady_clock::now();
+    // TODO: Use tai_clock when C++20 is released; system_clock can be altered by changing the time of the system
+    std::chrono::system_clock::time_point last_update = std::chrono::system_clock::now();
     std::vector<Elem*> elems;
     // For now, we have one bot
     SaiBot* sai = new SaiBot(white_team, {0, 0});
@@ -45,10 +47,10 @@ int main() {
         }
 
         // Update elements
-        double ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - last_update).count();
+        std::chrono::duration<float, std::milli> ms = std::chrono::system_clock::now() - last_update;
+        last_update = std::chrono::system_clock::now();
         for (auto elem : elems) {
-            std::cout << elem->getType() << std::endl;
-            elem->update(ms);
+            elem->update(ms.count());
         }
 
         // Clear previous frame
@@ -87,8 +89,6 @@ int main() {
 
         // Debuffer the frame
         window.display();
-
-        last_update = std::chrono::steady_clock::now();
     }
 
     return 0;

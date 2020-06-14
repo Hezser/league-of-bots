@@ -25,11 +25,12 @@ class Elem {
         std::vector<int> getCoord();
         void setCoord(std::vector<int> coord);
         Team getTeam();
-        virtual void update(double ms) = 0;
+        virtual void update(float ms) = 0;
     protected:
         ElemType m_type;
         bool m_alive;
         std::vector<int> m_coord;
+
         Team m_team;
         Elem(ElemType type, bool alive, std::vector<int> coord, Team team);
 };

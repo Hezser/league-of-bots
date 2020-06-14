@@ -12,7 +12,7 @@ class Bot: public Elem {
         void moveTowards(std::vector<int> target);
         void moveTo(std::vector<int> target);
         Ability* useAbility(AbilityKey key, std::vector<int> target);
-        virtual void update(double ms) = 0;
+        virtual void update(float ms) = 0;
 
     protected:
         Bot(ElemType type, bool alive, std::vector<int> coord, Team team,
@@ -24,7 +24,7 @@ class Bot: public Elem {
 class SaiBot: public Bot {
     public:
         SaiBot(Team team, std::vector<int> start);
-        void update(double ms) override;
+        void update(float ms) override;
 };
 
 #endif

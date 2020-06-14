@@ -56,9 +56,9 @@ Ability* Bot::useAbility(AbilityKey key, std::vector<int> target) {
 
 SaiBot::SaiBot(Team team, std::vector<int> start): Bot(bot_t, true, start, team, 
         {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
-        new SaiRAbility(this)}, new MovementManager(this, 1.00)) {}
+        new SaiRAbility(this)}, new MovementManager(this, 1.0f)) {}
 
-void SaiBot::update(double ms) {
+void SaiBot::update(float ms) {
     m_movement_manager->update(ms);
     // In the future, health, mana, experience, etc. will also need to be updated here
 }

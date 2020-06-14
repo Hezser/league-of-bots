@@ -3,6 +3,8 @@
 #include <queue>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
+#include <limits>
 #include "movement.hpp"
 
 /* Helpers */
@@ -11,7 +13,7 @@ Move* constructLinearMove(std::vector<int> start, std::vector<int> target, MoveP
     // Convert the target vector to a basis where the start is the origin
     std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1      ]};
     // Normalize the alpha vector
-    int d = sqrt(pow(alpha_target[0], 2) + pow(alpha_target[1], 2));
+    int d = std::round(sqrt(pow(alpha_target[0], 2) + pow(alpha_target[1], 2)));
     std::vector<float> unit_travel = {alpha_target[0] / d, alpha_target[1] / d};
     Move* move = new Move{start, target, unit_travel, d, 0, priority};
     return move;
@@ -59,7 +61,7 @@ void MovePriorityQueue::replaceRightClickMove(Move* move) {
 MovementManager::MovementManager(Elem* elem, float velocity): m_elem{elem},
         m_velocity{velocity} {}
 
-bool MovementManager::update(double ms) {
+bool MovementManager::update(float ms) {
     while(!m_moves.empty()) {
         // Get the highest priority move
         Move* move = m_moves.top();
@@ -68,22 +70,21 @@ bool MovementManager::update(double ms) {
             m_moves.pop();
             continue;
         }
+        // Update the move
+        int d = std::min((int) std::round(m_velocity * ms), move->distance - move->travelled);
+        move->travelled += d;
         // Calculate next coord
-        int x = (int) (m_velocity * (move->travelled+1) * move->unit_travel[0]);
-        int y = (int) (m_velocity * (move->travelled+1) * move->unit_travel[1]);
-        int prev_x = (int) (m_velocity * move->travelled * move->unit_travel[0]);
-        int prev_y = (int) (m_velocity * move->travelled * move->unit_travel[1]);
-        // Update the elem's coord
+        int x = (int) (move->travelled * move->unit_travel[0]);
+        int y = (int) (move->travelled * move->unit_travel[1]);
+        int prev_x = (int) ((move->travelled-d) * move->unit_travel[0]);
+        int prev_y = (int) ((move->travelled-d) * move->unit_travel[1]);
         int step_x = x - prev_x;
         int step_y = y - prev_y;
+        // Update the elem's coord
         m_elem->mutex.lock();
         std::vector<int> coord = m_elem->getCoord();
-        x = coord[0] + (ms * (step_x));
-        y = coord[1] + (ms * (step_y));
-        m_elem->setCoord({x, y});
+        m_elem->setCoord({coord[0] + step_x, coord[1] + step_y}); 
         m_elem->mutex.unlock();
-        // Update the move
-        move->travelled += std::sqrt(std::pow(step_x, 2) + std::pow(step_y, 2));
         return true;
     }
     return false;
