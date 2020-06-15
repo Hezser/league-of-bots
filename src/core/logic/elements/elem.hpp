@@ -25,14 +25,18 @@ class Elem {
         std::vector<int> getCoord();
         void setCoord(std::vector<int> coord);
         Team getTeam();
+        int getBoundingSphereRadius();
+        void setBoundingSphereRadius(int radius);
+        void kill();
         virtual void update(float ms) = 0;
+
     protected:
         ElemType m_type;
         bool m_alive;
         std::vector<int> m_coord;
-
         Team m_team;
-        Elem(ElemType type, bool alive, std::vector<int> coord, Team team);
+        int m_bounding_sphere_radius;
+        Elem(ElemType type, bool alive, std::vector<int> coord, Team team, int boundingSphereRadius);
 };
 
 #endif

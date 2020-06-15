@@ -9,7 +9,8 @@
 /* class Ability */
 
 Ability::Ability(ElemType type, bool alive, std::vector<int> coord, Team team,
-        Bot* bot, time_t cd): Elem(type, alive, coord, team), m_bot{bot}, m_cd{cd},
+        Bot* bot, time_t cd, int bounding_sphere_radius): Elem(type, alive, coord,
+        team, bounding_sphere_radius), m_bot{bot}, m_cd{cd},
         m_last_used{std::chrono::steady_clock::time_point(std::chrono::seconds(0))} {}
 
 time_t Ability::getCd() {
@@ -26,8 +27,9 @@ std::chrono::steady_clock::time_point Ability::getLastUsed() {
 
 /* class SaiQAbility */
 
-SaiQAbility::SaiQAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
-        bot, 2000), m_movement_manager{new MovementManager(this, 2.0f)} {}
+SaiQAbility::SaiQAbility(Bot* bot): Ability(ability_t,
+        false, {0,0}, bot->getTeam(), bot, 2000, 5),
+        m_movement_manager{new MovementManager(this, 2.0f)} {}
 
 bool SaiQAbility::cast(std::vector<int> target) {
     m_bot->mutex.lock();
@@ -49,10 +51,16 @@ void SaiQAbility::update(float ms) {
     // More stuff...
 }
 
+void SaiQAbility::handleBotCollision(Bot* bot) {
+    if (bot->getTeam() != m_team) {
+        bot->kill();
+    }
+}
+
 /* class SaiWAbility */
 
 SaiWAbility::SaiWAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
-        bot, 2000) {}
+        bot, 2000, 0) {}
 
 bool SaiWAbility::cast(std::vector<int> target) {
     return true; 
@@ -62,10 +70,14 @@ void SaiWAbility::update(float ms) {
 
 }
 
+void SaiWAbility::handleBotCollision(Bot* bot) {
+
+}
+
 /* class SaiEAbility */
 
 SaiEAbility::SaiEAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
-        bot, 2000) {}
+        bot, 2000, 0) {}
 
 bool SaiEAbility::cast(std::vector<int> target) {
     return true; 
@@ -75,15 +87,23 @@ void SaiEAbility::update(float ms) {
     
 }
 
+void SaiEAbility::handleBotCollision(Bot* bot) {
+
+}
+
 /* class SaiRAbility */
 
 SaiRAbility::SaiRAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
-        bot, 2000) {}
+        bot, 2000, 0) {}
 
 bool SaiRAbility::cast(std::vector<int> target) {
     return true; 
 }
 
 void SaiRAbility::update(float ms) {
+
+}
+
+void SaiRAbility::handleBotCollision(Bot* bot) {
 
 }

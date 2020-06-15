@@ -16,7 +16,8 @@ class Bot: public Elem {
 
     protected:
         Bot(ElemType type, bool alive, std::vector<int> coord, Team team,
-                std::vector<Ability*> abilities, MovementManager* movement_manager);
+                int bounding_sphere_radius, std::vector<Ability*> abilities, 
+                MovementManager* movement_manager);
         std::vector<Ability*> m_abilities;
         MovementManager* m_movement_manager;
 };

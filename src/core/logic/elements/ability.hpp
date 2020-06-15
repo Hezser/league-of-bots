@@ -20,13 +20,14 @@ class Ability: public Elem {
         std::chrono::steady_clock::time_point getLastUsed();
         virtual bool cast(std::vector<int> target) = 0;
         virtual void update(float ms) = 0;
+        virtual void handleBotCollision(Bot* bot) = 0;
 
     protected:
         Bot* m_bot;
         time_t m_cd;
         std::chrono::steady_clock::time_point m_last_used;
         Ability(ElemType type, bool alive, std::vector<int> coord, Team team,
-                Bot* bot, time_t cd);
+                Bot* bot, time_t cd, int bounding_sphere_radius);
 };
 
 class SaiQAbility: public Ability {        
@@ -34,6 +35,7 @@ class SaiQAbility: public Ability {
         SaiQAbility(Bot* bot);
         bool cast(std::vector<int> target) override;
         void update(float ms) override;
+        void handleBotCollision(Bot* bot) override;
 
     private:
         MovementManager* m_movement_manager;
@@ -44,6 +46,7 @@ class SaiWAbility: public Ability {
         SaiWAbility(class Bot* bot);
         bool cast(std::vector<int> target) override;
         void update(float ms) override;
+        void handleBotCollision(Bot* bot) override;
 };
 
 class SaiEAbility: public Ability {        
@@ -51,6 +54,7 @@ class SaiEAbility: public Ability {
         SaiEAbility(class Bot* bot);
         bool cast(std::vector<int> target) override;
         void update(float ms) override;
+        void handleBotCollision(Bot* bot) override;
 };
 
 class SaiRAbility: public Ability {        
@@ -58,6 +62,7 @@ class SaiRAbility: public Ability {
         SaiRAbility(class Bot* bot);
         bool cast(std::vector<int> target) override;
         void update(float ms) override;
+        void handleBotCollision(Bot* bot) override;
 };
 
 #endif

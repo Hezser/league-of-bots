@@ -1,18 +1,56 @@
-#import "collision.hpp"
 #include <vector>
+#include <cmath>
+#include "../logic/elements/elem.hpp"
+#include "../logic/elements/bot.hpp"
+#include "../logic/elements/ability.hpp"
+#include "collision.hpp"
 
-/* class CollisionDetector */
+/* class CollisionDetectionSystem */
 
-std::vector<Collision> CollisionDetector::detect(std::vector<Elem*> elems) {
-    /* 1. Broad phase: check for collisions of bounding spheres of each elem, 
-     * by calculating the vector from the center (coord) of elem1 to the center
-     * of elem2, calculating the magnitude of that vector and checking if the 
-     * magnitude is less than the sums of the radius of the two bounding spheres
-     * 2. Narrow phase: for each pair of elems whose bounding spheres collide,
-     * accurately check for collisions using the Separating Axis Theorem (SAT)
-     * algorithm on the shape of each elem
-     * 3. This all means that we need to implement two more members of the class
-     * Elem: bounding_sphere and shape (IMPORTANT: shape needs to be a convex
-     * polygon or a collection of them for the SAT algorithm to work) */
-    return {};
+std::vector<Collision> CollisionDetectionSystem::detect(std::vector<Elem*> elems) {
+    // Broad phase
+    std::vector<Collision> suspected_collisions;
+    for (auto elem1 : elems) {
+        for (auto elem2 : elems) {
+            if (elem1 != elem2 && (elem1->getTeam() != elem2->getTeam() || 
+                        elem1->getTeam() == neutral_team ||
+                        elem2->getTeam() == neutral_team)) {
+                std::vector<int> coord1 = elem1->getCoord();
+                std::vector<int> coord2 = elem2->getCoord();
+                std::vector<int> path = {coord2[0]-coord1[0], coord2[1]-coord1[1]};
+                float d = std::sqrt(std::pow(path[0], 2) + std::pow(path[1], 2));
+                if (d <= (elem1->getBoundingSphereRadius() + elem2->getBoundingSphereRadius())) {
+                    suspected_collisions.push_back({elem1, elem2});
+                }
+            }
+        }
+    }
+    // TODO: Narrow phase: SAT or GJK
+    return suspected_collisions;
+}
+
+/* class CollisionResolutionSystem */
+
+void CollisionResolutionSystem::resolve(std::vector<Collision> collisions) {
+    for (auto c : collisions) {
+        // Bot-bot collision
+        if (c[0]->getType() == bot_t && c[1]->getType() == bot_t) {
+            /* TODO: Determine which bot to move (prioritise moving bots over static ones)
+             * Move the bot away from the other bot (follow the path of the bot or 
+             * bounce back in the direction of the collision?)
+             * What about bots which are pushed back by an ability and collide with other
+             * bots, who should also be pushed back? */
+        }
+        // Ability-ability collision
+        if (c[0]->getType() == ability_t && c[1]->getType() == ability_t) {
+            // TODO: Handle specific ability-ability interactions
+        }
+        // Ability-bot collision
+        if ((c[0]->getType() == ability_t && c[1]->getType() == bot_t) ||
+            (c[1]->getType() == ability_t && c[0]->getType() == bot_t)) {
+            Ability* ability = (c[0]->getType() == ability_t) ? (Ability*) c[0] : (Ability*) c[1];
+            Bot* bot = (c[0]->getType() == bot_t) ? (Bot*) c[0] : (Bot*) c[1];
+            ability->handleBotCollision(bot);
+        }
+    }
 }

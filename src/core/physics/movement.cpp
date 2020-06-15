@@ -11,7 +11,7 @@
 
 Move* constructLinearMove(std::vector<int> start, std::vector<int> target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
-    std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1      ]};
+    std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1]};
     // Normalize the alpha vector
     int d = std::round(sqrt(pow(alpha_target[0], 2) + pow(alpha_target[1], 2)));
     std::vector<float> unit_travel = {alpha_target[0] / d, alpha_target[1] / d};
@@ -21,7 +21,7 @@ Move* constructLinearMove(std::vector<int> start, std::vector<int> target, MoveP
 
 Move* constructInstantMove(std::vector<int> start, std::vector<int> target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
-    std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1      ]};
+    std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1]};
     Move* move = new Move{start, target, alpha_target, 1, 0, priority};
     return move;
 }

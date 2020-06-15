@@ -9,9 +9,9 @@
 
 /* class bot */
 
-Bot::Bot(ElemType type, bool alive, std::vector<int> coord, Team team,
+Bot::Bot(ElemType type, bool alive, std::vector<int> coord, Team team, int bounding_sphere_radius,
         std::vector<Ability*> abilities, MovementManager* movement_manager):
-        Elem(type, alive, coord, team),
+        Elem(type, alive, coord, team, bounding_sphere_radius),
         m_abilities{abilities}, m_movement_manager{movement_manager} {}
 
 void Bot::moveTowards(std::vector<int> target) {
@@ -54,7 +54,7 @@ Ability* Bot::useAbility(AbilityKey key, std::vector<int> target) {
 
 /* class sai_bot */
 
-SaiBot::SaiBot(Team team, std::vector<int> start): Bot(bot_t, true, start, team, 
+SaiBot::SaiBot(Team team, std::vector<int> start): Bot(bot_t, true, start, team, 14,
         {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
         new SaiRAbility(this)}, new MovementManager(this, 1.0f)) {}
 

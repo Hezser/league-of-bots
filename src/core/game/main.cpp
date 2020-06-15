@@ -1,3 +1,4 @@
+#include <SFML/Graphics/CircleShape.hpp>
 #include <chrono>
 #include <vector>
 #include <iostream>
@@ -9,14 +10,19 @@
 #include "../logic/elements/elem.hpp"
 #include "../logic/elements/bot.hpp"
 #include "../logic/elements/ability.hpp"
+#include "../physics/collision.hpp"
 
 int main() {
     // TODO: Use tai_clock when C++20 is released; system_clock can be altered by changing the time of the system
     std::chrono::system_clock::time_point last_update = std::chrono::system_clock::now();
     std::vector<Elem*> elems;
-    // For now, we have one bot
-    SaiBot* sai = new SaiBot(white_team, {0, 0});
+    // Player's bot
+    SaiBot* sai = new SaiBot(white_team, {1000, 500});
     elems.push_back(sai);
+    // Enemy bots
+    for (int i=0; i<6; i++) {
+        elems.push_back(new SaiBot(black_team, {i*100, 100}));
+    }
 
     sf::RenderWindow window(sf::VideoMode(200, 200), "Loading...");
 
@@ -53,6 +59,9 @@ int main() {
             elem->update(ms.count());
         }
 
+        std::vector<Collision> collisions = CollisionDetectionSystem::detect(elems);
+        CollisionResolutionSystem::resolve(collisions);
+
         // Clear previous frame
         window.clear();
 
@@ -67,18 +76,22 @@ int main() {
                 case bot_t: {
                     sf::RectangleShape bot_mesh;
                     bot_mesh.setSize(sf::Vector2f(20, 20));
-                    bot_mesh.setOutlineColor(sf::Color::Red);
+                    if (elems[i]->getTeam() == white_team) {
+                        bot_mesh.setOutlineColor(sf::Color::Green);
+                    } else {
+                        bot_mesh.setOutlineColor(sf::Color::Red);
+                    }
                     bot_mesh.setOutlineThickness(2);
-                    bot_mesh.setPosition(elems[i]->getCoord()[0], elems[i]->getCoord()[1]);
+                    bot_mesh.setPosition(elems[i]->getCoord()[0]+10, elems[i]->getCoord()[1]+10);
                     window.draw(bot_mesh);
                     break;
                 }
                 case ability_t: {
-                    sf::RectangleShape ability_mesh;
-                    ability_mesh.setSize(sf::Vector2f(5, 5));
+                    sf::CircleShape ability_mesh;
+                    ability_mesh.setRadius(5);
                     ability_mesh.setOutlineColor(sf::Color::Green);
                     ability_mesh.setOutlineThickness(1);
-                    ability_mesh.setPosition(elems[i]->getCoord()[0], elems[i]->getCoord()[1]);
+                    ability_mesh.setPosition(elems[i]->getCoord()[0]+5, elems[i]->getCoord()[1]+5);
                     window.draw(ability_mesh);
                     break;
                 }

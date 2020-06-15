@@ -3,11 +3,19 @@
 
 typedef std::vector<Elem*> Collision;
 
-class CollisionDetector {
+class CollisionDetectionSystem {
     public:
         // Meant to be used a posteriori
         static std::vector<Collision> detect(std::vector<Elem*> elems);
     private:
         // Static class
-        CollisionDetector() {}
+        CollisionDetectionSystem() {}
+};
+
+class CollisionResolutionSystem {
+    public:
+        static void resolve(std::vector<Collision> collisions);
+    private:
+        // Static class
+        CollisionResolutionSystem() {}
 };
