@@ -1,6 +1,7 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
+#include <iostream>
 #include "ability.hpp"
 #include "elem.hpp"
 #include "bot.hpp"

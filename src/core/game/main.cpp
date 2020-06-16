@@ -11,6 +11,7 @@
 #include "../logic/elements/bot.hpp"
 #include "../logic/elements/ability.hpp"
 #include "../physics/collision.hpp"
+#include "../logic/ai/artificial_player.hpp"
 
 int main() {
     // TODO: Use tai_clock when C++20 is released; system_clock can be altered by changing the time of the system
@@ -19,9 +20,12 @@ int main() {
     // Player's bot
     SaiBot* sai = new SaiBot(white_team, {1000, 500});
     elems.push_back(sai);
-    // Enemy bots
+    // Enemy AI-controlled bots
+    std::vector<ArtificialPlayer*> ais;
     for (int i=0; i<6; i++) {
-        elems.push_back(new SaiBot(black_team, {i*100, 100}));
+        SaiBot* new_bot = new SaiBot(black_team, {i*100, 100});
+        elems.push_back(new_bot);
+        ais.push_back(new ArtificialPlayer(new_bot, 1000, random_movement, random_aiming));
     }
 
     sf::RenderWindow window(sf::VideoMode(200, 200), "Loading...");
@@ -36,8 +40,7 @@ int main() {
                     delete elem;
                 }
                 window.close();
-            }
-            else if (event.type == sf::Event::MouseButtonPressed) {
+            } else if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Right) {
                     sai->moveTowards({event.mouseButton.x, event.mouseButton.y});
                 }
@@ -52,11 +55,16 @@ int main() {
             }
         }
 
+        // Let AIs play
+        for (auto ai : ais) {
+            ai->play();
+        }
+
         // Update elements
-        std::chrono::duration<float, std::milli> ms = std::chrono::system_clock::now() - last_update;
+        std::chrono::duration<float, std::milli> elapsed = std::chrono::system_clock::now() - last_update;
         last_update = std::chrono::system_clock::now();
         for (auto elem : elems) {
-            elem->update(ms.count());
+            elem->update(elapsed.count());
         }
 
         std::vector<Collision> collisions = CollisionDetectionSystem::detect(elems);
@@ -82,7 +90,7 @@ int main() {
                         bot_mesh.setOutlineColor(sf::Color::Red);
                     }
                     bot_mesh.setOutlineThickness(2);
-                    bot_mesh.setPosition(elems[i]->getCoord()[0]+10, elems[i]->getCoord()[1]+10);
+                    bot_mesh.setPosition(elems[i]->getCoord()[0]-10, elems[i]->getCoord()[1]-10);
                     window.draw(bot_mesh);
                     break;
                 }
@@ -91,7 +99,7 @@ int main() {
                     ability_mesh.setRadius(5);
                     ability_mesh.setOutlineColor(sf::Color::Green);
                     ability_mesh.setOutlineThickness(1);
-                    ability_mesh.setPosition(elems[i]->getCoord()[0]+5, elems[i]->getCoord()[1]+5);
+                    ability_mesh.setPosition(elems[i]->getCoord()[0]-5, elems[i]->getCoord()[1]-5);
                     window.draw(ability_mesh);
                     break;
                 }

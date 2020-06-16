@@ -10,9 +10,8 @@
 /* class bot */
 
 Bot::Bot(ElemType type, bool alive, std::vector<int> coord, Team team, int bounding_sphere_radius,
-        std::vector<Ability*> abilities, MovementManager* movement_manager):
-        Elem(type, alive, coord, team, bounding_sphere_radius),
-        m_abilities{abilities}, m_movement_manager{movement_manager} {}
+        MovementManager* movement_manager): Elem(type, alive, coord, team, bounding_sphere_radius),
+        m_movement_manager{movement_manager} {}
 
 void Bot::moveTowards(std::vector<int> target) {
     mutex.lock();
@@ -55,8 +54,12 @@ Ability* Bot::useAbility(AbilityKey key, std::vector<int> target) {
 /* class sai_bot */
 
 SaiBot::SaiBot(Team team, std::vector<int> start): Bot(bot_t, true, start, team, 14,
-        {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
-        new SaiRAbility(this)}, new MovementManager(this, 1.0f)) {}
+        new MovementManager(this, 1.0f)) {
+    /* We initialize abilities after the bot is fully initialized so that the Ability
+     * constructor can use the bot's members */
+    m_abilities = {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
+        new SaiRAbility(this)};
+}
 
 void SaiBot::update(float ms) {
     m_movement_manager->update(ms);

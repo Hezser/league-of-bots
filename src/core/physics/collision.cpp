@@ -8,24 +8,29 @@
 /* class CollisionDetectionSystem */
 
 std::vector<Collision> CollisionDetectionSystem::detect(std::vector<Elem*> elems) {
+    // TODO: Collidables must be a class optimized for collision detection, like in Havok
+    // Copy of vector elems
+    std::vector<Elem*> collidables = elems;
     // Broad phase
     std::vector<Collision> suspected_collisions;
-    for (auto elem1 : elems) {
-        for (auto elem2 : elems) {
-            if (elem1 != elem2 && (elem1->getTeam() != elem2->getTeam() || 
-                        elem1->getTeam() == neutral_team ||
-                        elem2->getTeam() == neutral_team)) {
-                std::vector<int> coord1 = elem1->getCoord();
-                std::vector<int> coord2 = elem2->getCoord();
+    while(!collidables.empty()) {
+        Elem* c1 = collidables[0];
+        collidables.erase(collidables.begin());
+        for (auto c2 : collidables) {
+            if (c1 != c2 && (c1->getTeam() != c2->getTeam() || 
+                        c1->getTeam() == neutral_team ||
+                        c2->getTeam() == neutral_team)) {
+                std::vector<int> coord1 = c1->getCoord();
+                std::vector<int> coord2 = c2->getCoord();
                 std::vector<int> path = {coord2[0]-coord1[0], coord2[1]-coord1[1]};
                 float d = std::sqrt(std::pow(path[0], 2) + std::pow(path[1], 2));
-                if (d <= (elem1->getBoundingSphereRadius() + elem2->getBoundingSphereRadius())) {
-                    suspected_collisions.push_back({elem1, elem2});
+                if (d <= (c1->getBoundingSphereRadius() + c2->getBoundingSphereRadius())) {
+                    suspected_collisions.push_back({c1, c2});
                 }
             }
         }
     }
-    // TODO: Narrow phase: SAT or GJK
+    // TODO: Narrow phase: SAT or GJK over suspected_collisions
     return suspected_collisions;
 }
 

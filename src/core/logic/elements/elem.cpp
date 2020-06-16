@@ -1,6 +1,7 @@
 #include <cmath>
 #include <mutex>
 #include <vector>
+#include <iostream>
 #include "elem.hpp"
 
 /* class elem */
@@ -38,5 +39,6 @@ void Elem::setBoundingSphereRadius(int radius) {
 }
 
 void Elem::kill() {
+    std::cout << m_team << std::endl;
     m_alive = false;
 }
