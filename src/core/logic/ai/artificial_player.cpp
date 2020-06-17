@@ -1,4 +1,5 @@
 #include <chrono>
+#include <iostream>
 #include "artificial_player.hpp"
 
 /* class ArtificialPlayer */
@@ -36,11 +37,13 @@ void ArtificialPlayer::play() {
     auto now = std::chrono::steady_clock::now();
     std::chrono::duration<float, std::milli> elapsed = now - m_last_played;
     if (elapsed.count() >= m_update_interval) {
+        std::cout << elapsed.count() << std::endl;
         // Movement
         if (m_movement_policy == random_movement) {
             moveBotRandomly();
         }
         // TODO: Aiming
+        m_last_played = now;
     }
 }
 

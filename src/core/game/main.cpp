@@ -22,10 +22,10 @@ int main() {
     elems.push_back(sai);
     // Enemy AI-controlled bots
     std::vector<ArtificialPlayer*> ais;
-    for (int i=0; i<6; i++) {
+    for (int i=0; i<5; i++) {
         SaiBot* new_bot = new SaiBot(black_team, {i*100, 100});
         elems.push_back(new_bot);
-        ais.push_back(new ArtificialPlayer(new_bot, 1000, random_movement, random_aiming));
+        ais.push_back(new ArtificialPlayer(new_bot, 600, random_movement, random_aiming));
     }
 
     sf::RenderWindow window(sf::VideoMode(200, 200), "Loading...");
