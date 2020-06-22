@@ -1,20 +1,48 @@
 #include <iostream>
+#include <mutex>
+#include <thread>
+#include <chrono>
 #include "job_scheduler.hpp"
 
+std::mutex mutex;
+
 void action(uintptr_t param) {
-    std::cout << param << std::endl;
+    std::lock_guard<std::mutex> lock(mutex);
+    std::cout << "Job " << param << std::endl;
 }
 
 int main() {
     JobScheduler* js = new JobScheduler();
     
+    std::unique_lock<std::mutex> lock(mutex);
     std::cout << "N. of CPUs: " << js->getNCpus() << std::endl;
     std::cout << "N. of threads: " << js->getNThreads() << std::endl;
+    std::cout << "\n --- JOB TEST ---\n\n";
+    lock.unlock();
     
-    for (uintptr_t i=0; i<3; i++) {
-        Job* job = new Job{action, i, (JobPriority)i};
+    // Should print 1 to 100 in order
+    for (uintptr_t i=1; i<101; i++) {
+        Job* job = new Job{action, i, low};
         js->kickJob(job);
+        job->join();
     }
+
+    lock.lock();
+    std::cout << "\n --- JOB BATCH TEST ---\n\n";
+    lock.unlock();
+
+    // Should print 1 to 100 (not necessarily in order)
+    std::vector<uintptr_t> params = {};
+    for (int i=1; i<5000; i++) {
+        params.push_back(i);
+    }
+    JobBatch* batch = new JobBatch(action, params, low);
+    js->kickJobBatch(batch);
+    batch->join();
+
+    lock.lock();
+    std::cout << "\nFinishing...";
+    lock.unlock();
 
     delete js;
 
