@@ -15,7 +15,7 @@ int main() {
     JobScheduler* js = new JobScheduler();
     
     std::unique_lock<std::mutex> lock(mutex);
-    std::cout << "N. of CPUs: " << js->getNCpus() << std::endl;
+    std::cout << "\nN. of CPUs: " << js->getNCpus() << std::endl;
     std::cout << "N. of threads: " << js->getNThreads() << std::endl;
     std::cout << "\n --- JOB TEST ---\n\n";
     lock.unlock();
@@ -33,7 +33,7 @@ int main() {
 
     // Should print 1 to 100 (not necessarily in order)
     std::vector<uintptr_t> params = {};
-    for (int i=1; i<5000; i++) {
+    for (int i=1; i<100000; i++) {
         params.push_back(i);
     }
     JobBatch* batch = new JobBatch(action, params, low);
@@ -41,7 +41,7 @@ int main() {
     batch->join();
 
     lock.lock();
-    std::cout << "\nFinishing...";
+    std::cout << "\nFinishing...\n\n";
     lock.unlock();
 
     delete js;

@@ -42,17 +42,24 @@ bool Job::GreaterComparator::operator() (const Job* lhs, const Job* rhs) {
 
 /* class JobBatch */
 
+// Generic constructor
 JobBatch::JobBatch(std::vector<Job*> jobs): m_jobs{jobs} {
+    status = new JobStatus;
+    status->counter.store(m_jobs.size());
     // Override each of the jobs' counter
-    for (auto job : m_jobs) {
-        job->status->counter.store(jobs.size());
+    for (auto job : m_jobs) {     
+        job->status = status;
     }
 }
 
+// SIMD constructor
 JobBatch::JobBatch(Action* action, std::vector<uintptr_t> params, JobPriority priority) {
+    status = new JobStatus;
+    status->counter.store(params.size());
     for (auto i=0; i<params.size(); i++) {
         Job* job = new Job(action, params[i], priority);
-        job->status->counter.store(params.size());
+        // Override each of the jobs' counter
+        job->status = status;
         m_jobs.push_back(job);
     }
 }
@@ -97,6 +104,7 @@ void JobScheduler::work(std::shared_future<void> signal) {
     }
 }
 
+// TODO: Affinity with CPU cores
 JobScheduler::JobScheduler(): m_n_cpus{std::thread::hardware_concurrency()},
         m_n_threads{m_n_cpus - 2} {
     std::shared_future<void> signal = m_exit_signal.get_future();
