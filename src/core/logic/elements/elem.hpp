@@ -7,14 +7,11 @@
 #include <cmath>
 
 typedef enum ElemType {  
-    bot_t,  
-    ability_t  
+    bot_t = 0, ability_t = 1, terrain_t = 2
 } ElemType;  
   
 typedef enum Team {  
-    neutral_team,  
-    white_team,  
-    black_team  
+    neutral_team = 0, white_team = 1, black_team = 2  
 } Team;
 
 class Elem {

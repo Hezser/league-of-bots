@@ -1,3 +1,6 @@
+#ifndef JOB_SCHEDULER_HPP
+#define JOB_SCHEDULER_HPP
+
 #include <cstdint>
 #include <condition_variable>
 #include <mutex>
@@ -70,3 +73,5 @@ class JobScheduler {
         std::promise<void> m_exit_signal;
         void work(std::shared_future<void> signal);
 };
+
+#endif

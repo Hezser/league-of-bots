@@ -1,3 +1,6 @@
+#ifndef COLLISION_HPP
+#define COLLISION_HPP
+
 #include <vector>
 #include "../logic/elements/elem.hpp"
 
@@ -19,3 +22,5 @@ class CollisionResolutionSystem {
         // Static class
         CollisionResolutionSystem() {}
 };
+
+#endif

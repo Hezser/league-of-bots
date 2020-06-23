@@ -10,6 +10,7 @@
 #include "../logic/elements/elem.hpp"
 #include "../logic/elements/bot.hpp"
 #include "../logic/elements/ability.hpp"
+#include "../logic/elements/terrain.hpp"
 #include "../physics/collision.hpp"
 #include "../logic/ai/artificial_player.hpp"
 
@@ -26,6 +27,11 @@ int main() {
         SaiBot* new_bot = new SaiBot(black_team, {i*100, 100});
         elems.push_back(new_bot);
         ais.push_back(new ArtificialPlayer(new_bot, 600, random_movement, random_aiming));
+    }
+    // Obstacles
+    for (auto i=0; i<6; i++) {
+        Terrain* obstacle = new Terrain({std::rand() % 2000, std::rand() % 2000}, 50);
+        elems.push_back(obstacle);
     }
 
     sf::RenderWindow window(sf::VideoMode(200, 200), "Loading...");
@@ -101,6 +107,14 @@ int main() {
                     ability_mesh.setOutlineThickness(1);
                     ability_mesh.setPosition(elems[i]->getCoord()[0]-5, elems[i]->getCoord()[1]-5);
                     window.draw(ability_mesh);
+                    break;
+                }
+                case terrain_t: {
+                    sf::RectangleShape terrain_mesh;
+                    terrain_mesh.setSize(sf::Vector2f(32, 60));
+                    terrain_mesh.setOutlineColor(sf::Color::White);
+                    terrain_mesh.setPosition(elems[i]->getCoord()[0]-16, elems[i]->getCoord()[1]-30);
+                    window.draw(terrain_mesh);
                     break;
                 }
                 default:

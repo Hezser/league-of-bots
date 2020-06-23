@@ -1,3 +1,6 @@
+#ifndef ARTIFICIAL_PLAYER_HPP
+#define ARTIFICIAL_PLAYER_HPP
+
 #include <chrono>
 #include "../elements/bot.hpp"
 
@@ -30,3 +33,5 @@ class ArtificialPlayer {
         void moveBotRandomly();
         // TODO: add accuracy when implementing ability-casting
 };
+
+#endif
