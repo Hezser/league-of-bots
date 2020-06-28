@@ -9,9 +9,11 @@ typedef enum MovePriority {
     right_click = 0, own_ability = 1, enemy_ability = 2
 } MovePriority;
 
+typedef std::vector<int> Coord;
+
 typedef struct Move {
-    std::vector<int> start;
-    std::vector<int> target;
+    Coord start;
+    Coord target;
     std::vector<float> unit_travel;
     int distance;
     int travelled;
@@ -32,9 +34,9 @@ class MovePriorityQueue: public std::priority_queue<Move*, std::vector<Move*>,
         void replaceRightClickMove(Move* move);
 };
 
-Move* constructLinearMove(std::vector<int> start, std::vector<int> target, MovePriority priority);
+Move* constructLinearMove(Coord start, Coord target, MovePriority priority);
 
-Move* constructInstantMove(std::vector<int> start, std::vector<int> target, MovePriority priority);
+Move* constructInstantMove(Coord start, Coord target, MovePriority priority);
 
 class MovementManager {
     public:

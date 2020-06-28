@@ -9,13 +9,13 @@
 
 class Bot: public Elem {
     public:
-        void moveTowards(std::vector<int> target);
-        void moveTo(std::vector<int> target);
-        Ability* useAbility(AbilityKey key, std::vector<int> target);
+        void moveTowards(Coord target);
+        void moveTo(Coord target);
+        Ability* useAbility(AbilityKey key, Coord target);
         virtual void update(float ms) = 0;
 
     protected:
-        Bot(ElemType type, bool alive, std::vector<int> coord, Team team,
+        Bot(ElemType type, bool alive, Coord coord, Team team,
                 int bounding_sphere_radius, MovementManager* movement_manager);
         std::vector<Ability*> m_abilities;
         MovementManager* m_movement_manager;
@@ -23,7 +23,7 @@ class Bot: public Elem {
 
 class SaiBot: public Bot {
     public:
-        SaiBot(Team team, std::vector<int> start);
+        SaiBot(Team team, Coord start);
         void update(float ms) override;
 };
 

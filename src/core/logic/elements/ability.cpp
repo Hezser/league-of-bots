@@ -9,7 +9,7 @@
 
 /* class Ability */
 
-Ability::Ability(ElemType type, bool alive, std::vector<int> coord, Team team,
+Ability::Ability(ElemType type, bool alive, Coord coord, Team team,
         Bot* bot, time_t cd, int bounding_sphere_radius): Elem(type, alive, coord,
         team, bounding_sphere_radius), m_bot{bot}, m_cd{cd},
         m_last_used{std::chrono::steady_clock::time_point(std::chrono::seconds(0))} {}
@@ -32,9 +32,9 @@ SaiQAbility::SaiQAbility(Bot* bot): Ability(ability_t,
         false, {0,0}, bot->getTeam(), bot, 2000, 5),
         m_movement_manager{new MovementManager(this, 2.0f)} {}
 
-bool SaiQAbility::cast(std::vector<int> target) {
+bool SaiQAbility::cast(Coord target) {
     m_bot->mutex.lock();
-    std::vector<int> start = m_bot->getCoord();
+    Coord start = m_bot->getCoord();
     m_bot->mutex.unlock();
     this->m_coord = start;
     Move* move = constructLinearMove(start, target, own_ability);
@@ -63,7 +63,7 @@ void SaiQAbility::handleBotCollision(Bot* bot) {
 SaiWAbility::SaiWAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
         bot, 2000, 0) {}
 
-bool SaiWAbility::cast(std::vector<int> target) {
+bool SaiWAbility::cast(Coord target) {
     return true; 
 }
 
@@ -80,7 +80,7 @@ void SaiWAbility::handleBotCollision(Bot* bot) {
 SaiEAbility::SaiEAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
         bot, 2000, 0) {}
 
-bool SaiEAbility::cast(std::vector<int> target) {
+bool SaiEAbility::cast(Coord target) {
     return true; 
 }
 
@@ -97,7 +97,7 @@ void SaiEAbility::handleBotCollision(Bot* bot) {
 SaiRAbility::SaiRAbility(Bot* bot): Ability(ability_t, false, {0,0}, bot->getTeam(),
         bot, 2000, 0) {}
 
-bool SaiRAbility::cast(std::vector<int> target) {
+bool SaiRAbility::cast(Coord target) {
     return true; 
 }
 

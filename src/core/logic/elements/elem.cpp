@@ -6,7 +6,7 @@
 
 /* class elem */
 
-Elem::Elem(ElemType type, bool alive, std::vector<int> coord, Team team, 
+Elem::Elem(ElemType type, bool alive, Coord coord, Team team, 
         int bounding_sphere_radius): m_type{type}, m_alive{alive}, m_coord{coord},
         m_team{team}, m_bounding_sphere_radius{bounding_sphere_radius} {}
 
@@ -18,11 +18,11 @@ bool Elem::isAlive() {
     return m_alive;
 }
 
-std::vector<int> Elem::getCoord() {
+Coord Elem::getCoord() {
     return m_coord;
 }
 
-void Elem::setCoord(std::vector<int> coord) {
+void Elem::setCoord(Coord coord) {
     m_coord = coord;
 }
 

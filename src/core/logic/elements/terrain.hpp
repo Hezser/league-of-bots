@@ -5,7 +5,7 @@
 
 class Terrain: public Elem {
     public:
-        Terrain(std::vector<int> coord, int bounding_sphere_radius);
+        Terrain(Coord coord, int bounding_sphere_radius);
         void update(float ms) override;
 };
 

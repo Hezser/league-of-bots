@@ -9,25 +9,25 @@
 
 /* class bot */
 
-Bot::Bot(ElemType type, bool alive, std::vector<int> coord, Team team, int bounding_sphere_radius,
+Bot::Bot(ElemType type, bool alive, Coord coord, Team team, int bounding_sphere_radius,
         MovementManager* movement_manager): Elem(type, alive, coord, team, bounding_sphere_radius),
         m_movement_manager{movement_manager} {}
 
-void Bot::moveTowards(std::vector<int> target) {
+void Bot::moveTowards(Coord target) {
     mutex.lock();
     Move* move = constructLinearMove(m_coord, target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
 
-void Bot::moveTo(std::vector<int> target) {
+void Bot::moveTo(Coord target) {
     mutex.lock();
     Move* move = constructInstantMove(m_coord, target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
 
-Ability* Bot::useAbility(AbilityKey key, std::vector<int> target) {
+Ability* Bot::useAbility(AbilityKey key, Coord target) {
     Ability* ability = nullptr;
     switch(key) {
         case q:
@@ -53,7 +53,7 @@ Ability* Bot::useAbility(AbilityKey key, std::vector<int> target) {
 
 /* class sai_bot */
 
-SaiBot::SaiBot(Team team, std::vector<int> start): Bot(bot_t, true, start, team, 14,
+SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, start, team, 14,
         new MovementManager(this, 1.0f)) {
     /* We initialize abilities after the bot is fully initialized so that the Ability
      * constructor can use the bot's members */

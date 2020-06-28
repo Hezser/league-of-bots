@@ -6,6 +6,8 @@
 #include <mutex>
 #include <cmath>
 
+typedef std::vector<int> Coord;
+
 typedef enum ElemType {  
     bot_t = 0, ability_t = 1, terrain_t = 2
 } ElemType;  
@@ -19,8 +21,8 @@ class Elem {
         mutable std::mutex mutex;
         ElemType getType();
         bool isAlive();
-        std::vector<int> getCoord();
-        void setCoord(std::vector<int> coord);
+        Coord getCoord();
+        void setCoord(Coord coord);
         Team getTeam();
         int getBoundingSphereRadius();
         void setBoundingSphereRadius(int radius);
@@ -30,10 +32,10 @@ class Elem {
     protected:
         ElemType m_type;
         bool m_alive;
-        std::vector<int> m_coord;
+        Coord m_coord;
         Team m_team;
         int m_bounding_sphere_radius;
-        Elem(ElemType type, bool alive, std::vector<int> coord, Team team, int boundingSphereRadius);
+        Elem(ElemType type, bool alive, Coord coord, Team team, int boundingSphereRadius);
 };
 
 #endif

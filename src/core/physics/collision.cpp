@@ -20,8 +20,8 @@ std::vector<Collision> CollisionDetectionSystem::detect(std::vector<Elem*> elems
             if (c1 != c2 && (c1->getTeam() != c2->getTeam() || 
                         c1->getTeam() == neutral_team ||
                         c2->getTeam() == neutral_team)) {
-                std::vector<int> coord1 = c1->getCoord();
-                std::vector<int> coord2 = c2->getCoord();
+                Coord coord1 = c1->getCoord();
+                Coord coord2 = c2->getCoord();
                 std::vector<int> path = {coord2[0]-coord1[0], coord2[1]-coord1[1]};
                 float d = std::sqrt(std::pow(path[0], 2) + std::pow(path[1], 2));
                 if (d <= (c1->getBoundingSphereRadius() + c2->getBoundingSphereRadius())) {

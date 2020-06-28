@@ -9,7 +9,7 @@
 
 /* Helpers */
 
-Move* constructLinearMove(std::vector<int> start, std::vector<int> target, MovePriority priority) {
+Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
     std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1]};
     // Normalize the alpha vector
@@ -19,7 +19,7 @@ Move* constructLinearMove(std::vector<int> start, std::vector<int> target, MoveP
     return move;
 }
 
-Move* constructInstantMove(std::vector<int> start, std::vector<int> target, MovePriority priority) {
+Move* constructInstantMove(Coord start, Coord target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
     std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1]};
     Move* move = new Move{start, target, alpha_target, 1, 0, priority};
@@ -82,7 +82,7 @@ bool MovementManager::update(float ms) {
         int step_y = y - prev_y;
         // Update the elem's coord
         m_elem->mutex.lock();
-        std::vector<int> coord = m_elem->getCoord();
+        Coord coord = m_elem->getCoord();
         m_elem->setCoord({coord[0] + step_x, coord[1] + step_y}); 
         m_elem->mutex.unlock();
         return true;
