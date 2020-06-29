@@ -6,7 +6,10 @@
 #include <mutex>
 #include <cmath>
 
-typedef std::vector<int> Coord;
+typedef struct Coord {
+    int x;
+    int y;
+} Coord;
 
 typedef enum ElemType {  
     bot_t = 0, ability_t = 1, terrain_t = 2

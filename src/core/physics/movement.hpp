@@ -9,8 +9,6 @@ typedef enum MovePriority {
     right_click = 0, own_ability = 1, enemy_ability = 2
 } MovePriority;
 
-typedef std::vector<int> Coord;
-
 typedef struct Move {
     Coord start;
     Coord target;
