@@ -4,29 +4,74 @@
 #include <vector>
 #include "../logic/elements/terrain.hpp"
 
+// Foward-declaration
+struct Triangle;
+
 typedef struct MapSize {
     int x;
     int y;
 } MapSize;
 
 typedef struct Node {
+    Node(int x, int y, Coord o);
     int x;
     int y;
     float r;
     float theta;
-    Node(int x, int y, Coord o);
 
     friend bool operator < (const Node& lhs, const Node& rhs);
+
+    /* struct ThetaComparator { */
+    /*     bool operator() (const Node& lhs, const Node& rhs); */
+    /* }; */
 
     private:
         Node();
 } Node;
 
-typedef std::vector<Node> Edge;
+/*
+class NodePriorityQueue: public std::priority_queue<Node*, std::vector<Node*>, Node::ThetaComparator> {
+    public:
+        int getIndexOf(Node* node);
+        Node* getNodeAt(int i);
+};
+*/
 
-typedef std::vector<Edge> Triangle;
+typedef struct Edge {
+    Node* a;
+    Node* b;
+    Triangle* triangle_ptr;
+    Edge(Node* a, Node* b, Triangle* triangle_ptr);
 
-typedef std::vector<Triangle> Mesh;
+    private:
+        Edge();
+} Edge;
+
+typedef struct Triangle {
+    std::vector<Node*> nodes;
+    std::vector<Edge*> edges;
+    std::vector<Triangle*> neighbors;
+    Triangle(Node* a, Node* b, Node* c);
+    void addNeighbor(Triangle* neighbor);
+
+    private:
+        Triangle();
+} Triangle;
+
+typedef struct Hull {
+    Coord o;
+    std::vector<Edge*> edges;
+    Hull(Coord o);
+    Hull(Coord o, std::vector<Edge*> edges);
+    Edge* intersectingEdge(Node* node);
+    bool checkIntegrity();
+
+    private:
+        Hull();
+} Hull;
+
+
+typedef std::vector<Triangle*> TriangleMesh;
 
 class NavMesh {
     public:
@@ -34,12 +79,12 @@ class NavMesh {
         void addNode(Coord* coord);
         void addTerrain(Terrain* terrain);
         void updateMesh(std::vector<Terrain*> terrains);
-        Mesh getMesh();
+        TriangleMesh getMesh();
         MapSize getMapSize();
         std::vector<Node> getNodes();
 
     private:
-        Mesh m_mesh;
+        TriangleMesh m_mesh;
         MapSize m_map_size;
         void triangulate(std::vector<Coord*> coords);
         Coord avgCoord(std::vector<Coord*> coords);
