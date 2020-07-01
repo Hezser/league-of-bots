@@ -40,8 +40,10 @@ class NodePriorityQueue: public std::priority_queue<Node*, std::vector<Node*>, N
 typedef struct Edge {
     Node* a;
     Node* b;
-    Triangle* triangle_ptr;
+    float length;
+    std::vector<Triangle*> triangle_ptrs;
     Edge(Node* a, Node* b, Triangle* triangle_ptr);
+    void removeTrianglePtr(Triangle* triangle_ptr);
 
     private:
         Edge();
@@ -50,9 +52,11 @@ typedef struct Edge {
 typedef struct Triangle {
     std::vector<Node*> nodes;
     std::vector<Edge*> edges;
-    std::vector<Triangle*> neighbors;
+    // std::vector<Triangle*> neighbours;
     Triangle(Node* a, Node* b, Node* c);
-    void addNeighbor(Triangle* neighbor);
+    Triangle(Edge* e, Node* n);
+    Node* nodeOpositeToEdge(Edge* edge);
+    std::vector<Edge*> adjacentEdges(Edge* edge);
 
     private:
         Triangle();
@@ -63,7 +67,7 @@ typedef struct Hull {
     std::vector<Edge*> edges;
     Hull(Coord o);
     Hull(Coord o, std::vector<Edge*> edges);
-    Edge* intersectingEdge(Node* node);
+    Edge* popIntersectingEdge(Node* node);
     bool checkIntegrity();
 
     private:
