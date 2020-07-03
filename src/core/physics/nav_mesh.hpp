@@ -29,14 +29,6 @@ typedef struct Node {
         Node();
 } Node;
 
-/*
-class NodePriorityQueue: public std::priority_queue<Node*, std::vector<Node*>, Node::ThetaComparator> {
-    public:
-        int getIndexOf(Node* node);
-        Node* getNodeAt(int i);
-};
-*/
-
 typedef struct Edge {
     Node* a;
     Node* b;
@@ -44,45 +36,66 @@ typedef struct Edge {
     std::vector<Triangle*> triangle_ptrs;
     Edge(Node* a, Node* b, Triangle* triangle_ptr);
     void removeTrianglePtr(Triangle* triangle_ptr);
+    bool hasAtLeft(Edge* edge);
+    float angleWith(Edge* edge);
+
+    struct GreaterEdgeComparator {
+        bool operator() (const Edge& lhs, const Edge& rhs);
+    };
 
     private:
         Edge();
 } Edge;
 
-typedef struct Triangle {
-    std::vector<Node*> nodes;
-    std::vector<Edge*> edges;
-    // std::vector<Triangle*> neighbours;
-    Triangle(Node* a, Node* b, Node* c);
-    Triangle(Edge* e, Node* n);
-    Node* nodeOpositeToEdge(Edge* edge);
-    std::vector<Edge*> adjacentEdges(Edge* edge);
+// TODO: Implement it as a hash table of edge containers (contains: edge, right_edge, left_edge) to have O(1) access to edges and O(1) access to left/right edges
+// class EdgePriorityQueue: public std::priority_queue<Edge*, std::vector<Edge*>, Edge::EdgeGreaterComparator> {
+//     public:
+//         int getIndexOf(Edge* edge);
+//         Edge* getEdgeAt(int i);
+// };
+
+typedef struct HullEdgeContainer {
+    Edge* edge;
+    HullEdgeContainer* left;
+    HullEdgeContainer* right;
+    HullEdgeContainer(Edge* edge, HullEdgeContainer* left, HullEdgeContainer* right);
+    HullEdgeContainer(Edge* edge);
 
     private:
-        Triangle();
-} Triangle;
+        HullEdgeContainer();
+} HullEdgeContainer;
 
 typedef struct Hull {
     Coord o;
-    std::vector<Edge*> edges;
+    // TODO: Implement it as a hash table of edge containers (contains: edge, right_edge, left_edge) to have O(1) access to edges and O(1) access to left/right edges
+    std::vector<HullEdgeContainer*> edges;
     Hull(Coord o);
-    Hull(Coord o, std::vector<Edge*> edges);
-    Edge* popIntersectingEdge(Node* node);
+    Hull(Coord o, std::vector<HullEdgeContainer*> edges);
+    HullEdgeContainer* popIntersectingEdge(Node* node);
     bool checkIntegrity();
 
     private:
         Hull();
 } Hull;
 
+typedef struct Triangle {
+    std::vector<Node*> nodes;
+    std::vector<Edge*> edges;
+    Triangle(Node* a, Node* b, Node* c);
+    Triangle(Edge* e, Node* n);
+    Node* nodeOppositeToEdge(Edge* edge);
+    float angleOppositeToEdge(Edge* edge);
+    std::vector<Edge*> adjacentEdges(Edge* edge);
+
+    private:
+        Triangle();
+} Triangle;
 
 typedef std::vector<Triangle*> TriangleMesh;
 
 class NavMesh {
     public:
         NavMesh(std::vector<Terrain*> terrains, MapSize map_size);
-        void addNode(Coord* coord);
-        void addTerrain(Terrain* terrain);
-        void updateMesh(std::vector<Terrain*> terrains);
         TriangleMesh getMesh();
         MapSize getMapSize();
         std::vector<Node> getNodes();
@@ -90,8 +103,10 @@ class NavMesh {
     private:
         TriangleMesh m_mesh;
         MapSize m_map_size;
-        void triangulate(std::vector<Coord*> coords);
-        Coord avgCoord(std::vector<Coord*> coords);
+        std::vector<Coord> calculateCoords(std::vector<Terrain*> terrains);
+        void triangulate(std::vector<Coord> coords);
+        void populateNodes();
+        Coord avgCoord(std::vector<Coord> coords);
 };
 
 #endif
