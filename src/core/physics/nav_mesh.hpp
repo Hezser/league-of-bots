@@ -21,10 +21,6 @@ typedef struct Node {
 
     friend bool operator < (const Node& lhs, const Node& rhs);
 
-    /* struct ThetaComparator { */
-    /*     bool operator() (const Node& lhs, const Node& rhs); */
-    /* }; */
-
     private:
         Node();
 } Node;
@@ -47,13 +43,6 @@ typedef struct Edge {
         Edge();
 } Edge;
 
-// TODO: Implement it as a hash table of edge containers (contains: edge, right_edge, left_edge) to have O(1) access to edges and O(1) access to left/right edges
-// class EdgePriorityQueue: public std::priority_queue<Edge*, std::vector<Edge*>, Edge::EdgeGreaterComparator> {
-//     public:
-//         int getIndexOf(Edge* edge);
-//         Edge* getEdgeAt(int i);
-// };
-
 typedef struct HullEdgeContainer {
     Edge* edge;
     HullEdgeContainer* left;
@@ -67,7 +56,6 @@ typedef struct HullEdgeContainer {
 
 typedef struct Hull {
     Coord o;
-    // TODO: Implement it as a hash table of edge containers (contains: edge, right_edge, left_edge) to have O(1) access to edges and O(1) access to left/right edges
     std::vector<HullEdgeContainer*> edges;
     Hull(Coord o);
     Hull(Coord o, std::vector<HullEdgeContainer*> edges);
@@ -82,6 +70,7 @@ typedef struct Triangle {
     std::vector<Node*> nodes;
     std::vector<Edge*> edges;
     Triangle(Node* a, Node* b, Node* c);
+    Triangle(Edge* e, Edge* g, Node* n);
     Triangle(Edge* e, Node* n);
     Node* nodeOppositeToEdge(Edge* edge);
     float angleOppositeToEdge(Edge* edge);
@@ -96,13 +85,14 @@ typedef std::vector<Triangle*> TriangleMesh;
 class NavMesh {
     public:
         NavMesh(std::vector<Terrain*> terrains, MapSize map_size);
-        TriangleMesh getMesh();
         MapSize getMapSize();
-        std::vector<Node> getNodes();
+        TriangleMesh getMesh();
+        std::vector<Node*> getNodes();
 
     private:
-        TriangleMesh m_mesh;
         MapSize m_map_size;
+        TriangleMesh m_mesh;
+        std::vector<Node*> m_nodes;
         std::vector<Coord> calculateCoords(std::vector<Terrain*> terrains);
         void triangulate(std::vector<Coord> coords);
         void populateNodes();
