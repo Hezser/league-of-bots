@@ -216,7 +216,6 @@ void NavMesh::legalize(Triangle* t) {
         float neighbour_alpha = neighbour->angleOppositeToEdge(e);
         if (candidate_alpha + neighbour_alpha > M_PI) {
             // Flip edges
-            delete e;
             auto pos = std::find(m_mesh.begin(), m_mesh.end(), neighbour);
             if (pos != m_mesh.end()) m_mesh.erase(m_mesh.begin() + std::distance(m_mesh.begin(), pos));
             Node* candidate_a = t->nodeOppositeToEdge(e);
@@ -226,6 +225,7 @@ void NavMesh::legalize(Triangle* t) {
             neighbour = new Triangle(neighbour_edges[0], candidate_a);
             t = new Triangle(neighbour_edges[1], candidate_a);
             m_mesh.push_back(neighbour);
+            delete e;
         }
     }   
 }
