@@ -94,6 +94,7 @@ class NavMesh {
         TriangleMesh m_mesh;
         std::vector<Node*> m_nodes;
         std::vector<Coord> calculateCoords(std::vector<Terrain*> terrains);
+        void legalize(Triangle* t);
         void triangulate(std::vector<Coord> coords);
         void populateNodes();
         Coord avgCoord(std::vector<Coord> coords);

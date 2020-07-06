@@ -207,6 +207,29 @@ std::vector<Coord> NavMesh::calculateCoords(std::vector<Terrain*> terrains) {
     // TODO: implement
 }
 
+void NavMesh::legalize(Triangle* t) {
+    for (Edge* e : t->edges) {
+        if (e->triangle_ptrs.size() < 2) continue;
+        Triangle* neighbour = e->triangle_ptrs[0] == t ? e->triangle_ptrs[1] : e->triangle_ptrs[0];
+        // Legalize the triangle if it infringes the Delaunay condition
+        float candidate_alpha = t->angleOppositeToEdge(e);
+        float neighbour_alpha = neighbour->angleOppositeToEdge(e);
+        if (candidate_alpha + neighbour_alpha > M_PI) {
+            // Flip edges
+            delete e;
+            auto pos = std::find(m_mesh.begin(), m_mesh.end(), neighbour);
+            if (pos != m_mesh.end()) m_mesh.erase(m_mesh.begin() + std::distance(m_mesh.begin(), pos));
+            Node* candidate_a = t->nodeOppositeToEdge(e);
+            std::vector<Edge*> neighbour_edges = neighbour->adjacentEdges(e);
+            neighbour_edges[0]->removeTrianglePtr(neighbour);
+            neighbour_edges[1]->removeTrianglePtr(neighbour);
+            neighbour = new Triangle(neighbour_edges[0], candidate_a);
+            t = new Triangle(neighbour_edges[1], candidate_a);
+            m_mesh.push_back(neighbour);
+        }
+    }   
+}
+
 /* This is a custom implementation of:
  * A faster circle-sweep Delaunay triangulation algorithm
  * Ahmad Biniaz and Gholamhossein Dastghaibyfard
@@ -255,24 +278,7 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
         HullEdgeContainer* intersector_c = frontier->popIntersectingEdge(nodes[i]);
         Edge* intersector = intersector_c->edge;
         Triangle* candidate = new Triangle(intersector, nodes[i]);
-        Triangle* neighbour = intersector->triangle_ptrs[0];
-
-        // Legalize the triangle if it infringes the Delaunay condition
-        float candidate_alpha = candidate->angleOppositeToEdge(intersector);
-        float neighbour_alpha = neighbour->angleOppositeToEdge(intersector);
-        if (candidate_alpha + neighbour_alpha > M_PI) {
-            // Flip edges
-            delete intersector;
-            auto pos = std::find(m_mesh.begin(), m_mesh.end(), neighbour);
-            if (pos != m_mesh.end()) m_mesh.erase(m_mesh.begin() + std::distance(m_mesh.begin(), pos));
-            Node* candidate_a = candidate->nodeOppositeToEdge(intersector);
-            std::vector<Edge*> neighbour_edges = neighbour->adjacentEdges(intersector);
-            neighbour_edges[0]->removeTrianglePtr(neighbour);
-            neighbour_edges[1]->removeTrianglePtr(neighbour);
-            neighbour = new Triangle(neighbour_edges[0], candidate_a);
-            candidate = new Triangle(neighbour_edges[1], candidate_a);
-            m_mesh.push_back(neighbour);
-        }
+        legalize(candidate);
 
         // Update mesh and hull
         m_mesh.push_back(candidate);
@@ -294,14 +300,20 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
                            left_edge_c->left->edge->a == left_edge->b ?
                            left_edge_c->left->edge->b : left_edge_c->left->edge->a;
             Triangle* t = new Triangle(left_edge, left_edge_c->left->edge, left_n);
-            /* TODO: Check for Delaunay criteria with left_edge->triangle_ptrs[0]
-             * and left_edge_c->left->edge->triangle_ptrs[0] */
+            legalize(t);
             m_mesh.push_back(t);
+            // TODO: Set the next left_edge_c, watch out for changes made by legalize()
         }
 
         // Right-side walk
         while(right_edge_c->edge->angleWith(right_edge_c->right->edge) < M_PI / 2) {
-            // TODO: Make triangle
+            Node* right_n = right_edge_c->right->edge->a == right_edge->a ||
+                           right_edge_c->right->edge->a == right_edge->b ?
+                           right_edge_c->right->edge->b : right_edge_c->right->edge->a;
+            Triangle* t = new Triangle(right_edge, right_edge_c->right->edge, right_n);
+            legalize(t);
+            m_mesh.push_back(t);
+            // TODO: Set the next right_edge_c, watch out for changes made by legalize()
         }
 
         // TODO: Remove basins
