@@ -8,82 +8,6 @@
     #define M_PI 3.14159265358979323846
 #endif
 
-/* struct Node */
-
-Node::Node(int x, int y, Coord o) {
-    this->x = x;
-    this->y = y;
-    int polar_x = x - o.x;
-    int polar_y = y - o.y;
-    this->r = std::sqrt(std::pow(polar_x, 2) + std::pow(polar_y, 2));
-    this->theta = std::atan(polar_y / polar_x);
-}
-
-bool operator < (const Node& lhs, const Node& rhs) {
-    if (lhs.r != rhs.r) {
-        return lhs.r < rhs.r;
-    }
-    return rhs.theta < rhs.theta;
-}
-
-/* struct Edge */
-
-Edge::Edge(Node* a, Node* b, Triangle* triangle_ptr) {
-    this->a = a;
-    this->b = b;
-    this->length = std::sqrt(std::pow(std::abs(a->x - b->x), 2) + 
-                             std::pow(std::abs(a->y - b->y), 2));
-    this->triangle_ptrs.push_back(triangle_ptr);
-}
-
-void Edge::removeTrianglePtr(Triangle* triangle_ptr) {
-    auto pos = std::find(triangle_ptrs.begin(), triangle_ptrs.end(), triangle_ptr);
-    if (pos != triangle_ptrs.end()) triangle_ptrs.erase(triangle_ptrs.begin() + std::distance(triangle_ptrs.begin(), pos));
-}
-
-/* This method has two edge cases, for which left/right is not defined:
- * 1. (a->theta - b->theta) == M_PI
- * 2. (a->theta - b->theta) == 0 (i.e: a->theta == b->theta) */
-bool Edge::hasAtLeft(Edge* edge) {
-    // Determine left-most node
-    Node* left_node;
-    if ((a->theta > b->theta && (a->theta - b->theta) < M_PI) ||
-        (a->theta < b->theta && (b->theta - a->theta) > M_PI)) {
-        left_node = a;
-    } else {
-        left_node = b;
-    }
-    // Determine if any node is the left node
-    if (edge->a == left_node || edge->b == left_node) {
-        return true;
-    }
-    return false;
-}
-
-float Edge::angleWith(Edge* edge) {
-    float m = (b->y - a->y) / (b->x - b->y);
-    float edge_m = (edge->b->y - edge->a->y) / (edge->b->x - edge->b->y);
-    float theta = std::atan(m);
-    float edge_theta = std::atan(edge_m);
-    return std::abs(theta - edge_theta);
-}
-
-bool Edge::GreaterEdgeComparator::operator() (const Edge& lhs, const Edge& rhs) {
-    return ((lhs.a->theta + rhs.b->theta) / 2) > ((rhs.a->theta + rhs.b->theta) / 2);
-}
-
-/* struct HullEdgeContainer */
-
-HullEdgeContainer::HullEdgeContainer(Edge* edge, HullEdgeContainer* left, HullEdgeContainer* right) {
-    this->edge = edge;
-    this->left = left;
-    this->right = right;
-}
-
-HullEdgeContainer::HullEdgeContainer(Edge* edge) {
-    this->edge = edge;
-}
-
 /* TODO: A hull may be more efficient to implement with nodes,
  * not edges (easier to find left/right nodes) */
 /* struct Hull */
@@ -92,14 +16,14 @@ Hull::Hull(Coord o) {
     this->o = o;
 }
 
-Hull::Hull(Coord o, std::vector<HullEdgeContainer*> edges) {
+Hull::Hull(Coord o, std::vector<Edge*> edges) {
     this->o = o;
     this->edges = edges;
 }
 
-HullEdgeContainer* Hull::popIntersectingEdge(Node* node) {
+Edge* Hull::popIntersectingEdge(Node* node) {
     for (int i=0; i<edges.size(); i++) {
-        Edge* edge = edges[i]->edge;
+        Edge* edge = edges[i];
         if ((edge->a->theta > node->theta && edge->b->theta < node->theta) || 
             (edge->b->theta > node->theta && edge->a->theta < node->theta) ||
             (edge->a->theta == node->theta)) {
@@ -114,7 +38,7 @@ HullEdgeContainer* Hull::popIntersectingEdge(Node* node) {
 // TODO: Can be improved now that we have left/right pointers
 // To increase runtime speed, we do not check for integrity dynamically when adding edges
 bool Hull::checkIntegrity() {
-    Edge* e = edges[0]->edge;
+    Edge* e = edges[0];
     Node* start_n = e->a;
     Node* current_n = e->b;
     Edge* current_e = e;
@@ -123,10 +47,11 @@ bool Hull::checkIntegrity() {
     while (current_n != start_n) {
         found = false; 
         for (auto container : edges) {
-            Edge* edge = container->edge;
+            Edge* edge = container;
             if (edge == current_e) continue;
             if (edge->a == current_n) {
                 if (visited.find(edge->b) != visited.end()) return false;  // Inner cycles
+                visited.insert(edge->b);
                 current_e = edge;
                 current_n = edge->b;
                 found = true;
@@ -139,63 +64,6 @@ bool Hull::checkIntegrity() {
     return true;
 }
 
-/* struct Triangle */
-
-// TODO: At the creation of each triangle, check that the 3 points are not in line
-Triangle::Triangle(Node* a, Node* b, Node* c) {
-    nodes = {a, b, c};
-    edges = {new Edge(a, b, this), new Edge(b, c, this), new Edge(c, a, this)};
-}
-
-Triangle::Triangle(Edge* e, Edge* g, Node* n) {
-    Node* common_n = e->a == g->a || e->a == g->b ? e->a : e->b;
-    std::vector<Node*> diff_n;
-    if (e->a == common_n) {
-        diff_n.push_back(e->b);
-    } else {
-        diff_n.push_back(e->a);
-    }
-    if (g->a == common_n) {
-        diff_n.push_back(g->b);
-    } else {
-        diff_n.push_back(g->a);
-    }
-    nodes = {common_n, diff_n[0], diff_n[1]};
-    edges = {e, g, new Edge(diff_n[0], diff_n[1], this)};
-}
-
-Triangle::Triangle(Edge* e, Node* n) {
-    nodes = {e->a, e->b, n};
-    edges = {e, new Edge(e->a, n, this), new Edge(e->b, n, this)};
-    e->triangle_ptrs.push_back(this);
-}
-
-Node* Triangle::nodeOppositeToEdge(Edge* edge) {
-    for (auto node : nodes) {
-        if (node != edge->a && node != edge->b) {
-            return node;
-        }
-    }
-    return nullptr;
-}
-
-float Triangle::angleOppositeToEdge(Edge* edge) {
-    Node* a = nodeOppositeToEdge(edge);
-    std::vector<Edge*> adj_edges = adjacentEdges(edge);
-    float alpha = std::acos((std::pow(adj_edges[0]->length, 2) + std::pow(adj_edges[1]->length, 2) - std::pow(edge->length, 2)) / (2 * adj_edges[0]->length * adj_edges[1]->length));
-    return alpha;
-}
-
-
-std::vector<Edge*> Triangle::adjacentEdges(Edge* edge) {
-    std::vector<Edge*> adjacent;
-    for (auto e : edges) {
-        if (e == edge) continue;
-        adjacent.push_back(e);
-    }
-    return adjacent;
-}
-
 /* class NavMesh */
 
 NavMesh::NavMesh(std::vector<Terrain*> terrains, MapSize map_size): m_map_size{map_size} {
@@ -203,25 +71,32 @@ NavMesh::NavMesh(std::vector<Terrain*> terrains, MapSize map_size): m_map_size{m
     populateNodes();
 }
 
+const char* NavMesh::InsufficientNodesException::what() const throw() {
+    return "Less than 3 nodes were given.";
+}
+
 std::vector<Coord> NavMesh::calculateCoords(std::vector<Terrain*> terrains) {
-    // TODO: implement
+       
 }
 
 void NavMesh::legalize(Triangle* t) {
     for (Edge* e : t->edges) {
-        if (e->triangle_ptrs.size() < 2) continue;
-        Triangle* neighbour = e->triangle_ptrs[0] == t ? e->triangle_ptrs[1] : e->triangle_ptrs[0];
+        if (e->shape_ptrs.size() < 2) continue;
+        Triangle* neighbour = (Triangle*) ((Triangle*) e->shape_ptrs[0] == t ?
+                e->shape_ptrs[1] : e->shape_ptrs[0]);
         // Legalize the triangle if it infringes the Delaunay condition
         float candidate_alpha = t->angleOppositeToEdge(e);
         float neighbour_alpha = neighbour->angleOppositeToEdge(e);
         if (candidate_alpha + neighbour_alpha > M_PI) {
             // Flip edges
             auto pos = std::find(m_mesh.begin(), m_mesh.end(), neighbour);
-            if (pos != m_mesh.end()) m_mesh.erase(m_mesh.begin() + std::distance(m_mesh.begin(), pos));
+            if (pos != m_mesh.end()) {
+                m_mesh.erase(m_mesh.begin() + std::distance(m_mesh.begin(), pos));
+            }
             Node* candidate_a = t->nodeOppositeToEdge(e);
             std::vector<Edge*> neighbour_edges = neighbour->adjacentEdges(e);
-            neighbour_edges[0]->removeTrianglePtr(neighbour);
-            neighbour_edges[1]->removeTrianglePtr(neighbour);
+            neighbour_edges[0]->removeShapePtr(neighbour);
+            neighbour_edges[1]->removeShapePtr(neighbour);
             neighbour = new Triangle(neighbour_edges[0], candidate_a);
             t = new Triangle(neighbour_edges[1], candidate_a);
             m_mesh.push_back(neighbour);
@@ -235,9 +110,11 @@ void NavMesh::legalize(Triangle* t) {
  * Ahmad Biniaz and Gholamhossein Dastghaibyfard
  * http://cglab.ca/~biniaz/papers/Sweep%20Circle.pdf */
 void NavMesh::triangulate(std::vector<Coord> coords) {
+    // TODO: This should be somewhere else
     if (coords.size() < 3) return;
 
     // INITIALIZATION
+    // TODO: Include std::vector<Node*> restricted_nodes for each node
     m_mesh = TriangleMesh();
     Coord o = avgCoord(coords);
     std::vector<Node*> nodes;
@@ -250,18 +127,19 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
 
     // Special case where a node is at the origin (so that node[0]->r == 0)
     Node* o_node = nullptr;
-    if (nodes[0]->x == o.x && nodes[0]->y == o.y) {  // Since node[0]->r is a float, let's not deal with accuracy
+    if (nodes[0]->coord.x == o.x && nodes[0]->coord.y == o.y) {  // Since node[0]->r is a float, let's not deal with accuracy
         o_node = nodes[0];
         nodes.erase(nodes.begin());
     }
 
+    // TODO: Catch and deal with IllegalEdgeException and IllegalTriangleException (here and every time a triangle is created)
     Triangle* t = new Triangle(nodes[0], nodes[1], nodes[2]);
     m_mesh.push_back(t);
 
     // Order the edges; left and right are considered looking from the origin of the hull
-    HullEdgeContainer* anchor_e = new HullEdgeContainer(t->edges[0]);
-    HullEdgeContainer* left_e = anchor_e->edge->hasAtLeft(t->edges[1]) ? new HullEdgeContainer(t->edges[1]) : new HullEdgeContainer(t->edges[2]);
-    HullEdgeContainer* right_e = t->edges[1] == left_e->edge ? new HullEdgeContainer(t->edges[2]) : new HullEdgeContainer(t->edges[1]);
+    Edge* anchor_e = t->edges[0];
+    Edge* left_e = anchor_e->hasAtLeft(t->edges[1]) ? t->edges[1] : t->edges[2];
+    Edge* right_e = t->edges[1] == left_e ? t->edges[2] : t->edges[1];
     anchor_e->left = left_e;
     anchor_e->right = right_e;
     left_e->left = right_e;
@@ -275,8 +153,7 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
     // TRIANGULATION
     while(i < nodes.size()) {
         // Create new triangle
-        HullEdgeContainer* intersector_c = frontier->popIntersectingEdge(nodes[i]);
-        Edge* intersector = intersector_c->edge;
+        Edge* intersector = frontier->popIntersectingEdge(nodes[i]);
         Triangle* candidate = new Triangle(intersector, nodes[i]);
         legalize(candidate);
 
@@ -285,43 +162,52 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
         std::vector<Edge*> new_frontier = candidate->adjacentEdges(intersector);
         Edge* left_edge = new_frontier[0]->hasAtLeft(new_frontier[1]) ? new_frontier[1] : new_frontier[0];
         Edge* right_edge = new_frontier[0] == left_edge ? new_frontier[1] : new_frontier[0];
-        HullEdgeContainer* left_edge_c = new HullEdgeContainer(left_edge);
-        HullEdgeContainer* right_edge_c = new HullEdgeContainer(right_edge);
-        left_edge_c->left = intersector_c->left;
-        left_edge_c->right = right_edge_c;
-        right_edge_c->left = left_edge_c;
-        right_edge_c->right = intersector_c->right;
-        frontier->edges.push_back(left_edge_c);
-        frontier->edges.push_back(right_edge_c);
+        left_edge->left = intersector->left;
+        left_edge->right = right_edge;
+        right_edge->left = left_edge;
+        right_edge->right = intersector->right;
+        frontier->edges.push_back(left_edge);
+        frontier->edges.push_back(right_edge);
 
         // Left-side walk
-        while(left_edge_c->edge->angleWith(left_edge_c->left->edge) < M_PI / 2) {
-            Node* left_n = left_edge_c->left->edge->a == left_edge->a ||
-                           left_edge_c->left->edge->a == left_edge->b ?
-                           left_edge_c->left->edge->b : left_edge_c->left->edge->a;
-            Triangle* t = new Triangle(left_edge, left_edge_c->left->edge, left_n);
+        while(left_edge->angleWith(left_edge->left) < M_PI / 2) {
+            Node* left_n = left_edge->left->a == left_edge->a ||
+                           left_edge->left->a == left_edge->b ?
+                           left_edge->left->b : left_edge->left->a;
+            Triangle* t = new Triangle(left_edge, left_edge->left, left_n);
             legalize(t);
             m_mesh.push_back(t);
-            // TODO: Set the next left_edge_c, watch out for changes made by legalize()
+            left_edge = left_edge->left;
         }
 
         // Right-side walk
-        while(right_edge_c->edge->angleWith(right_edge_c->right->edge) < M_PI / 2) {
-            Node* right_n = right_edge_c->right->edge->a == right_edge->a ||
-                           right_edge_c->right->edge->a == right_edge->b ?
-                           right_edge_c->right->edge->b : right_edge_c->right->edge->a;
-            Triangle* t = new Triangle(right_edge, right_edge_c->right->edge, right_n);
+        while(right_edge->angleWith(right_edge->right) < M_PI / 2) {
+            Node* right_n = right_edge->right->a == right_edge->a ||
+                           right_edge->right->a == right_edge->b ?
+                           right_edge->right->b : right_edge->right->a;
+            Triangle* t = new Triangle(right_edge, right_edge->right, right_n);
             legalize(t);
             m_mesh.push_back(t);
-            // TODO: Set the next right_edge_c, watch out for changes made by legalize()
+            right_edge= right_edge->right;
         }
 
-        // TODO: Remove basins
+        // TODO: Remove basins, implement when Hull is refactored to be based on nodes, not edges
 
         i++;
     }
 
-    // FINALIZATION
+    // FINALIZATION 
+    // Check for acute angles in the frontier (make a concave hull convex) 
+    // Necessary after we do left/right-side walking at each iteration?
+    for (Edge* e : frontier->edges) {
+        Node* left_n = e->left->a == e->a ||
+                       e->left->a == e->b ?
+                       e->left->b : e->left->a;
+        Triangle* t = new Triangle(e, e->left, left_n);
+        legalize(t);
+        m_mesh.push_back(t);
+    }
+        
     // Deal with special initialization case
     if (o_node != nullptr) {
         Triangle* t = m_mesh[0];
@@ -333,7 +219,25 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
 }
 
 void NavMesh::populateNodes() {
-    // TODO: implement
+    // Add intermediate nodes at each edge
+    std::unordered_set<Edge*> visited;
+    for (Triangle* t : m_mesh) {
+        for (Edge* e : t->edges) {
+            if (visited.find(e) == visited.end()) {
+                visited.insert(e);
+                std::vector<int> xs = {e->a->coord.x, e->b->coord.x};
+                std::vector<int> ys = {e->a->coord.y, e->b->coord.y};
+                std::sort(xs.begin(), xs.end());
+                std::sort(ys.begin(), ys.end());
+                // Do not create intermediate nodes for small edges
+                int diff_x = xs[1] - xs[0];
+                int diff_y = ys[1] - ys[0];
+                if (diff_x >= 10 && diff_y >= 10) {
+                    m_nodes.emplace_back(xs[0] + (diff_x / 2), ys[0] + (diff_y / 2), m_hull->o);
+                }
+            }
+        }
+    }
 }
 
 Coord NavMesh::avgCoord(std::vector<Coord> coords) {
