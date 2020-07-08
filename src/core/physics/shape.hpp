@@ -44,7 +44,7 @@ typedef struct Edge {
     };
 
     struct IllegalEdgeException: public std::exception {
-        const char* what() const throw();
+        const char* what() const noexcept;
     };
 
     private:
@@ -80,7 +80,7 @@ typedef struct Triangle: Shape {
     std::vector<Edge*> adjacentEdges(Edge* edge);
 
     struct IllegalTriangleException: public std::exception {
-        const char* what() const throw();
+        const char* what() const noexcept;
     };
     
     private:

@@ -74,7 +74,7 @@ bool Edge::GreaterEdgeComparator::operator() (const Edge& lhs, const Edge& rhs) 
     return ((lhs.a->theta + rhs.b->theta) / 2) > ((rhs.a->theta + rhs.b->theta) / 2);
 }
 
-const char* Edge::IllegalEdgeException::what() const throw() {
+const char* Edge::IllegalEdgeException::what() const noexcept {
     return "The edge intercepts with terrain.";
 }
 
@@ -208,7 +208,7 @@ std::vector<Edge*> Triangle::adjacentEdges(Edge* edge) {
     return adjacent;
 }
 
-const char* Triangle::IllegalTriangleException::what() const throw() {
+const char* Triangle::IllegalTriangleException::what() const noexcept {
     return "A triangle's nodes are collinear.";
 }
 
