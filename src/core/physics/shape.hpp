@@ -8,6 +8,10 @@
 // Foward-declaration
 struct Shape;
 
+struct ShapeException: public std::exception {
+    virtual const char* what() const noexcept;
+};
+
 typedef struct Coord {
     int x;
     int y;
@@ -38,12 +42,13 @@ typedef struct Edge {
     void removeShapePtr(Shape* shape_ptr);
     bool hasAtLeft(Edge* edge);
     float angleWith(Edge* edge);
+    float avgR();
 
     struct GreaterEdgeComparator {
         bool operator() (const Edge& lhs, const Edge& rhs);
     };
 
-    struct IllegalEdgeException: public std::exception {
+    struct IllegalEdgeException: public ShapeException {
         const char* what() const noexcept;
     };
 
@@ -79,7 +84,7 @@ typedef struct Triangle: Shape {
     float angleOppositeToEdge(Edge* edge);
     std::vector<Edge*> adjacentEdges(Edge* edge);
 
-    struct IllegalTriangleException: public std::exception {
+    struct IllegalTriangleException: public ShapeException {
         const char* what() const noexcept;
     };
     

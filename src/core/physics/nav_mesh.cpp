@@ -21,18 +21,26 @@ Hull::Hull(Coord o, std::vector<Edge*> edges) {
     this->edges = edges;
 }
 
+/* If there are >3 edges being collinear and a node intersects with them, the node needs to
+ * get the closest edge to it (furtherst away from origin), which guarantees that the node can
+ * make a non-collinear triangle with the left or right edge of the intersector */
 Edge* Hull::popIntersectingEdge(Node* node) {
+    int j = -1;
     for (int i=0; i<edges.size(); i++) {
         Edge* edge = edges[i];
         if ((edge->a->theta > node->theta && edge->b->theta < node->theta) || 
             (edge->b->theta > node->theta && edge->a->theta < node->theta) ||
             (edge->a->theta == node->theta)) {
-            edges.erase(edges.begin() + i);
-            return edges[i];
+            if (j == -1 || edge->avgR() > edges[j]->avgR()) j = i;
         }
     }
+
     // The node is within the Hull
-    return nullptr;
+    if (j == -1) return nullptr;
+
+    Edge* intersector = edges[j];
+    edges.erase(edges.begin() + j);
+    return intersector;
 }
 
 // TODO: Can be improved now that we have left/right pointers
@@ -89,17 +97,24 @@ void NavMesh::legalize(Triangle* t) {
         float neighbour_alpha = neighbour->angleOppositeToEdge(e);
         if (candidate_alpha + neighbour_alpha > M_PI) {
             // Flip edges
+            Node* candidate_a = t->nodeOppositeToEdge(e);
+            std::vector<Edge*> neighbour_edges = neighbour->adjacentEdges(e);
+            Triangle* new_neighbour;
+            try {
+                new_neighbour = new Triangle(neighbour_edges[0], candidate_a);
+                t = new Triangle(neighbour_edges[1], candidate_a);
+            } catch (Edge::IllegalEdgeException e) {
+                continue;
+            } catch (Triangle::IllegalTriangleException e) {
+                continue;
+            }
+            neighbour_edges[0]->removeShapePtr(neighbour);
+            neighbour_edges[1]->removeShapePtr(neighbour);
             auto pos = std::find(m_mesh.begin(), m_mesh.end(), neighbour);
             if (pos != m_mesh.end()) {
                 m_mesh.erase(m_mesh.begin() + std::distance(m_mesh.begin(), pos));
             }
-            Node* candidate_a = t->nodeOppositeToEdge(e);
-            std::vector<Edge*> neighbour_edges = neighbour->adjacentEdges(e);
-            neighbour_edges[0]->removeShapePtr(neighbour);
-            neighbour_edges[1]->removeShapePtr(neighbour);
-            neighbour = new Triangle(neighbour_edges[0], candidate_a);
-            t = new Triangle(neighbour_edges[1], candidate_a);
-            m_mesh.push_back(neighbour);
+            m_mesh.push_back(new_neighbour);
             delete e;
         }
     }   
@@ -131,10 +146,37 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
         o_node = nodes[0];
         nodes.erase(nodes.begin());
     }
-
-    // TODO: Catch and deal with IllegalEdgeException and IllegalTriangleException (here and every time a triangle is created)
-    Triangle* t = new Triangle(nodes[0], nodes[1], nodes[2]);
-    m_mesh.push_back(t);
+    
+    // Create first triangle
+    bool done = false;
+    int j = i;
+    Triangle* t;
+    while(!done && j < nodes.size()) {
+        try {
+            t = new Triangle(nodes[j], nodes[(j+1) % nodes.size()], 
+                             nodes[(j+2) % nodes.size()]);
+        } catch (ShapeException e) {
+            try {
+                t = new Triangle(nodes[j], nodes[(j+1) % nodes.size()], 
+                                 nodes[(j+3) % nodes.size()]);
+            } catch (ShapeException e) {
+                try {
+                    t = new Triangle(nodes[j], nodes[(j+3) % nodes.size()], 
+                                     nodes[(j+2) % nodes.size()]);
+                } catch (ShapeException e) {
+                    try {
+                        t = new Triangle(nodes[(j+3) % nodes.size()], 
+                                nodes[(j+1) % nodes.size()], nodes[(j+2) % nodes.size()]);
+                    } catch (ShapeException e) {
+                        j++;
+                        continue;
+                    }
+                }
+            }
+        }
+        done = true;
+        m_mesh.push_back(t);
+    }
 
     // Order the edges; left and right are considered looking from the origin of the hull
     Edge* anchor_e = t->edges[0];
@@ -154,6 +196,7 @@ void NavMesh::triangulate(std::vector<Coord> coords) {
     while(i < nodes.size()) {
         // Create new triangle
         Edge* intersector = frontier->popIntersectingEdge(nodes[i]);
+        // TODO: Catch exceptions
         Triangle* candidate = new Triangle(intersector, nodes[i]);
         legalize(candidate);
 

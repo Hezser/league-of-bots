@@ -70,6 +70,10 @@ float Edge::angleWith(Edge* edge) {
     return std::abs(theta - edge_theta);
 }
 
+float Edge::avgR() {
+    return (a->r + b->r) / 2;
+}
+
 bool Edge::GreaterEdgeComparator::operator() (const Edge& lhs, const Edge& rhs) {
     return ((lhs.a->theta + rhs.b->theta) / 2) > ((rhs.a->theta + rhs.b->theta) / 2);
 }
