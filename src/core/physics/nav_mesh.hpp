@@ -11,19 +11,6 @@ typedef struct MapSize {
     int y;
 } MapSize;
 
-// TODO: Let hulls be just shapes or inherit from shapes
-typedef struct Hull {
-    Coord o;
-    std::vector<Edge*> edges;
-    Hull(Coord o);
-    Hull(Coord o, std::vector<Edge*> edges);
-    Edge* popIntersectingEdge(Node* node);
-    bool checkIntegrity();
-
-    private:
-        Hull();
-} Hull;
-
 typedef std::vector<Triangle*> TriangleMesh;
 
 class NavMesh {
@@ -43,6 +30,7 @@ class NavMesh {
         Hull* m_hull;
         std::vector<Node*> m_nodes;
         std::vector<Coord> calculateCoords(std::vector<Terrain*> terrains);
+        void connectNode(Node* node);
         void legalize(Triangle* t);
         void triangulate(std::vector<Coord> coords);
         void populateNodes();

@@ -7,17 +7,40 @@
 
 Node::Node(Coord coord, Coord origin) {
     this->coord = coord;
-    int polar_x = coord.x - origin.x;
-    int polar_y = coord.y - origin.y;
-    this->r = std::sqrt(std::pow(polar_x, 2) + std::pow(polar_y, 2));
-    this->theta = std::atan(polar_y / polar_x);
+    setOrigin(origin);
 }
 
-bool operator < (const Node& lhs, const Node& rhs) {
-    if (lhs.r != rhs.r) {
-        return lhs.r < rhs.r;
+Edge* Node::getEdgeWith(Node* node) {
+    for (auto e : edge_ptrs) {
+        if (e->a == node || e->b == node) return e;
     }
-    return rhs.theta < rhs.theta;
+    return nullptr;
+}
+
+void Node::setOrigin(Coord origin) {
+    int polar_x = coord.x - origin.x;
+    int polar_y = coord.y - origin.y;
+    r = std::sqrt(std::pow(polar_x, 2) + std::pow(polar_y, 2));
+    theta = std::atan(polar_y / polar_x);
+}
+
+float Node::shortestDistanceTo(Edge* edge) {
+    return std::abs((edge->b->coord.y - edge->a->coord.y) * coord.x - 
+                    (edge->b->coord.x - edge->a->coord.x) * coord.y +
+                     edge->b->coord.x * edge->a->coord.y - edge->b->coord.y * edge->a->coord.x) /
+           std::sqrt(std::pow(edge->b->coord.y - edge->a->coord.y, 2) +
+                     std::pow(edge->b->coord.x - edge->a->coord.x, 2));
+}
+
+bool Node::RComparator::operator() (const Node& lhs, const Node& rhs) {
+    if (lhs.r != rhs.r) {
+        return lhs.r > rhs.r;
+    }
+    return rhs.theta > rhs.theta;
+}
+
+bool Node::ThetaComparator::operator() (const Node& lhs, const Node& rhs) {
+    return lhs.theta >= rhs.theta;
 }
 
 /* struct Edge */
@@ -74,6 +97,14 @@ float Edge::avgR() {
     return (a->r + b->r) / 2;
 }
 
+bool Edge::isCollinearWithNode(Node* node) {
+    int area = a->coord.x * (b->coord.y - node->coord.y) +
+               b->coord.x * (node->coord.y - a->coord.y) +
+               node->coord.x * (a->coord.y - b->coord.y);
+    if (area == 0) return true;
+    return false;
+}
+
 bool Edge::GreaterEdgeComparator::operator() (const Edge& lhs, const Edge& rhs) {
     return ((lhs.a->theta + rhs.b->theta) / 2) > ((rhs.a->theta + rhs.b->theta) / 2);
 }
@@ -108,14 +139,10 @@ Coord Shape::findOrigin(std::vector<Coord> coords) {
 }
 
 void Shape::restrictNodes() {
+    /* We even restrict those nodes that are connected to each other, because the edge
+     * between them already exists and no other such edge should be created */
     for (auto n : nodes) {
         n->restricted.insert(nodes.begin(), nodes.end());
-    }
-    for (auto e : edges) {
-        // Remove b from a's restricted
-        e->a->restricted.erase(e->b);
-        // Remove a from b's restricted
-        e->b->restricted.erase(e->a);
     }
 }
 
@@ -141,8 +168,6 @@ std::vector<Node*> ConvexShape::createNodes(std::vector<Coord> coords) {
 }
 
 /* struct Triangle */
-
-// TODO: Throw IllegalTriangleException when appropiate
 
 /* If an edge already exists as part of another triangle, it is important to use it in the new
  * triangle constructor instead of creating an identical one, in order to keep triangle_ptrs 
@@ -223,3 +248,138 @@ bool Triangle::areCollinear(Node* a, Node* b, Node* c) {
     if (area == 0) return true;
     return false;
 }
+
+/* struct Hull */
+
+Hull::Hull(Coord origin) {
+    this->origin = origin;
+}
+
+Hull::Hull(Coord origin, std::vector<Edge*> edges) {
+    this->origin = origin;
+    this->edges = edges;
+}
+
+/* If there are >3 edges being collinear and a node intersects with them, the node needs to
+ * get the closest edge to it (furtherst away from origin), which guarantees that the node can
+ * make a non-collinear triangle with the left or right edge of the intersector */
+Edge* Hull::popIntersectingEdge(Node* node) {
+    // Empty hull
+    if (edges.size() == 0) return nullptr;
+
+    // The center of the hull is inside the hull itself
+    int j = -1;
+    for (int i=0; i<edges.size(); i++) {
+        Edge* e = edges[i];
+        /* The node's angle is within the edge's angles (it intersects with it)
+         * AND the origin is not between the node and the intersector
+         * AND the node is not between the origin and the intersector
+         * AND the node is not one of the edge's nodes
+         * AND the node is not collinear with the edge */
+        if (((e->a->theta > node->theta && e->b->theta < node->theta) || 
+             (e->b->theta > node->theta && e->a->theta < node->theta) ||
+             (e->a->theta == node->theta)) && node->shortestDistanceTo(e) <= node->r &&
+              node->r >= e->avgR() && e->a != node && e->b != node &&
+              !e->isCollinearWithNode(node)) {
+            // Pick the closest intersector to the node
+            if (j == -1 || e->avgR() > edges[j]->avgR()) j = i;
+        }
+    }
+
+    // If the closest intersector belongs to the same shape, we cannot use it
+    if (j != -1 && belongToSameShape(node, edges[j])) j = -1;
+
+    // We did not find a suitable intersector, so we choose the closest edge to the node
+    /* Since we pick the closest edge, we cannot check for legality, since non-closest edges
+     * could intercept the closest edge (or other closer edges) */
+    /* std::vector<Edge*> closer; */
+    if (j == -1) {
+        j = 0;
+        float min_dist = node->shortestDistanceTo(edges[0]);
+        for (int i=1; i<edges.size(); i++) {
+            if (edges[i]->a == node || edges[i]->b == node) continue;
+            float dist = node->shortestDistanceTo(edges[i]);
+            if (dist < min_dist) {
+                // Check for legality
+                /* if (belongToSameShape(node, edges[i]) || edges[i]->isCollinearWithNode(node) */
+                /*         || intersectsWithAnyOf(closer)) { */
+                /*     closer.push_back(edges[i]); */
+                /*     continue; */
+                /* } */
+                min_dist = dist;
+                j = i;
+            }
+        }
+    }
+
+    /* There may be further away but legal (do not intercept with any shape) edges to
+     * connect the node to, but it would require checking every candidate edge for collision
+     * with shapes, which is too expensive. Hopefully, this approach is good enough */
+    if (j == -1 || belongToSameShape(node, edges[j]) || edges[j]->isCollinearWithNode(node)) {
+        return nullptr;
+    } 
+
+    Edge* intersector = edges[j];
+    edges.erase(edges.begin() + j);
+    return intersector;
+}
+
+bool Hull::belongToSameShape(Node* node, Edge* edge) {
+    for (auto s : edge->shape_ptrs) {
+        for (auto e : node->edge_ptrs) {
+            for (auto t : e->shape_ptrs) {
+                if (s == t) return true;
+            }
+        }
+    }
+    return false;
+}
+
+// TODO: Can be improved now that we have left/right pointers
+// To increase runtime speed, we do not check for integrity dynamically when adding edges
+bool Hull::checkIntegrity() {
+    Edge* e = edges[0];
+    Node* start_n = e->a;
+    Node* current_n = e->b;
+    Edge* current_e = e;
+    std::unordered_set<Node*> visited = {e->a, e->b};
+    bool found;
+    while (current_n != start_n) {
+        found = false; 
+        for (auto container : edges) {
+            Edge* edge = container;
+            if (edge == current_e) continue;
+            if (edge->a == current_n) {
+                if (visited.find(edge->b) != visited.end()) return false;  // Inner cycles
+                visited.insert(edge->b);
+                current_e = edge;
+                current_n = edge->b;
+                found = true;
+                break;
+            }
+        }
+        // Not closed
+        if(!found) return false;
+    }
+    return true;
+}
+
+/* struct Barrier */
+
+/* void Barrier::addNode(Node* node) { */
+/*     // The queue is empty */
+/*     if (m_min_theta_n == nullptr) { */
+/*         m_min_theta_n = node; */
+/*         m_max_theta_n = node; */
+/*         m_nodes.push(node); */
+/*     } */
+
+/*     // Only push the node if it amplifies the barrier */
+/*     if (node->theta < m_min_theta_n->theta) { */
+/*         m_min_theta_n = node; */
+/*         m_nodes.push(node); */
+/*     } else if (node->theta > m_max_theta_n->theta) { */
+/*         m_max_theta_n = node; */
+/*         m_nodes.push(node); */
+/*     } */
+/* } */

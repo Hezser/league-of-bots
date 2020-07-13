@@ -4,9 +4,11 @@
 #include <vector>
 #include <exception>
 #include <unordered_set>
+#include <queue>
 
 // Foward-declaration
 struct Shape;
+struct Edge;
 
 struct ShapeException: public std::exception {
     virtual const char* what() const noexcept;
@@ -22,9 +24,19 @@ typedef struct Node {
     float r;
     float theta;
     std::unordered_set<Node*> restricted;
+    std::vector<Edge*> edge_ptrs;
     Node(Coord coord, Coord origin);
+    Edge* getEdgeWith(Node* node);
+    void setOrigin(Coord origin);
+    float shortestDistanceTo(Edge* edge);
 
-    friend bool operator < (const Node& lhs, const Node& rhs);
+    struct RComparator {
+        bool operator() (const Node& lhs, const Node& rhs);
+    };
+
+    struct ThetaComparator {
+        bool operator() (const Node& lhs, const Node& rhs);
+    };
 
     private:
         Node();
@@ -33,7 +45,7 @@ typedef struct Node {
 typedef struct Edge {
     Node* a;
     Node* b;
-    Edge* left;  // Triangles in meshes don't use this, because edges can be shared
+    Edge* left;   // Triangles in meshes don't use this, because edges can be shared
     Edge* right;  // Triangles in meshes don't use this, because edges can be shared
     float length;
     std::vector<Shape*> shape_ptrs;
@@ -43,6 +55,7 @@ typedef struct Edge {
     bool hasAtLeft(Edge* edge);
     float angleWith(Edge* edge);
     float avgR();
+    bool isCollinearWithNode(Node* node);
 
     struct GreaterEdgeComparator {
         bool operator() (const Edge& lhs, const Edge& rhs);
@@ -92,5 +105,30 @@ typedef struct Triangle: Shape {
         Triangle();
         bool areCollinear(Node* a, Node* b, Node* c);
 } Triangle;
+
+// TODO: Let hulls be just shapes or inherit from shapes
+typedef struct Hull {
+    Coord origin;
+    std::vector<Edge*> edges;
+    Hull(Coord origin);
+    Hull(Coord origin, std::vector<Edge*> edges);
+    Edge* popIntersectingEdge(Node* node);
+    bool checkIntegrity();
+
+    private:
+        bool belongToSameShape(Node* node, Edge* edge);
+        Hull();
+} Hull;
+
+/* typedef struct Barrier { */
+/*     void addNode(Node* node); */
+/*     bool isClosed(); */
+
+/*     private: */
+/*         std::priority_queue<Node*, std::vector<Node*>, Node::ThetaComparator> m_nodes; */
+/*         Node* m_min_theta_n; */
+/*         Node* m_max_theta_n; */
+/*         bool m_closed; */
+/* } Barrier; */
 
 #endif
