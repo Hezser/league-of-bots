@@ -370,7 +370,8 @@ Edge* Hull::popIntersectingEdge(Node* node) {
             delete e;
             delete g;
             if (legal) {
-                j = i;
+                auto pos = std::find(edges.begin(), edges.end(), es[i]);
+                if (pos != edges.end()) j = std::distance(edges.begin(), pos);
                 break;
             }
             closer.push_back(es[i]);
