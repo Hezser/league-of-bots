@@ -30,6 +30,7 @@ typedef struct Node {
     Edge* getEdgeWith(Node* node);
     void setOrigin(Coord origin);
     float shortestDistanceTo(Edge* edge);
+    bool isOn(Edge* edge);
 
     struct RComparator {
         bool operator() (const Node& lhs, const Node& rhs);
@@ -57,6 +58,7 @@ typedef struct Edge {
     float angleWith(Edge* edge);
     float avgR();
     bool isCollinearWithNode(Node* node);
+    bool intersectsWith(std::vector<Edge*> edges);
 
     struct GreaterEdgeComparator {
         bool operator() (const Edge& lhs, const Edge& rhs);
@@ -67,6 +69,7 @@ typedef struct Edge {
     };
 
     private:
+        int direction(Node* a, Node* b, Node* c);
         Edge();
 } Edge;
 
@@ -108,7 +111,7 @@ typedef struct Triangle: Shape {
         bool areCollinear(Node* a, Node* b, Node* c);
 } Triangle;
 
-// TODO: Let hulls be just shapes or inherit from shapes (CAUTION WITH belongToSameShape())
+// TODO: Let hulls be just shapes or inherit from shapes (CAUTION with belongToSameShape())
 typedef struct Hull {
     Coord origin;
     std::vector<Edge*> edges;
@@ -120,16 +123,5 @@ typedef struct Hull {
         bool belongToSameShape(Node* node, Edge* edge);
         Hull();
 } Hull;
-
-/* typedef struct Barrier { */
-/*     void addNode(Node* node); */
-/*     bool isClosed(); */
-
-/*     private: */
-/*         std::priority_queue<Node*, std::vector<Node*>, Node::ThetaComparator> m_nodes; */
-/*         Node* m_min_theta_n; */
-/*         Node* m_max_theta_n; */
-/*         bool m_closed; */
-/* } Barrier; */
 
 #endif

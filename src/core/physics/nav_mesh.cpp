@@ -26,69 +26,6 @@ const char* NavMesh::FailedTriangulationException::what() const throw() {
     return "No triangles could be created.";
 }
 
-/* /1* I developed this algorithm to deal with nodes that could not be initially triangulated */
-/*  * due to restrictions on intra-terrain edge constructions *1/ */
-/* void NavMesh::connectNode(Node* node) { */
-/*     if (m_nodes.size() < 3) return; */
-/*     // Project nodes to the center of the node to connect */
-/*     std::vector<Node*> projections = m_nodes; */
-/*     auto pos = std::find(projections.begin(), projections.end(), node); */
-/*     if (pos != projections.end()) { */
-/*         projections.erase(projections.begin() + std::distance(projections.begin(), pos)); */
-/*     } */
-/*     for (auto n : projections) { */
-/*         n->setOrigin(node->coord); */
-/*     } */
-
-/*     // Order nodes: first by r, then by theta */
-/*     std::sort(projections.begin(), projections.end(), Node::RComparator()); */
-
-/*     // Create a barrier */
-/*     Barrier* barrier = new Barrier(); */
-/*     int i = 0; */
-/*     while(!barrier->isClosed() && i < projections.size()) { */
-/*         barrier.addNode(projections[i]); */
-/*         i++; */
-/*     } */
-    
-/*     // Create triangles with the barrier */
-/*     std::priority_queue<Node*> connections = barrier.getNodes(); */
-/*     Node* first = barrier.top(); */
-/*     while(connections.size() > 0 && first != nullptr) { */
-/*         // Check (last, first) on the last iteration */
-/*         if (connections.size() == 1 && connections.top() != first) { */ 
-/*             connections.push(first); */
-/*             first = nullptr; */
-/*         } */
-/*         Node* n = connections.top(); */
-/*         connections.pop(); */
-/*         Node* m = connections.top(); */
-/*         try { */
-/*             Triangle* t = nullptr; */
-/*             Edge* e = n->getEdgeWith(m); */
-/*             if (e == nullptr) { */
-/*                 t = new Triangle(node, n, m); */
-/*             } else { */
-/*                 t = new Triangle(e, node); */
-/*             } */
-/*             t = legalize(t); */
-/*             m_mesh.push_back(t); */
-/*         } catch (Edge::IllegalEdgeException e) { */
-/*             // m cannot be further used */
-/*             if (node->restricted.find(m) != node->restricted.end()) connections.pop(); */
-/*             // Try again with {n, m+1} */
-/*             if (node->restricted.find(n) == node->restricted.end()) connections.push(n); */
-/*         } catch (Triangle::IllegalTriangleException e) { */
-/*             // Continue */
-/*         } */
-/*     } */
-
-/*     // Restore origin of nodes */
-/*     for (auto n : m_nodes) { */
-/*         n->setOrigin(m_hull->origin); */
-/*     } */
-/* } */
-
 Triangle* NavMesh::legalize(Triangle* candidate) {
     for (Edge* e : candidate->edges) {
         if (e->shape_ptrs.size() < 2) continue;
@@ -136,6 +73,7 @@ Triangle* NavMesh::legalize(Triangle* candidate) {
 void NavMesh::triangulate() {
 
     // INITIALIZATION
+
     m_mesh = TriangleMesh();
     Coord origin = avgCoord(m_nodes);
     if (m_nodes.size() < 3) throw InsufficientNodesException();
@@ -143,13 +81,6 @@ void NavMesh::triangulate() {
     std::vector<Node*> disconnected = m_nodes;
     std::sort(disconnected.begin(), disconnected.end(), Node::RComparator());
 
-    // // Special case where a node is at the origin (so that node[0]->r == 0)
-    // Node* origin_n = nullptr;
-    // if (disconnected[0]->coord.x == origin.x && disconnected[0]->coord.y == origin.y) {
-    //     origin_n = n;
-    //     disconnected.erase(disconnected.begin());
-    // }
-    
     // Try all possible initial triangles in order of distance to the origin
     int i = 0;
     bool done = false;
@@ -192,6 +123,7 @@ void NavMesh::triangulate() {
     Hull* frontier = new Hull(origin, {anchor_e, left_e, right_e});
 
     // TRIANGULATION
+    
     Node* n;
     while(!disconnected.empty()) {
         n = disconnected[0];
@@ -276,17 +208,6 @@ void NavMesh::triangulate() {
 
     // FINALIZATION 
         
-    // // Deal with special initialization case
-    // // TODO: This can create colliding triangles if the center is outside the initial triangle
-    // if (origin_n != nullptr) {
-    //     Triangle* t = m_mesh[0];
-    //     m_mesh.erase(m_mesh.begin());
-    //     m_mesh.emplace_back(t->edges[0], origin_n);
-    //     m_mesh.emplace_back(t->edges[1], origin_n);
-    //     m_mesh.emplace_back(t->edges[2], origin_n);
-    //     delete t;
-    // }
-
     // Check for acute angles in the frontier (make a concave hull convex) 
     for (Edge* e : frontier->edges) {
         Node* left_n = e->left->a == e->a ||

@@ -37,15 +37,23 @@ float Node::shortestDistanceTo(Edge* edge) {
                      std::pow(edge->b->coord.x - edge->a->coord.x, 2));
 }
 
+bool Node::isOn(Edge* edge) {
+    if(coord.x <= std::max(edge->a->coord.x, edge->b->coord.x) &&
+       coord.x <= std::min(edge->a->coord.x, edge->b->coord.x) &&
+      (coord.y <= std::max(edge->a->coord.y, edge->b->coord.y) &&
+       coord.y <= std::min(edge->a->coord.y, edge->b->coord.y))) return true;
+    return false;
+}
+
 bool Node::RComparator::operator() (const Node& lhs, const Node& rhs) {
     if (lhs.r != rhs.r) {
-        return lhs.r > rhs.r;
+        return lhs.r < rhs.r;
     }
-    return rhs.theta > rhs.theta;
+    return rhs.theta < rhs.theta;
 }
 
 bool Node::ThetaComparator::operator() (const Node& lhs, const Node& rhs) {
-    return lhs.theta >= rhs.theta;
+    return lhs.theta <= rhs.theta;
 }
 
 /* struct Edge */
@@ -114,6 +122,30 @@ bool Edge::isCollinearWithNode(Node* node) {
                node->coord.x * (a->coord.y - b->coord.y);
     if (area == 0) return true;
     return false;
+}
+
+bool Edge::intersectsWith(std::vector<Edge*> edges) {
+    for (Edge* e : edges) {
+        int dir1 = direction(a, b, e->a);
+        int dir2 = direction(a, b, e->b);
+        int dir3 = direction(e->a, e->b, a);
+        int dir4 = direction(e->a, e->b, b);
+
+        if(dir1 != dir2 && dir3 != dir4) return true;
+        if(dir1==0 && e->a->isOn(this)) return true;
+        if(dir2==0 && e->b->isOn(this)) return true;
+        if(dir3==0 && a->isOn(e)) return true;
+        if(dir4==0 && b->isOn(e)) return true;
+    }
+    return false;
+}
+
+int Edge::direction(Node* a, Node* b, Node* c) {
+    int val = (b->coord.y - a->coord.y) * (c->coord.x - b->coord.x) -
+              (b->coord.x - a->coord.x) * (c->coord.y - b->coord.y);
+    if (val == 0) return 0;      // Colinear
+    else if (val < 0) return 2;  // Anti-clockwise direction
+    return 1;                    // Clockwise direction
 }
 
 bool Edge::GreaterEdgeComparator::operator() (const Edge& lhs, const Edge& rhs) {
@@ -313,34 +345,39 @@ Edge* Hull::popIntersectingEdge(Node* node) {
     // If the closest intersector belongs to the same shape, we cannot use it
     if (j != -1 && belongToSameShape(node, edges[j])) j = -1;
 
-    // We did not find a suitable intersector, so we choose the closest edge to the node
-    /* Since we pick the closest edge, we cannot check for legality, since non-closest edges
-     * could intercect with the closest edge (or other closer edges) */
-    /* std::vector<Edge*> closer; */
+    // We did not find a suitable intersector, so we choose the closest legal edge to the node
+    std::vector<Edge*> es = edges;
+    std::sort(es.begin(), es.end(), [node](Edge& lhs, Edge& rhs) {
+        return node->shortestDistanceTo(&lhs) < node->shortestDistanceTo(&rhs);
+    });
+    std::vector<Edge*> closer;
     if (j == -1) {
-        j = 0;
-        float min_dist = node->shortestDistanceTo(edges[0]);
-        for (int i=1; i<edges.size(); i++) {
-            if (edges[i]->a == node || edges[i]->b == node) continue;
-            float dist = node->shortestDistanceTo(edges[i]);
-            if (dist < min_dist) {
-                // Check for legality
-                /* if (belongToSameShape(node, edges[i]) || edges[i]->isCollinearWithNode(node) */
-                /*         || intersectsWithAnyOf(closer)) { */
-                /*     closer.push_back(edges[i]); */
-                /*     continue; */
-                /* } */
-                min_dist = dist;
-                j = i;
+        for (int i=0; i<es.size(); i++) {
+            if (es[i]->a == node || edges[i]->b == node) continue;
+            Edge* e;
+            Edge* g;
+            try {
+                e = new Edge(node, es[i]->a, nullptr);
+                g = new Edge(node, es[i]->b, nullptr);
+            } catch (Edge::IllegalEdgeException) {
+                closer.push_back(es[i]);
+                continue;
             }
+            // Check for legality
+            bool legal = !es[i]->isCollinearWithNode(node) && 
+                         !belongToSameShape(node, es[i]) && !e->intersectsWith(closer) &&
+                         !g->intersectsWith(closer);
+            delete e;
+            delete g;
+            if (legal) {
+                j = i;
+                break;
+            }
+            closer.push_back(es[i]);
         }
     }
 
-    /* There may be further away but legal (do not intercept with any shape) edges to
-     * connect the node to, but it would require checking every candidate edge for collision
-     * with shapes, which is too expensive. Hopefully, this approach is good enough */
-    if (j == -1 || belongToSameShape(node, edges[j]) || 
-            edges[j]->isCollinearWithNode(node)) return nullptr;
+    if (j == -1) return nullptr; 
 
     Edge* intersector = edges[j];
     edges.erase(edges.begin() + j);
@@ -357,23 +394,3 @@ bool Hull::belongToSameShape(Node* node, Edge* edge) {
     }
     return false;
 }
-
-/* struct Barrier */
-
-/* void Barrier::addNode(Node* node) { */
-/*     // The queue is empty */
-/*     if (m_min_theta_n == nullptr) { */
-/*         m_min_theta_n = node; */
-/*         m_max_theta_n = node; */
-/*         m_nodes.push(node); */
-/*     } */
-
-/*     // Only push the node if it amplifies the barrier */
-/*     if (node->theta < m_min_theta_n->theta) { */
-/*         m_min_theta_n = node; */
-/*         m_nodes.push(node); */
-/*     } else if (node->theta > m_max_theta_n->theta) { */
-/*         m_max_theta_n = node; */
-/*         m_nodes.push(node); */
-/*     } */
-/* } */

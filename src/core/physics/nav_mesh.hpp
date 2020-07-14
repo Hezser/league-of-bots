@@ -34,7 +34,6 @@ class NavMesh {
         TriangleMesh m_mesh;
         Hull* m_hull;
         std::vector<Node*> m_nodes;
-        /* void connectNode(Node* node); */
         std::vector<Node*> getTerrainNodes(std::vector<Terrain*> terrains);
         Triangle* legalize(Triangle* candidate);
         void triangulate();
