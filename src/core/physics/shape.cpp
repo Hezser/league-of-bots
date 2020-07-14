@@ -10,6 +10,11 @@ Node::Node(Coord coord, Coord origin) {
     setOrigin(origin);
 }
 
+Node::Node(Coord coord, Coord origin, Edge* edge_ptr):
+        Node(coord, origin) {
+    edge_ptrs.push_back(edge_ptr);
+}
+
 Edge* Node::getEdgeWith(Node* node) {
     for (auto e : edge_ptrs) {
         if (e->a == node || e->b == node) return e;
@@ -50,6 +55,8 @@ Edge::Edge(Node* a, Node* b, Shape* shape_ptr) {
         b->restricted.find(a) != b->restricted.end()) throw IllegalEdgeException();
     this->a = a;
     this->b = b;
+    a->edge_ptrs.push_back(this);
+    b->edge_ptrs.push_back(this);
     this->length = std::sqrt(std::pow(std::abs(a->coord.x - b->coord.x), 2) + 
                              std::pow(std::abs(a->coord.y - b->coord.y), 2));
     this->shape_ptrs.push_back(shape_ptr);
@@ -61,9 +68,13 @@ Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Shape* shape_ptr):
     this->right = right;
 }
 
-void Edge::removeShapePtr(Shape* shape_ptr) {
-    auto pos = std::find(shape_ptrs.begin(), shape_ptrs.end(), shape_ptr);
-    if (pos != shape_ptrs.end()) shape_ptrs.erase(shape_ptrs.begin() + std::distance(shape_ptrs.begin(), pos));
+Edge::~Edge() {
+    // Remove edge from a's edge_ptrs
+    auto pos = std::find(a->edge_ptrs.begin(), a->edge_ptrs.end(), this);
+    if (pos != a->edge_ptrs.end()) a->edge_ptrs.erase(a->edge_ptrs.begin() + std::distance(a->edge_ptrs.begin(), pos));
+    // Remove edge from b's edge_ptrs
+    pos = std::find(b->edge_ptrs.begin(), b->edge_ptrs.end(), this);
+    if (pos != b->edge_ptrs.end()) b->edge_ptrs.erase(b->edge_ptrs.begin() + std::distance(b->edge_ptrs.begin(), pos));
 }
 
 /* This method has two edge cases, for which left/right is not defined:
@@ -119,11 +130,22 @@ Shape::Shape(std::vector<Node*> nodes, std::vector<Edge*> edges) {
     this->edges = edges;
     this->nodes = nodes;
     std::vector<Coord> coords;
+    for (Edge* e : edges) {
+        e->shape_ptrs.push_back(this);
+    }
     for (Node* n : nodes) {
         coords.push_back(n->coord);
     }
     origin = findOrigin(coords);
     restrictNodes();
+}
+
+Shape::~Shape() {
+    // Remove shape from each edge's shape_ptrs
+    for (Edge* e : edges) {
+        auto pos = std::find(e->shape_ptrs.begin(), e->shape_ptrs.end(), this);
+        if (pos != e->shape_ptrs.end()) e->shape_ptrs.erase(e->shape_ptrs.begin() + std::distance(e->shape_ptrs.begin(), pos));
+    }
 }
 
 Coord Shape::findOrigin(std::vector<Coord> coords) {
@@ -153,9 +175,9 @@ ConvexShape::ConvexShape(std::vector<Coord> coords) {
     nodes = createNodes(coords);
     std::sort(nodes.begin(), nodes.end());
     for (auto i=0; i<nodes.size()-1; i++) {
-        edges.emplace_back(nodes[i], nodes[i+1]);
+        edges.emplace_back(nodes[i], nodes[i+1], this);
     }
-    edges.emplace_back(nodes[nodes.size()-1], nodes[0]);
+    edges.emplace_back(nodes[nodes.size()-1], nodes[0], this);
     restrictNodes();
 }
 
@@ -181,7 +203,7 @@ Triangle::Triangle(Node* a, Node* b, Node* c) {
     edges = {new Edge(a, b, this), new Edge(b, c, this), new Edge(c, a, this)};
 }
 
-// Used for traingles created when adding a new node to the frontier
+// Used for triangles created when adding a new node to the frontier
 Triangle::Triangle(Edge* e, Node* n) {
     if (areCollinear(e->a, e->b, n)) throw IllegalTriangleException();
     origin = {(e->a->coord.x + e->b->coord.x + n->coord.x) / 3, (e->a->coord.y + e->b->coord.y + n->coord.y) / 3};
@@ -209,6 +231,8 @@ Triangle::Triangle(Edge* e, Edge* g, Node* n) {
               (common_n->coord.y + diff_n[0]->coord.y + diff_n[1]->coord.y) / 3};
     nodes = {common_n, diff_n[0], diff_n[1]};
     edges = {e, g, new Edge(diff_n[0], diff_n[1], this)};
+    e->shape_ptrs.push_back(this);
+    g->shape_ptrs.push_back(this);
 }
 
 Node* Triangle::nodeOppositeToEdge(Edge* edge) {
@@ -291,7 +315,7 @@ Edge* Hull::popIntersectingEdge(Node* node) {
 
     // We did not find a suitable intersector, so we choose the closest edge to the node
     /* Since we pick the closest edge, we cannot check for legality, since non-closest edges
-     * could intercept the closest edge (or other closer edges) */
+     * could intercect with the closest edge (or other closer edges) */
     /* std::vector<Edge*> closer; */
     if (j == -1) {
         j = 0;
@@ -315,9 +339,8 @@ Edge* Hull::popIntersectingEdge(Node* node) {
     /* There may be further away but legal (do not intercept with any shape) edges to
      * connect the node to, but it would require checking every candidate edge for collision
      * with shapes, which is too expensive. Hopefully, this approach is good enough */
-    if (j == -1 || belongToSameShape(node, edges[j]) || edges[j]->isCollinearWithNode(node)) {
-        return nullptr;
-    } 
+    if (j == -1 || belongToSameShape(node, edges[j]) || 
+            edges[j]->isCollinearWithNode(node)) return nullptr;
 
     Edge* intersector = edges[j];
     edges.erase(edges.begin() + j);
@@ -333,35 +356,6 @@ bool Hull::belongToSameShape(Node* node, Edge* edge) {
         }
     }
     return false;
-}
-
-// TODO: Can be improved now that we have left/right pointers
-// To increase runtime speed, we do not check for integrity dynamically when adding edges
-bool Hull::checkIntegrity() {
-    Edge* e = edges[0];
-    Node* start_n = e->a;
-    Node* current_n = e->b;
-    Edge* current_e = e;
-    std::unordered_set<Node*> visited = {e->a, e->b};
-    bool found;
-    while (current_n != start_n) {
-        found = false; 
-        for (auto container : edges) {
-            Edge* edge = container;
-            if (edge == current_e) continue;
-            if (edge->a == current_n) {
-                if (visited.find(edge->b) != visited.end()) return false;  // Inner cycles
-                visited.insert(edge->b);
-                current_e = edge;
-                current_n = edge->b;
-                found = true;
-                break;
-            }
-        }
-        // Not closed
-        if(!found) return false;
-    }
-    return true;
 }
 
 /* struct Barrier */

@@ -26,6 +26,7 @@ typedef struct Node {
     std::unordered_set<Node*> restricted;
     std::vector<Edge*> edge_ptrs;
     Node(Coord coord, Coord origin);
+    Node(Coord coord, Coord origin, Edge* edge_ptr);
     Edge* getEdgeWith(Node* node);
     void setOrigin(Coord origin);
     float shortestDistanceTo(Edge* edge);
@@ -51,7 +52,7 @@ typedef struct Edge {
     std::vector<Shape*> shape_ptrs;
     Edge(Node* a, Node* b, Shape* shape_ptr);
     Edge(Node* a, Node* b, Edge* left, Edge* right, Shape* shape_ptr);
-    void removeShapePtr(Shape* shape_ptr);
+    ~Edge();
     bool hasAtLeft(Edge* edge);
     float angleWith(Edge* edge);
     float avgR();
@@ -74,6 +75,7 @@ typedef struct Shape {
     std::vector<Node*> nodes;
     std::vector<Edge*> edges;
     Shape(std::vector<Node*> nodes, std::vector<Edge*> edges);
+    ~Shape();
     
     protected:
         Shape();
@@ -106,14 +108,13 @@ typedef struct Triangle: Shape {
         bool areCollinear(Node* a, Node* b, Node* c);
 } Triangle;
 
-// TODO: Let hulls be just shapes or inherit from shapes
+// TODO: Let hulls be just shapes or inherit from shapes (CAUTION WITH belongToSameShape())
 typedef struct Hull {
     Coord origin;
     std::vector<Edge*> edges;
     Hull(Coord origin);
     Hull(Coord origin, std::vector<Edge*> edges);
     Edge* popIntersectingEdge(Node* node);
-    bool checkIntegrity();
 
     private:
         bool belongToSameShape(Node* node, Edge* edge);

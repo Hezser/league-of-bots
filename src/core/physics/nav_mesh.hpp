@@ -15,6 +15,7 @@ typedef std::vector<Triangle*> TriangleMesh;
 
 class NavMesh {
     public:
+        // May throw InsufficientNodesException or FailedTriangulationException
         NavMesh(std::vector<Terrain*> terrains, MapSize map_size);
         MapSize getMapSize();
         TriangleMesh getMesh();
@@ -24,17 +25,21 @@ class NavMesh {
             const char* what() const throw();
         };
 
+        struct FailedTriangulationException: public std::exception {
+            const char* what() const throw();
+        };
+
     private:
         MapSize m_map_size;
         TriangleMesh m_mesh;
         Hull* m_hull;
         std::vector<Node*> m_nodes;
-        std::vector<Coord> calculateCoords(std::vector<Terrain*> terrains);
-        void connectNode(Node* node);
-        void legalize(Triangle* t);
-        void triangulate(std::vector<Coord> coords);
+        /* void connectNode(Node* node); */
+        std::vector<Node*> getTerrainNodes(std::vector<Terrain*> terrains);
+        Triangle* legalize(Triangle* candidate);
+        void triangulate();
         void populateNodes();
-        Coord avgCoord(std::vector<Coord> coords);
+        Coord avgCoord(std::vector<Node*> nodes);
 };
 
 #endif
