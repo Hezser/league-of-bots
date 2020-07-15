@@ -11,7 +11,7 @@
 
 Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
-    std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1]};
+    std::vector<float> alpha_target = {(float)target.x - start.x, (float)target.y - start.y};
     // Normalize the alpha vector
     int d = std::round(sqrt(pow(alpha_target[0], 2) + pow(alpha_target[1], 2)));
     std::vector<float> unit_travel = {alpha_target[0] / d, alpha_target[1] / d};
@@ -21,7 +21,7 @@ Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {
 
 Move* constructInstantMove(Coord start, Coord target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
-    std::vector<float> alpha_target = {(float)target[0] - start[0], (float)target[1] - start[1]};
+    std::vector<float> alpha_target = {(float)target.x - start.x, (float)target.y - start.y};
     Move* move = new Move{start, target, alpha_target, 1, 0, priority};
     return move;
 }
@@ -82,8 +82,8 @@ bool MovementManager::update(float ms) {
         int step_y = y - prev_y;
         // Update the elem's coord
         m_elem->mutex.lock();
-        Coord coord = m_elem->getCoord();
-        m_elem->setCoord({coord[0] + step_x, coord[1] + step_y}); 
+        Coord coord = m_elem->getCenter();
+        m_elem->setCenter({coord.x + step_x, coord.y + step_y}); 
         m_elem->mutex.unlock();
         return true;
     }

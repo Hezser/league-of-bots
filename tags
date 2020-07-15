@@ -1,0 +1,352 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/a3c87ab5/
+ABILITY_HPP	src/core/logic/elements/ability.hpp	/^#define ABILITY_HPP$/;"	d
+ARTIFICIAL_PLAYER_HPP	src/core/logic/ai/artificial_player.hpp	/^#define ARTIFICIAL_PLAYER_HPP$/;"	d
+Ability	src/core/logic/elements/ability.cpp	/^Ability::Ability(ElemType type, bool alive, Shape* shape, Coord center, Team team,$/;"	f	class:Ability
+Ability	src/core/logic/elements/ability.hpp	/^class Ability: public Elem {$/;"	c
+AbilityKey	src/core/logic/elements/ability.hpp	/^typedef enum AbilityKey {$/;"	g
+AbilityKey	src/core/logic/elements/ability.hpp	/^} AbilityKey;$/;"	t	typeref:enum:AbilityKey
+ArtificialAimingPolicy	src/core/logic/ai/artificial_player.hpp	/^typedef enum ArtificialAimingPolicy {$/;"	g
+ArtificialAimingPolicy	src/core/logic/ai/artificial_player.hpp	/^} ArtificialAimingPolicy;$/;"	t	typeref:enum:ArtificialAimingPolicy
+ArtificialMovementPolicy	src/core/logic/ai/artificial_player.hpp	/^typedef enum ArtificialMovementPolicy {$/;"	g
+ArtificialMovementPolicy	src/core/logic/ai/artificial_player.hpp	/^} ArtificialMovementPolicy;$/;"	t	typeref:enum:ArtificialMovementPolicy
+ArtificialPlayer	src/core/logic/ai/artificial_player.cpp	/^ArtificialPlayer::ArtificialPlayer(Bot* bot, float update_interval, ArtificialMovementPolicy$/;"	f	class:ArtificialPlayer
+ArtificialPlayer	src/core/logic/ai/artificial_player.hpp	/^class ArtificialPlayer {$/;"	c
+BOT_HPP	src/core/logic/elements/bot.hpp	/^#define BOT_HPP$/;"	d
+BOT_VELOCITY	src/core/graphics/test.game.cpp	/^const float BOT_VELOCITY = 1.0f;$/;"	v	typeref:typename:const float
+Bot	src/core/graphics/test.game.cpp	/^        Bot(Team team, int x, int y) {$/;"	f	class:Bot	file:
+Bot	src/core/graphics/test.game.cpp	/^class Bot : public Elem {$/;"	c	file:
+Bot	src/core/logic/elements/bot.cpp	/^Bot::Bot(ElemType type, bool alive, Shape* shape, Coord center, Team team, $/;"	f	class:Bot
+Bot	src/core/logic/elements/bot.hpp	/^class Bot: public Elem {$/;"	c
+COLLISION_HPP	src/core/physics/collision.hpp	/^#define COLLISION_HPP$/;"	d
+Circle	src/core/physics/shape.cpp	/^Circle::Circle(Coord center, int radius): Shape(center) {$/;"	f	class:Circle
+Circle	src/core/physics/shape.hpp	/^typedef struct Circle: Shape {$/;"	s
+Circle	src/core/physics/shape.hpp	/^} Circle;$/;"	t	typeref:struct:Circle
+Collision	src/core/physics/collision.hpp	/^typedef std::vector<Elem*> Collision;$/;"	t	typeref:typename:std::vector<Elem * >
+CollisionDetectionSystem	src/core/physics/collision.hpp	/^        CollisionDetectionSystem() {}$/;"	f	class:CollisionDetectionSystem
+CollisionDetectionSystem	src/core/physics/collision.hpp	/^class CollisionDetectionSystem {$/;"	c
+CollisionResolutionSystem	src/core/physics/collision.hpp	/^        CollisionResolutionSystem() {}$/;"	f	class:CollisionResolutionSystem
+CollisionResolutionSystem	src/core/physics/collision.hpp	/^class CollisionResolutionSystem {$/;"	c
+ConvexPolygon	src/core/physics/shape.cpp	/^ConvexPolygon::ConvexPolygon(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon
+ConvexPolygon	src/core/physics/shape.hpp	/^typedef struct ConvexPolygon: Polygon {$/;"	s
+ConvexPolygon	src/core/physics/shape.hpp	/^} ConvexPolygon;$/;"	t	typeref:struct:ConvexPolygon
+Coord	src/core/physics/shape.hpp	/^typedef struct Coord {$/;"	s
+Coord	src/core/physics/shape.hpp	/^} Coord;$/;"	t	typeref:struct:Coord
+ELEM_HPP	src/core/logic/elements/elem.hpp	/^#define ELEM_HPP$/;"	d
+Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Shape* shape_ptr):$/;"	f	class:Edge
+Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Shape* shape_ptr) {$/;"	f	class:Edge
+Edge	src/core/physics/shape.hpp	/^typedef struct Edge {$/;"	s
+Edge	src/core/physics/shape.hpp	/^} Edge;$/;"	t	typeref:struct:Edge
+Elem	src/core/graphics/test.game.cpp	/^class Elem {$/;"	c	file:
+Elem	src/core/logic/elements/elem.cpp	/^Elem::Elem(ElemType type, bool alive, Shape* shape, Coord center, Team team, $/;"	f	class:Elem
+Elem	src/core/logic/elements/elem.hpp	/^class Elem {$/;"	c
+ElemType	src/core/graphics/test.game.cpp	/^enum ElemType {$/;"	g	file:
+ElemType	src/core/logic/elements/elem.hpp	/^typedef enum ElemType {  $/;"	g
+ElemType	src/core/logic/elements/elem.hpp	/^} ElemType;  $/;"	t	typeref:enum:ElemType
+FailedTriangulationException	src/core/physics/nav_mesh.hpp	/^        struct FailedTriangulationException: public std::exception {$/;"	s	class:NavMesh
+GreaterComparator	src/core/concurrency/job_scheduler.hpp	/^        struct GreaterComparator {$/;"	s	class:Job
+GreaterComparator	src/core/physics/movement.hpp	/^    struct GreaterComparator {$/;"	s	struct:Move
+GreaterEdgeComparator	src/core/physics/shape.hpp	/^    struct GreaterEdgeComparator {$/;"	s	struct:Edge
+Hull	src/core/physics/shape.cpp	/^Hull::Hull(Coord origin) {$/;"	f	class:Hull
+Hull	src/core/physics/shape.cpp	/^Hull::Hull(Coord origin, std::vector<Edge*> edges) {$/;"	f	class:Hull
+Hull	src/core/physics/shape.hpp	/^typedef struct Hull {$/;"	s
+Hull	src/core/physics/shape.hpp	/^} Hull;$/;"	t	typeref:struct:Hull
+IllegalEdgeException	src/core/physics/shape.hpp	/^    struct IllegalEdgeException: public ShapeException {$/;"	s	struct:Edge
+IllegalTriangleException	src/core/physics/shape.hpp	/^    struct IllegalTriangleException: public ShapeException {$/;"	s	struct:Triangle
+InsufficientNodesException	src/core/physics/nav_mesh.hpp	/^        struct InsufficientNodesException: public std::exception {$/;"	s	class:NavMesh
+JOB_SCHEDULER_HPP	src/core/concurrency/job_scheduler.hpp	/^#define JOB_SCHEDULER_HPP$/;"	d
+Job	src/core/concurrency/job_scheduler.cpp	/^Job::Job(Action* action, uintptr_t param, JobPriority priority): action{action}, param{param},$/;"	f	class:Job
+Job	src/core/concurrency/job_scheduler.hpp	/^class Job {$/;"	c
+JobBatch	src/core/concurrency/job_scheduler.cpp	/^JobBatch::JobBatch(Action* action, std::vector<uintptr_t> params, JobPriority priority) {$/;"	f	class:JobBatch
+JobBatch	src/core/concurrency/job_scheduler.cpp	/^JobBatch::JobBatch(std::vector<Job*> jobs): m_jobs{jobs} {$/;"	f	class:JobBatch
+JobBatch	src/core/concurrency/job_scheduler.hpp	/^class JobBatch {$/;"	c
+JobPriority	src/core/concurrency/job_scheduler.hpp	/^typedef enum JobPriority {$/;"	g
+JobPriority	src/core/concurrency/job_scheduler.hpp	/^} JobPriority;$/;"	t	typeref:enum:JobPriority
+JobScheduler	src/core/concurrency/job_scheduler.cpp	/^JobScheduler::JobScheduler(): m_n_cpus{std::thread::hardware_concurrency()},$/;"	f	class:JobScheduler
+JobScheduler	src/core/concurrency/job_scheduler.hpp	/^class JobScheduler {$/;"	c
+JobStatus	src/core/concurrency/job_scheduler.hpp	/^typedef struct JobStatus {$/;"	s
+JobStatus	src/core/concurrency/job_scheduler.hpp	/^} JobStatus;$/;"	t	typeref:struct:JobStatus
+League of Bots	README.md	/^# League of Bots$/;"	c
+MAX_EABILITY_RANGE	src/core/graphics/test.game.cpp	/^const int MAX_EABILITY_RANGE = 100;$/;"	v	typeref:typename:const int
+MAX_QABILITY_RANGE	src/core/graphics/test.game.cpp	/^const int MAX_QABILITY_RANGE = 100;$/;"	v	typeref:typename:const int
+MOVEMENT_HPP	src/core/physics/movement.hpp	/^#define MOVEMENT_HPP$/;"	d
+M_PI	src/core/physics/nav_mesh.cpp	/^    #define M_PI /;"	d	file:
+MapSize	src/core/physics/nav_mesh.hpp	/^typedef struct MapSize {$/;"	s
+MapSize	src/core/physics/nav_mesh.hpp	/^} MapSize;$/;"	t	typeref:struct:MapSize
+Move	src/core/physics/movement.hpp	/^typedef struct Move {$/;"	s
+Move	src/core/physics/movement.hpp	/^} Move;$/;"	t	typeref:struct:Move
+MovePriority	src/core/physics/movement.hpp	/^typedef enum MovePriority {$/;"	g
+MovePriority	src/core/physics/movement.hpp	/^} MovePriority;$/;"	t	typeref:enum:MovePriority
+MovePriorityQueue	src/core/physics/movement.hpp	/^class MovePriorityQueue: public std::priority_queue<Move*, std::vector<Move*>, $/;"	c
+MovementManager	src/core/physics/movement.cpp	/^MovementManager::MovementManager(Elem* elem, float velocity): m_elem{elem},$/;"	f	class:MovementManager
+MovementManager	src/core/physics/movement.hpp	/^class MovementManager {$/;"	c
+NAV_MESH_HPP	src/core/physics/nav_mesh.hpp	/^#define NAV_MESH_HPP$/;"	d
+NavMesh	src/core/physics/nav_mesh.cpp	/^NavMesh::NavMesh(std::vector<Terrain*> terrains, MapSize map_size): m_map_size{map_size} {$/;"	f	class:NavMesh
+NavMesh	src/core/physics/nav_mesh.hpp	/^class NavMesh {$/;"	c
+Node	src/core/physics/shape.cpp	/^Node::Node(Coord coord, Coord origin) {$/;"	f	class:Node
+Node	src/core/physics/shape.cpp	/^Node::Node(Coord coord, Coord origin, Edge* edge_ptr): Node(coord, origin) {$/;"	f	class:Node
+Node	src/core/physics/shape.hpp	/^typedef struct Node {$/;"	s
+Node	src/core/physics/shape.hpp	/^} Node;$/;"	t	typeref:struct:Node
+PATH_FINDER_HPP	src/core/physics/path_finder.hpp	/^#define PATH_FINDER_HPP$/;"	d
+Path	src/core/physics/path_finder.hpp	/^typedef std::vector<Move> Path;$/;"	t	typeref:typename:std::vector<Move>
+PathFinder	src/core/physics/path_finder.hpp	/^class PathFinder {$/;"	c
+Polygon	src/core/physics/shape.cpp	/^Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges) {$/;"	f	class:Polygon
+Polygon	src/core/physics/shape.hpp	/^typedef struct Polygon: Shape {$/;"	s
+Polygon	src/core/physics/shape.hpp	/^} Polygon;$/;"	t	typeref:struct:Polygon
+QABILITY_VELOCITY	src/core/graphics/test.game.cpp	/^const float QABILITY_VELOCITY = 3.0f;$/;"	v	typeref:typename:const float
+QAbility	src/core/graphics/test.game.cpp	/^        QAbility(Team team, int x, int y) {$/;"	f	class:QAbility	file:
+QAbility	src/core/graphics/test.game.cpp	/^class QAbility : public Elem {$/;"	c	file:
+RComparator	src/core/physics/shape.hpp	/^    struct RComparator {$/;"	s	struct:Node
+SHAPE_HPP	src/core/physics/shape.hpp	/^#define SHAPE_HPP$/;"	d
+SaiBot	src/core/logic/elements/bot.cpp	/^SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, new ConvexPolygon({{0,0}, {0,50},$/;"	f	class:SaiBot
+SaiBot	src/core/logic/elements/bot.hpp	/^class SaiBot: public Bot {$/;"	c
+SaiEAbility	src/core/logic/elements/ability.cpp	/^SaiEAbility::SaiEAbility(Bot* bot): Ability(ability_t, false, nullptr, {0,0}, bot->getTeam(),$/;"	f	class:SaiEAbility
+SaiEAbility	src/core/logic/elements/ability.hpp	/^class SaiEAbility: public Ability {        $/;"	c
+SaiQAbility	src/core/logic/elements/ability.cpp	/^SaiQAbility::SaiQAbility(Bot* bot): Ability(ability_t,$/;"	f	class:SaiQAbility
+SaiQAbility	src/core/logic/elements/ability.hpp	/^class SaiQAbility: public Ability {        $/;"	c
+SaiRAbility	src/core/logic/elements/ability.cpp	/^SaiRAbility::SaiRAbility(Bot* bot): Ability(ability_t, false, nullptr, {0,0}, bot->getTeam(),$/;"	f	class:SaiRAbility
+SaiRAbility	src/core/logic/elements/ability.hpp	/^class SaiRAbility: public Ability {        $/;"	c
+SaiWAbility	src/core/logic/elements/ability.cpp	/^SaiWAbility::SaiWAbility(Bot* bot): Ability(ability_t, false, nullptr, {0,0}, bot->getTeam(),$/;"	f	class:SaiWAbility
+SaiWAbility	src/core/logic/elements/ability.hpp	/^class SaiWAbility: public Ability {        $/;"	c
+Shape	src/core/physics/shape.cpp	/^Shape::Shape(Coord center) {$/;"	f	class:Shape
+Shape	src/core/physics/shape.hpp	/^typedef struct Shape {$/;"	s
+Shape	src/core/physics/shape.hpp	/^} Shape;$/;"	t	typeref:struct:Shape
+ShapeException	src/core/physics/shape.hpp	/^struct ShapeException: public std::exception {$/;"	s
+TERRAIN_HPP	src/core/logic/elements/terrain.hpp	/^#define TERRAIN_HPP$/;"	d
+Team	src/core/graphics/test.game.cpp	/^enum Team {$/;"	g	file:
+Team	src/core/logic/elements/elem.hpp	/^typedef enum Team {  $/;"	g
+Team	src/core/logic/elements/elem.hpp	/^} Team;$/;"	t	typeref:enum:Team
+Terrain	src/core/logic/elements/terrain.cpp	/^Terrain::Terrain(Shape* shape, Coord center, int bounding_sphere_radius): Elem(terrain_t,$/;"	f	class:Terrain
+Terrain	src/core/logic/elements/terrain.hpp	/^class Terrain: public Elem {$/;"	c
+ThetaComparator	src/core/physics/shape.hpp	/^    struct ThetaComparator {$/;"	s	struct:Node
+Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Edge* e, Edge* g, Node* n) {$/;"	f	class:Triangle
+Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Edge* e, Node* n) {$/;"	f	class:Triangle
+Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Node* a, Node* b, Node* c) {$/;"	f	class:Triangle
+Triangle	src/core/physics/shape.hpp	/^typedef struct Triangle: Polygon {$/;"	s
+Triangle	src/core/physics/shape.hpp	/^} Triangle;$/;"	t	typeref:struct:Triangle
+TriangleMesh	src/core/physics/nav_mesh.hpp	/^typedef std::vector<Triangle*> TriangleMesh;$/;"	t	typeref:typename:std::vector<Triangle * >
+__anon5a542e180102	src/core/concurrency/job_scheduler.cpp	/^        status->cv.wait(lock, [this]{ return status->counter.load() == 0; });$/;"	f	function:Job::join	file:
+__anon5a542e180202	src/core/concurrency/job_scheduler.cpp	/^        status->cv.wait(lock, [this]{ return status->counter.load() == 0; });$/;"	f	function:JobBatch::join	file:
+__anon5a542e180302	src/core/concurrency/job_scheduler.cpp	/^            m_job_available.wait(lock, [this, signal]{$/;"	f	function:JobScheduler::work	file:
+__anon70ecd0e80102	src/core/physics/shape.cpp	/^    std::sort(es.begin(), es.end(), [node](Edge& lhs, Edge& rhs) {$/;"	f	function:Hull::popIntersectingEdge	file:
+a	src/core/physics/shape.hpp	/^    Node* a;$/;"	m	struct:Edge	typeref:typename:Node *
+ability_t	src/core/logic/elements/elem.hpp	/^    bot_t = 0, ability_t = 1, terrain_t = 2$/;"	e	enum:ElemType
+action	src/core/concurrency/job_scheduler.hpp	/^        Action* action;$/;"	m	class:Job	typeref:typename:Action *
+action	src/core/concurrency/job_scheduler_test.cpp	/^void action(uintptr_t param) {$/;"	f	typeref:typename:void
+adjacentEdges	src/core/physics/shape.cpp	/^std::vector<Edge*> Triangle::adjacentEdges(Edge* edge) {$/;"	f	class:Triangle	typeref:typename:std::vector<Edge * >
+alive	src/core/graphics/test.game.cpp	/^        bool alive;$/;"	m	class:Elem	typeref:typename:bool	file:
+angleOppositeToEdge	src/core/physics/shape.cpp	/^float Triangle::angleOppositeToEdge(Edge* edge) {$/;"	f	class:Triangle	typeref:typename:float
+angleWith	src/core/physics/shape.cpp	/^float Edge::angleWith(Edge* edge) {$/;"	f	class:Edge	typeref:typename:float
+areCollinear	src/core/physics/shape.cpp	/^bool Triangle::areCollinear(Node* a, Node* b, Node* c) {$/;"	f	class:Triangle	typeref:typename:bool
+avgCoord	src/core/physics/nav_mesh.cpp	/^Coord NavMesh::avgCoord(std::vector<Node*> nodes) {$/;"	f	class:NavMesh	typeref:typename:Coord
+avgR	src/core/physics/shape.cpp	/^float Edge::avgR() {$/;"	f	class:Edge	typeref:typename:float
+b	src/core/physics/shape.hpp	/^    Node* b;$/;"	m	struct:Edge	typeref:typename:Node *
+belongToSameShape	src/core/physics/shape.cpp	/^bool Hull::belongToSameShape(Node* node, Edge* edge) {$/;"	f	class:Hull	typeref:typename:bool
+black_team	src/core/logic/elements/elem.hpp	/^    neutral_team = 0, white_team = 1, black_team = 2  $/;"	e	enum:Team
+blue_team	src/core/graphics/test.game.cpp	/^    red_team = 0, blue_team = 1, neutral = 2$/;"	e	enum:Team	file:
+bot_t	src/core/logic/elements/elem.hpp	/^    bot_t = 0, ability_t = 1, terrain_t = 2$/;"	e	enum:ElemType
+bot_type	src/core/graphics/test.game.cpp	/^    bot_type = 0, qAbility_type = 1$/;"	e	enum:ElemType	file:
+cast	src/core/logic/elements/ability.cpp	/^bool SaiEAbility::cast(Coord target) {$/;"	f	class:SaiEAbility	typeref:typename:bool
+cast	src/core/logic/elements/ability.cpp	/^bool SaiQAbility::cast(Coord target) {$/;"	f	class:SaiQAbility	typeref:typename:bool
+cast	src/core/logic/elements/ability.cpp	/^bool SaiRAbility::cast(Coord target) {$/;"	f	class:SaiRAbility	typeref:typename:bool
+cast	src/core/logic/elements/ability.cpp	/^bool SaiWAbility::cast(Coord target) {$/;"	f	class:SaiWAbility	typeref:typename:bool
+center	src/core/physics/shape.hpp	/^    Coord center;$/;"	m	struct:Shape	typeref:typename:Coord
+constructInstantMove	src/core/physics/movement.cpp	/^Move* constructInstantMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
+constructLinearMove	src/core/physics/movement.cpp	/^Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
+coord	src/core/physics/shape.hpp	/^    Coord coord;$/;"	m	struct:Node	typeref:typename:Coord
+counter	src/core/concurrency/job_scheduler.hpp	/^    std::atomic<int> counter;$/;"	m	struct:JobStatus	typeref:typename:std::atomic<int>
+createNodes	src/core/physics/shape.cpp	/^std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon	typeref:typename:std::vector<Node * >
+cv	src/core/concurrency/job_scheduler.hpp	/^    std::condition_variable cv;$/;"	m	struct:JobStatus	typeref:typename:std::condition_variable
+detect	src/core/physics/collision.cpp	/^std::vector<Collision> CollisionDetectionSystem::detect(std::vector<Elem*> elems) {$/;"	f	class:CollisionDetectionSystem	typeref:typename:std::vector<Collision>
+direction	src/core/physics/shape.cpp	/^int Edge::direction(Node* a, Node* b, Node* c) {$/;"	f	class:Edge	typeref:typename:int
+distance	src/core/physics/movement.hpp	/^    int distance;$/;"	m	struct:Move	typeref:typename:int
+e	src/core/logic/elements/ability.hpp	/^    q, w, e, r$/;"	e	enum:AbilityKey
+eAbilityCd	src/core/graphics/test.game.cpp	/^        const time_t eAbilityCd = std::chrono::milliseconds(3000).count();$/;"	m	class:Bot	typeref:typename:const time_t	file:
+edge_ptrs	src/core/physics/shape.hpp	/^    std::vector<Edge*> edge_ptrs;$/;"	m	struct:Node	typeref:typename:std::vector<Edge * >
+edges	src/core/physics/shape.hpp	/^    std::vector<Edge*> edges;$/;"	m	struct:Hull	typeref:typename:std::vector<Edge * >
+edges	src/core/physics/shape.hpp	/^    std::vector<Edge*> edges;$/;"	m	struct:Polygon	typeref:typename:std::vector<Edge * >
+enemy_ability	src/core/physics/movement.hpp	/^    right_click = 0, own_ability = 1, enemy_ability = 2$/;"	e	enum:MovePriority
+findCenter	src/core/physics/shape.cpp	/^Coord Polygon::findCenter(std::vector<Coord> coords) {$/;"	f	class:Polygon	typeref:typename:Coord
+getAction	src/core/concurrency/job_scheduler.cpp	/^Action* Job::getAction() {$/;"	f	class:Job	typeref:typename:Action *
+getAimingPolicy	src/core/logic/ai/artificial_player.cpp	/^ArtificialAimingPolicy ArtificialPlayer::getAimingPolicy() {$/;"	f	class:ArtificialPlayer	typeref:typename:ArtificialAimingPolicy
+getBoundingSphereRadius	src/core/logic/elements/elem.cpp	/^int Elem::getBoundingSphereRadius() {$/;"	f	class:Elem	typeref:typename:int
+getCd	src/core/logic/elements/ability.cpp	/^time_t Ability::getCd() {$/;"	f	class:Ability	typeref:typename:time_t
+getCenter	src/core/logic/elements/elem.cpp	/^Coord Elem::getCenter() {$/;"	f	class:Elem	typeref:typename:Coord
+getEdgeWith	src/core/physics/shape.cpp	/^Edge* Node::getEdgeWith(Node* node) {$/;"	f	class:Node	typeref:typename:Edge *
+getJobs	src/core/concurrency/job_scheduler.cpp	/^std::vector<Job*> JobBatch::getJobs() {$/;"	f	class:JobBatch	typeref:typename:std::vector<Job * >
+getLastUsed	src/core/logic/elements/ability.cpp	/^std::chrono::steady_clock::time_point Ability::getLastUsed() {$/;"	f	class:Ability	typeref:typename:std::chrono::steady_clock::time_point
+getMapSize	src/core/physics/nav_mesh.cpp	/^MapSize NavMesh::getMapSize() {$/;"	f	class:NavMesh	typeref:typename:MapSize
+getMesh	src/core/physics/nav_mesh.cpp	/^TriangleMesh NavMesh::getMesh() {$/;"	f	class:NavMesh	typeref:typename:TriangleMesh
+getMovementPolicy	src/core/logic/ai/artificial_player.cpp	/^ArtificialMovementPolicy ArtificialPlayer::getMovementPolicy() {$/;"	f	class:ArtificialPlayer	typeref:typename:ArtificialMovementPolicy
+getNCpus	src/core/concurrency/job_scheduler.cpp	/^unsigned int JobScheduler::getNCpus() {$/;"	f	class:JobScheduler	typeref:typename:unsigned int
+getNThreads	src/core/concurrency/job_scheduler.cpp	/^unsigned int JobScheduler::getNThreads() {$/;"	f	class:JobScheduler	typeref:typename:unsigned int
+getNodes	src/core/physics/nav_mesh.cpp	/^std::vector<Node*> NavMesh::getNodes() {$/;"	f	class:NavMesh	typeref:typename:std::vector<Node * >
+getParam	src/core/concurrency/job_scheduler.cpp	/^uintptr_t Job::getParam() {$/;"	f	class:Job	typeref:typename:uintptr_t
+getPriority	src/core/concurrency/job_scheduler.cpp	/^JobPriority Job::getPriority() {$/;"	f	class:Job	typeref:typename:JobPriority
+getShape	src/core/logic/elements/elem.cpp	/^Shape* Elem::getShape() {$/;"	f	class:Elem	typeref:typename:Shape *
+getTeam	src/core/logic/elements/elem.cpp	/^Team Elem::getTeam() {$/;"	f	class:Elem	typeref:typename:Team
+getType	src/core/logic/elements/elem.cpp	/^ElemType Elem::getType() {$/;"	f	class:Elem	typeref:typename:ElemType
+getUpdateInterval	src/core/logic/ai/artificial_player.cpp	/^float ArtificialPlayer::getUpdateInterval() {$/;"	f	class:ArtificialPlayer	typeref:typename:float
+getVelocity	src/core/physics/movement.cpp	/^float MovementManager::getVelocity() {$/;"	f	class:MovementManager	typeref:typename:float
+handleBotCollision	src/core/logic/elements/ability.cpp	/^void SaiEAbility::handleBotCollision(Bot* bot) {$/;"	f	class:SaiEAbility	typeref:typename:void
+handleBotCollision	src/core/logic/elements/ability.cpp	/^void SaiQAbility::handleBotCollision(Bot* bot) {$/;"	f	class:SaiQAbility	typeref:typename:void
+handleBotCollision	src/core/logic/elements/ability.cpp	/^void SaiRAbility::handleBotCollision(Bot* bot) {$/;"	f	class:SaiRAbility	typeref:typename:void
+handleBotCollision	src/core/logic/elements/ability.cpp	/^void SaiWAbility::handleBotCollision(Bot* bot) {$/;"	f	class:SaiWAbility	typeref:typename:void
+hasAtLeft	src/core/physics/shape.cpp	/^bool Edge::hasAtLeft(Edge* edge) {$/;"	f	class:Edge	typeref:typename:bool
+high	src/core/concurrency/job_scheduler.hpp	/^    low = 0, medium = 1, high = 2$/;"	e	enum:JobPriority
+intersectsWith	src/core/physics/shape.cpp	/^bool Edge::intersectsWith(std::vector<Edge*> edges) {$/;"	f	class:Edge	typeref:typename:bool
+isAlive	src/core/logic/elements/elem.cpp	/^bool Elem::isAlive() {$/;"	f	class:Elem	typeref:typename:bool
+isCollinearWithNode	src/core/physics/shape.cpp	/^bool Edge::isCollinearWithNode(Node* node) {$/;"	f	class:Edge	typeref:typename:bool
+isOn	src/core/physics/shape.cpp	/^bool Node::isOn(Edge* edge) {$/;"	f	class:Node	typeref:typename:bool
+join	src/core/concurrency/job_scheduler.cpp	/^void Job::join() {$/;"	f	class:Job	typeref:typename:void
+join	src/core/concurrency/job_scheduler.cpp	/^void JobBatch::join() {$/;"	f	class:JobBatch	typeref:typename:void
+kickJob	src/core/concurrency/job_scheduler.cpp	/^void JobScheduler::kickJob(Job* job) {$/;"	f	class:JobScheduler	typeref:typename:void
+kickJobBatch	src/core/concurrency/job_scheduler.cpp	/^void JobScheduler::kickJobBatch(JobBatch* job_batch) {$/;"	f	class:JobScheduler	typeref:typename:void
+kill	src/core/logic/elements/elem.cpp	/^void Elem::kill() {$/;"	f	class:Elem	typeref:typename:void
+last_eAbility	src/core/graphics/test.game.cpp	/^        std::chrono::steady_clock::time_point last_eAbility;$/;"	m	class:Bot	typeref:typename:std::chrono::steady_clock::time_point	file:
+last_qAbility	src/core/graphics/test.game.cpp	/^        std::chrono::steady_clock::time_point last_qAbility;$/;"	m	class:Bot	typeref:typename:std::chrono::steady_clock::time_point	file:
+left	src/core/physics/shape.hpp	/^    Edge* left;   \/\/ Triangles in meshes don't use this, because edges can be shared$/;"	m	struct:Edge	typeref:typename:Edge *
+legalize	src/core/physics/nav_mesh.cpp	/^Triangle* NavMesh::legalize(Triangle* candidate) {$/;"	f	class:NavMesh	typeref:typename:Triangle *
+length	src/core/physics/shape.hpp	/^    float length;$/;"	m	struct:Edge	typeref:typename:float
+low	src/core/concurrency/job_scheduler.hpp	/^    low = 0, medium = 1, high = 2$/;"	e	enum:JobPriority
+m_abilities	src/core/logic/elements/bot.hpp	/^        std::vector<Ability*> m_abilities;$/;"	m	class:Bot	typeref:typename:std::vector<Ability * >
+m_aiming_policy	src/core/logic/ai/artificial_player.hpp	/^        ArtificialAimingPolicy m_aiming_policy;$/;"	m	class:ArtificialPlayer	typeref:typename:ArtificialAimingPolicy
+m_alive	src/core/logic/elements/elem.hpp	/^        bool m_alive;$/;"	m	class:Elem	typeref:typename:bool
+m_bot	src/core/logic/ai/artificial_player.hpp	/^        Bot* m_bot;$/;"	m	class:ArtificialPlayer	typeref:typename:Bot *
+m_bot	src/core/logic/elements/ability.hpp	/^        Bot* m_bot;$/;"	m	class:Ability	typeref:typename:Bot *
+m_bounding_sphere_radius	src/core/logic/elements/elem.hpp	/^        int m_bounding_sphere_radius;$/;"	m	class:Elem	typeref:typename:int
+m_cd	src/core/logic/elements/ability.hpp	/^        time_t m_cd;$/;"	m	class:Ability	typeref:typename:time_t
+m_center	src/core/logic/elements/elem.hpp	/^        Coord m_center;$/;"	m	class:Elem	typeref:typename:Coord
+m_elem	src/core/physics/movement.hpp	/^        Elem* m_elem;$/;"	m	class:MovementManager	typeref:typename:Elem *
+m_exit_signal	src/core/concurrency/job_scheduler.hpp	/^        std::promise<void> m_exit_signal;$/;"	m	class:JobScheduler	typeref:typename:std::promise<void>
+m_hull	src/core/physics/nav_mesh.hpp	/^        Hull* m_hull;$/;"	m	class:NavMesh	typeref:typename:Hull *
+m_job_available	src/core/concurrency/job_scheduler.hpp	/^        std::condition_variable m_job_available;$/;"	m	class:JobScheduler	typeref:typename:std::condition_variable
+m_jobs	src/core/concurrency/job_scheduler.hpp	/^        std::priority_queue<Job*, std::vector<Job*>, Job::GreaterComparator> m_jobs;$/;"	m	class:JobScheduler	typeref:typename:std::priority_queue<Job *,std::vector<Job * >,Job::GreaterComparator>
+m_jobs	src/core/concurrency/job_scheduler.hpp	/^        std::vector<Job*> m_jobs;$/;"	m	class:JobBatch	typeref:typename:std::vector<Job * >
+m_last_played	src/core/logic/ai/artificial_player.hpp	/^        std::chrono::steady_clock::time_point m_last_played;$/;"	m	class:ArtificialPlayer	typeref:typename:std::chrono::steady_clock::time_point
+m_last_used	src/core/logic/elements/ability.hpp	/^        std::chrono::steady_clock::time_point m_last_used;$/;"	m	class:Ability	typeref:typename:std::chrono::steady_clock::time_point
+m_map_size	src/core/physics/nav_mesh.hpp	/^        MapSize m_map_size;$/;"	m	class:NavMesh	typeref:typename:MapSize
+m_mesh	src/core/physics/nav_mesh.hpp	/^        TriangleMesh m_mesh;$/;"	m	class:NavMesh	typeref:typename:TriangleMesh
+m_movement_manager	src/core/logic/elements/ability.hpp	/^        MovementManager* m_movement_manager;$/;"	m	class:SaiQAbility	typeref:typename:MovementManager *
+m_movement_manager	src/core/logic/elements/bot.hpp	/^        MovementManager* m_movement_manager;$/;"	m	class:Bot	typeref:typename:MovementManager *
+m_movement_policy	src/core/logic/ai/artificial_player.hpp	/^        ArtificialMovementPolicy m_movement_policy;$/;"	m	class:ArtificialPlayer	typeref:typename:ArtificialMovementPolicy
+m_moves	src/core/physics/movement.hpp	/^        MovePriorityQueue m_moves;$/;"	m	class:MovementManager	typeref:typename:MovePriorityQueue
+m_mutex	src/core/concurrency/job_scheduler.hpp	/^        std::mutex m_mutex;$/;"	m	class:JobScheduler	typeref:typename:std::mutex
+m_n_cpus	src/core/concurrency/job_scheduler.hpp	/^        const unsigned int m_n_cpus;$/;"	m	class:JobScheduler	typeref:typename:const unsigned int
+m_n_threads	src/core/concurrency/job_scheduler.hpp	/^        const unsigned int m_n_threads;$/;"	m	class:JobScheduler	typeref:typename:const unsigned int
+m_nav_mesh	src/core/physics/path_finder.hpp	/^        NavMesh m_nav_mesh;$/;"	m	class:PathFinder	typeref:typename:NavMesh
+m_nodes	src/core/physics/nav_mesh.hpp	/^        std::vector<Node*> m_nodes;$/;"	m	class:NavMesh	typeref:typename:std::vector<Node * >
+m_shape	src/core/logic/elements/elem.hpp	/^        Shape* m_shape;$/;"	m	class:Elem	typeref:typename:Shape *
+m_team	src/core/logic/elements/elem.hpp	/^        Team m_team;$/;"	m	class:Elem	typeref:typename:Team
+m_threads	src/core/concurrency/job_scheduler.hpp	/^        std::vector<std::thread> m_threads;$/;"	m	class:JobScheduler	typeref:typename:std::vector<std::thread>
+m_type	src/core/logic/elements/elem.hpp	/^        ElemType m_type;$/;"	m	class:Elem	typeref:typename:ElemType
+m_update_interval	src/core/logic/ai/artificial_player.hpp	/^        float m_update_interval;  \/\/ In ms$/;"	m	class:ArtificialPlayer	typeref:typename:float
+m_velocity	src/core/physics/movement.hpp	/^        float m_velocity;$/;"	m	class:MovementManager	typeref:typename:float
+main	src/core/concurrency/job_scheduler_test.cpp	/^int main() {$/;"	f	typeref:typename:int
+main	src/core/game/main.cpp	/^int main() {$/;"	f	typeref:typename:int
+main	src/core/graphics/test.game.cpp	/^int main() {$/;"	f	typeref:typename:int
+main	src/core/physics/nav_mesh_test.cpp	/^int main() {$/;"	f	typeref:typename:int
+medium	src/core/concurrency/job_scheduler.hpp	/^    low = 0, medium = 1, high = 2$/;"	e	enum:JobPriority
+moveBot	src/core/graphics/test.game.cpp	/^void moveBot(Bot* bot, int x, int y) {$/;"	f	typeref:typename:void
+moveBotRandomly	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::moveBotRandomly() {$/;"	f	class:ArtificialPlayer	typeref:typename:void
+moveTo	src/core/logic/elements/bot.cpp	/^void Bot::moveTo(Coord target) {$/;"	f	class:Bot	typeref:typename:void
+moveTowards	src/core/logic/elements/bot.cpp	/^void Bot::moveTowards(Coord target) {$/;"	f	class:Bot	typeref:typename:void
+mutex	src/core/concurrency/job_scheduler.hpp	/^    std::mutex mutex;$/;"	m	struct:JobStatus	typeref:typename:std::mutex
+mutex	src/core/concurrency/job_scheduler_test.cpp	/^std::mutex mutex;$/;"	v	typeref:typename:std::mutex
+mutex	src/core/graphics/test.game.cpp	/^        mutable std::mutex mutex;$/;"	m	class:Bot	typeref:typename:std::mutex	file:
+mutex	src/core/graphics/test.game.cpp	/^        mutable std::mutex mutex;$/;"	m	class:QAbility	typeref:typename:std::mutex	file:
+mutex	src/core/logic/elements/elem.hpp	/^        mutable std::mutex mutex;$/;"	m	class:Elem	typeref:typename:std::mutex
+neutral	src/core/graphics/test.game.cpp	/^    red_team = 0, blue_team = 1, neutral = 2$/;"	e	enum:Team	file:
+neutral_team	src/core/logic/elements/elem.hpp	/^    neutral_team = 0, white_team = 1, black_team = 2  $/;"	e	enum:Team
+nodeOppositeToEdge	src/core/physics/shape.cpp	/^Node* Triangle::nodeOppositeToEdge(Edge* edge) {$/;"	f	class:Triangle	typeref:typename:Node *
+nodes	src/core/physics/shape.hpp	/^    std::vector<Node*> nodes;$/;"	m	struct:Polygon	typeref:typename:std::vector<Node * >
+operator () 	src/core/concurrency/job_scheduler.cpp	/^bool Job::GreaterComparator::operator() (const Job* lhs, const Job* rhs) {   $/;"	f	class:Job::GreaterComparator	typeref:typename:bool
+operator () 	src/core/physics/movement.cpp	/^bool Move::GreaterComparator::operator() (const Move* lhs, const Move* rhs) {   $/;"	f	class:Move::GreaterComparator	typeref:typename:bool
+operator () 	src/core/physics/shape.cpp	/^bool Edge::GreaterEdgeComparator::operator() (const Edge& lhs, const Edge& rhs) {$/;"	f	class:Edge::GreaterEdgeComparator	typeref:typename:bool
+operator () 	src/core/physics/shape.cpp	/^bool Node::RComparator::operator() (const Node& lhs, const Node& rhs) {$/;"	f	class:Node::RComparator	typeref:typename:bool
+operator () 	src/core/physics/shape.cpp	/^bool Node::ThetaComparator::operator() (const Node& lhs, const Node& rhs) {$/;"	f	class:Node::ThetaComparator	typeref:typename:bool
+operator <	src/core/physics/movement.cpp	/^bool operator < (const Move& lhs, const Move& rhs) {$/;"	f	typeref:typename:bool
+operator >	src/core/physics/movement.cpp	/^bool operator > (const Move& lhs, const Move& rhs) {$/;"	f	typeref:typename:bool
+origin	src/core/physics/shape.hpp	/^    Coord origin;$/;"	m	struct:Hull	typeref:typename:Coord
+own_ability	src/core/physics/movement.hpp	/^    right_click = 0, own_ability = 1, enemy_ability = 2$/;"	e	enum:MovePriority
+param	src/core/concurrency/job_scheduler.hpp	/^        uintptr_t param;$/;"	m	class:Job	typeref:typename:uintptr_t
+param	src/core/concurrency/job_scheduler.hpp	/^typedef void Action(uintptr_t param);$/;"	t	typeref:typename:void Action (uintptr_t)
+play	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::play() {$/;"	f	class:ArtificialPlayer	typeref:typename:void
+popIntersectingEdge	src/core/physics/shape.cpp	/^Edge* Hull::popIntersectingEdge(Node* node) {$/;"	f	class:Hull	typeref:typename:Edge *
+populateNodes	src/core/physics/nav_mesh.cpp	/^void NavMesh::populateNodes() {$/;"	f	class:NavMesh	typeref:typename:void
+priority	src/core/concurrency/job_scheduler.hpp	/^        JobPriority priority;$/;"	m	class:Job	typeref:typename:JobPriority
+priority	src/core/physics/movement.hpp	/^    MovePriority priority;$/;"	m	struct:Move	typeref:typename:MovePriority
+q	src/core/logic/elements/ability.hpp	/^    q, w, e, r$/;"	e	enum:AbilityKey
+qAbilityCd	src/core/graphics/test.game.cpp	/^        const time_t qAbilityCd = std::chrono::milliseconds(1000).count();$/;"	m	class:Bot	typeref:typename:const time_t	file:
+qAbility_type	src/core/graphics/test.game.cpp	/^    bot_type = 0, qAbility_type = 1$/;"	e	enum:ElemType	file:
+r	src/core/logic/elements/ability.hpp	/^    q, w, e, r$/;"	e	enum:AbilityKey
+r	src/core/physics/shape.hpp	/^    float r;$/;"	m	struct:Node	typeref:typename:float
+radius	src/core/physics/shape.hpp	/^    int radius;$/;"	m	struct:Circle	typeref:typename:int
+random_aiming	src/core/logic/ai/artificial_player.hpp	/^    random_aiming = 0$/;"	e	enum:ArtificialAimingPolicy
+random_movement	src/core/logic/ai/artificial_player.hpp	/^    random_movement = 0$/;"	e	enum:ArtificialMovementPolicy
+red_team	src/core/graphics/test.game.cpp	/^    red_team = 0, blue_team = 1, neutral = 2$/;"	e	enum:Team	file:
+removeRightClickMove	src/core/physics/movement.cpp	/^void MovePriorityQueue::removeRightClickMove() {$/;"	f	class:MovePriorityQueue	typeref:typename:void
+replaceRightClickMove	src/core/physics/movement.cpp	/^void MovePriorityQueue::replaceRightClickMove(Move* move) {$/;"	f	class:MovePriorityQueue	typeref:typename:void
+request	src/core/physics/movement.cpp	/^void MovementManager::request(Move* move) {$/;"	f	class:MovementManager	typeref:typename:void
+resolve	src/core/physics/collision.cpp	/^void CollisionResolutionSystem::resolve(std::vector<Collision> collisions) {$/;"	f	class:CollisionResolutionSystem	typeref:typename:void
+restrictNodes	src/core/physics/shape.cpp	/^void Polygon::restrictNodes() {$/;"	f	class:Polygon	typeref:typename:void
+restricted	src/core/physics/shape.hpp	/^    std::unordered_set<Node*> restricted;$/;"	m	struct:Node	typeref:typename:std::unordered_set<Node * >
+right	src/core/physics/shape.hpp	/^    Edge* right;  \/\/ Triangles in meshes don't use this, because edges can be shared$/;"	m	struct:Edge	typeref:typename:Edge *
+right_click	src/core/physics/movement.hpp	/^    right_click = 0, own_ability = 1, enemy_ability = 2$/;"	e	enum:MovePriority
+setAimingPolicy	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::setAimingPolicy(ArtificialAimingPolicy aiming_policy) {$/;"	f	class:ArtificialPlayer	typeref:typename:void
+setBoundingSphereRadius	src/core/logic/elements/elem.cpp	/^void Elem::setBoundingSphereRadius(int radius) {$/;"	f	class:Elem	typeref:typename:void
+setCd	src/core/logic/elements/ability.cpp	/^void Ability::setCd(time_t cd) {$/;"	f	class:Ability	typeref:typename:void
+setCenter	src/core/logic/elements/elem.cpp	/^void Elem::setCenter(Coord center) {$/;"	f	class:Elem	typeref:typename:void
+setMovementPolicy	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::setMovementPolicy(ArtificialMovementPolicy movement_policy) {$/;"	f	class:ArtificialPlayer	typeref:typename:void
+setOrigin	src/core/physics/shape.cpp	/^void Node::setOrigin(Coord origin) {$/;"	f	class:Node	typeref:typename:void
+setShape	src/core/logic/elements/elem.cpp	/^void Elem::setShape(Shape* shape) {$/;"	f	class:Elem	typeref:typename:void
+setUpdateInterval	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::setUpdateInterval(float update_interval) {$/;"	f	class:ArtificialPlayer	typeref:typename:void
+setVelocity	src/core/physics/movement.cpp	/^void MovementManager::setVelocity(float velocity) {$/;"	f	class:MovementManager	typeref:typename:void
+shape_ptrs	src/core/physics/shape.hpp	/^    std::vector<Shape*> shape_ptrs;$/;"	m	struct:Edge	typeref:typename:std::vector<Shape * >
+shortestDistanceTo	src/core/physics/shape.cpp	/^float Node::shortestDistanceTo(Edge* edge) {$/;"	f	class:Node	typeref:typename:float
+start	src/core/physics/movement.hpp	/^    Coord start;$/;"	m	struct:Move	typeref:typename:Coord
+status	src/core/concurrency/job_scheduler.hpp	/^        JobStatus* status;  \/\/ It's public because of the atomic operations$/;"	m	class:Job	typeref:typename:JobStatus *
+status	src/core/concurrency/job_scheduler.hpp	/^        JobStatus* status;  \/\/ It's public because of the atomic operations$/;"	m	class:JobBatch	typeref:typename:JobStatus *
+stop_movement_flag	src/core/graphics/test.game.cpp	/^std::atomic<bool> stop_movement_flag{false};$/;"	v	typeref:typename:std::atomic<bool>
+target	src/core/physics/movement.hpp	/^    Coord target;$/;"	m	struct:Move	typeref:typename:Coord
+team	src/core/graphics/test.game.cpp	/^        Team team;$/;"	m	class:Elem	typeref:typename:Team	file:
+terrain_t	src/core/logic/elements/elem.hpp	/^    bot_t = 0, ability_t = 1, terrain_t = 2$/;"	e	enum:ElemType
+theta	src/core/physics/shape.hpp	/^    float theta;$/;"	m	struct:Node	typeref:typename:float
+travelled	src/core/physics/movement.hpp	/^    int travelled;$/;"	m	struct:Move	typeref:typename:int
+triangulate	src/core/physics/nav_mesh.cpp	/^void NavMesh::triangulate() {$/;"	f	class:NavMesh	typeref:typename:void
+type	src/core/graphics/test.game.cpp	/^        ElemType type;$/;"	m	class:Elem	typeref:typename:ElemType	file:
+unit_travel	src/core/physics/movement.hpp	/^    std::vector<float> unit_travel;$/;"	m	struct:Move	typeref:typename:std::vector<float>
+update	src/core/logic/elements/ability.cpp	/^void SaiEAbility::update(float ms) {$/;"	f	class:SaiEAbility	typeref:typename:void
+update	src/core/logic/elements/ability.cpp	/^void SaiQAbility::update(float ms) {$/;"	f	class:SaiQAbility	typeref:typename:void
+update	src/core/logic/elements/ability.cpp	/^void SaiRAbility::update(float ms) {$/;"	f	class:SaiRAbility	typeref:typename:void
+update	src/core/logic/elements/ability.cpp	/^void SaiWAbility::update(float ms) {$/;"	f	class:SaiWAbility	typeref:typename:void
+update	src/core/logic/elements/bot.cpp	/^void SaiBot::update(float ms) {$/;"	f	class:SaiBot	typeref:typename:void
+update	src/core/logic/elements/terrain.cpp	/^void Terrain::update(float ms) {$/;"	f	class:Terrain	typeref:typename:void
+update	src/core/physics/movement.cpp	/^bool MovementManager::update(float ms) {$/;"	f	class:MovementManager	typeref:typename:bool
+useAbility	src/core/logic/elements/bot.cpp	/^Ability* Bot::useAbility(AbilityKey key, Coord target) {$/;"	f	class:Bot	typeref:typename:Ability *
+useEAbility	src/core/graphics/test.game.cpp	/^void useEAbility(Bot* bot, int x, int y) {$/;"	f	typeref:typename:void
+useQAbility	src/core/graphics/test.game.cpp	/^void useQAbility(QAbility* qAbility, Bot* bot, int x, int y) {$/;"	f	typeref:typename:void
+w	src/core/logic/elements/ability.hpp	/^    q, w, e, r$/;"	e	enum:AbilityKey
+what	src/core/physics/nav_mesh.cpp	/^const char* NavMesh::FailedTriangulationException::what() const throw() {$/;"	f	class:NavMesh::FailedTriangulationException	typeref:typename:const char *
+what	src/core/physics/nav_mesh.cpp	/^const char* NavMesh::InsufficientNodesException::what() const throw() {$/;"	f	class:NavMesh::InsufficientNodesException	typeref:typename:const char *
+what	src/core/physics/shape.cpp	/^const char* Edge::IllegalEdgeException::what() const noexcept {$/;"	f	class:Edge::IllegalEdgeException	typeref:typename:const char *
+what	src/core/physics/shape.cpp	/^const char* Triangle::IllegalTriangleException::what() const noexcept {$/;"	f	class:Triangle::IllegalTriangleException	typeref:typename:const char *
+white_team	src/core/logic/elements/elem.hpp	/^    neutral_team = 0, white_team = 1, black_team = 2  $/;"	e	enum:Team
+work	src/core/concurrency/job_scheduler.cpp	/^void JobScheduler::work(std::shared_future<void> signal) {$/;"	f	class:JobScheduler	typeref:typename:void
+x	src/core/graphics/test.game.cpp	/^        int x;$/;"	m	class:Bot	typeref:typename:int	file:
+x	src/core/graphics/test.game.cpp	/^        int x;$/;"	m	class:QAbility	typeref:typename:int	file:
+x	src/core/physics/nav_mesh.hpp	/^    int x;$/;"	m	struct:MapSize	typeref:typename:int
+x	src/core/physics/shape.hpp	/^    int x;$/;"	m	struct:Coord	typeref:typename:int
+y	src/core/graphics/test.game.cpp	/^        int y;$/;"	m	class:Bot	typeref:typename:int	file:
+y	src/core/graphics/test.game.cpp	/^        int y;$/;"	m	class:QAbility	typeref:typename:int	file:
+y	src/core/physics/nav_mesh.hpp	/^    int y;$/;"	m	struct:MapSize	typeref:typename:int
+y	src/core/physics/shape.hpp	/^    int y;$/;"	m	struct:Coord	typeref:typename:int
+~Edge	src/core/physics/shape.cpp	/^Edge::~Edge() {$/;"	f	class:Edge
+~JobScheduler	src/core/concurrency/job_scheduler.cpp	/^JobScheduler::~JobScheduler() {$/;"	f	class:JobScheduler
+~Polygon	src/core/physics/shape.cpp	/^Polygon::~Polygon() {$/;"	f	class:Polygon

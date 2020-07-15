@@ -26,7 +26,8 @@ class Ability: public Elem {
         Bot* m_bot;
         time_t m_cd;
         std::chrono::steady_clock::time_point m_last_used;
-        Ability(ElemType type, bool alive, Coord coord, Team team,
+        Ability();
+        Ability(ElemType type, bool alive, Shape* shape, Coord center, Team team,
                 Bot* bot, time_t cd, int bounding_sphere_radius);
 };
 

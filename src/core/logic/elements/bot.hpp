@@ -15,7 +15,8 @@ class Bot: public Elem {
         virtual void update(float ms) = 0;
 
     protected:
-        Bot(ElemType type, bool alive, Coord coord, Team team,
+        Bot();
+        Bot(ElemType type, bool alive, Shape* shape, Coord center, Team team,
                 int bounding_sphere_radius, MovementManager* movement_manager);
         std::vector<Ability*> m_abilities;
         MovementManager* m_movement_manager;

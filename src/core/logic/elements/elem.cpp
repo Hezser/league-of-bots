@@ -6,9 +6,9 @@
 
 /* class elem */
 
-Elem::Elem(ElemType type, bool alive, Coord coord, Team team, 
-        int bounding_sphere_radius): m_type{type}, m_alive{alive}, m_coord{coord},
-        m_team{team}, m_bounding_sphere_radius{bounding_sphere_radius} {}
+Elem::Elem(ElemType type, bool alive, Shape* shape, Coord center, Team team, 
+        int bounding_sphere_radius): m_type{type}, m_alive{alive}, m_shape{shape},
+        m_center{center}, m_team{team}, m_bounding_sphere_radius{bounding_sphere_radius} {}
 
 ElemType Elem::getType() {
     return m_type;
@@ -18,12 +18,20 @@ bool Elem::isAlive() {
     return m_alive;
 }
 
-Coord Elem::getCoord() {
-    return m_coord;
+Shape* Elem::getShape() {
+    return m_shape;
 }
 
-void Elem::setCoord(Coord coord) {
-    m_coord = coord;
+void Elem::setShape(Shape* shape) {
+    m_shape = shape;
+}
+
+Coord Elem::getCenter() {
+    return m_center;
+}
+
+void Elem::setCenter(Coord center) {
+    m_center = center;
 }
 
 Team Elem::getTeam() {

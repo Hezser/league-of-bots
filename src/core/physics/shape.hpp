@@ -74,27 +74,42 @@ typedef struct Edge {
 } Edge;
 
 typedef struct Shape {
-    Coord origin;
-    std::vector<Node*> nodes;
-    std::vector<Edge*> edges;
-    Shape(std::vector<Node*> nodes, std::vector<Edge*> edges);
-    ~Shape();
-    
+    Coord center;
+
     protected:
+        Shape(Coord center);
         Shape();
-        Coord findOrigin(std::vector<Coord> coords);
-        void restrictNodes();
 } Shape;
 
-typedef struct ConvexShape: Shape {
-    ConvexShape(std::vector<Coord> coords);
+typedef struct Circle: Shape {
+    int radius;
+    Circle(Coord center, int radius);
 
     private:
-        ConvexShape();
-        std::vector<Node*> createNodes(std::vector<Coord> coords);
-} ConvexShape;
+        Circle();
+} Circle;
 
-typedef struct Triangle: Shape {
+typedef struct Polygon: Shape {
+    std::vector<Node*> nodes;
+    std::vector<Edge*> edges;
+    Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges);
+    ~Polygon();
+    
+    protected:
+        Polygon();
+        Coord findCenter(std::vector<Coord> coords);
+        void restrictNodes();
+} Polygon;
+
+typedef struct ConvexPolygon: Polygon {
+    ConvexPolygon(std::vector<Coord> coords);
+
+    private:
+        ConvexPolygon();
+        std::vector<Node*> createNodes(std::vector<Coord> coords);
+} ConvexPolygon;
+
+typedef struct Triangle: Polygon {
     Triangle(Node* a, Node* b, Node* c);
     Triangle(Edge* e, Node* n);
     Triangle(Edge* e, Edge* g, Node* n);

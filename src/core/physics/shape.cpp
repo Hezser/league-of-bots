@@ -10,8 +10,7 @@ Node::Node(Coord coord, Coord origin) {
     setOrigin(origin);
 }
 
-Node::Node(Coord coord, Coord origin, Edge* edge_ptr):
-        Node(coord, origin) {
+Node::Node(Coord coord, Coord origin, Edge* edge_ptr): Node(coord, origin) {
     edge_ptrs.push_back(edge_ptr);
 }
 
@@ -158,7 +157,19 @@ const char* Edge::IllegalEdgeException::what() const noexcept {
 
 /* struct Shape */
 
-Shape::Shape(std::vector<Node*> nodes, std::vector<Edge*> edges) {
+Shape::Shape(Coord center) {
+    this->center = center;
+}
+
+/* struct Circle */
+
+Circle::Circle(Coord center, int radius): Shape(center) {
+    this->radius = radius;
+}
+
+/* struct Polygon */
+
+Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges) {
     this->edges = edges;
     this->nodes = nodes;
     std::vector<Coord> coords;
@@ -168,11 +179,11 @@ Shape::Shape(std::vector<Node*> nodes, std::vector<Edge*> edges) {
     for (Node* n : nodes) {
         coords.push_back(n->coord);
     }
-    origin = findOrigin(coords);
+    center = findCenter(coords);
     restrictNodes();
 }
 
-Shape::~Shape() {
+Polygon::~Polygon() {
     // Remove shape from each edge's shape_ptrs
     for (Edge* e : edges) {
         auto pos = std::find(e->shape_ptrs.begin(), e->shape_ptrs.end(), this);
@@ -180,7 +191,7 @@ Shape::~Shape() {
     }
 }
 
-Coord Shape::findOrigin(std::vector<Coord> coords) {
+Coord Polygon::findCenter(std::vector<Coord> coords) {
     Coord max = {0, 0};  // Assuming no negative values, as coordinates are always positive
     Coord min = {std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
     for (auto coord : coords) {
@@ -192,7 +203,7 @@ Coord Shape::findOrigin(std::vector<Coord> coords) {
     return {(max.x + min.x) / 2, (max.y + min.y) / 2};
 }
 
-void Shape::restrictNodes() {
+void Polygon::restrictNodes() {
     /* We even restrict those nodes that are connected to each other, because the edge
      * between them already exists and no other such edge should be created */
     for (auto n : nodes) {
@@ -200,10 +211,10 @@ void Shape::restrictNodes() {
     }
 }
 
-/* struct ConvexShape */
+/* struct ConvexPolygon */
 
-ConvexShape::ConvexShape(std::vector<Coord> coords) {
-    origin = findOrigin(coords);
+ConvexPolygon::ConvexPolygon(std::vector<Coord> coords) {
+    center = findCenter(coords);
     nodes = createNodes(coords);
     std::sort(nodes.begin(), nodes.end());
     for (auto i=0; i<nodes.size()-1; i++) {
@@ -213,10 +224,10 @@ ConvexShape::ConvexShape(std::vector<Coord> coords) {
     restrictNodes();
 }
 
-std::vector<Node*> ConvexShape::createNodes(std::vector<Coord> coords) {
+std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {
     std::vector<Node*> nodes;
     for (Coord c : coords) {
-        nodes.emplace_back(c.x, c.y, origin);
+        nodes.emplace_back(c.x, c.y, center);
     }
     return nodes;
 }
@@ -230,7 +241,7 @@ std::vector<Node*> ConvexShape::createNodes(std::vector<Coord> coords) {
 // Used for the first triangle of the mesh
 Triangle::Triangle(Node* a, Node* b, Node* c) {
     if (areCollinear(a, b, c)) throw IllegalTriangleException();
-    origin = {(a->coord.x + b->coord.x + c->coord.x) / 3, (a->coord.y + b->coord.y + c->coord.y) / 3};
+    center = {(a->coord.x + b->coord.x + c->coord.x) / 3, (a->coord.y + b->coord.y + c->coord.y) / 3};
     nodes = {a, b, c};
     edges = {new Edge(a, b, this), new Edge(b, c, this), new Edge(c, a, this)};
 }
@@ -238,7 +249,7 @@ Triangle::Triangle(Node* a, Node* b, Node* c) {
 // Used for triangles created when adding a new node to the frontier
 Triangle::Triangle(Edge* e, Node* n) {
     if (areCollinear(e->a, e->b, n)) throw IllegalTriangleException();
-    origin = {(e->a->coord.x + e->b->coord.x + n->coord.x) / 3, (e->a->coord.y + e->b->coord.y + n->coord.y) / 3};
+    center = {(e->a->coord.x + e->b->coord.x + n->coord.x) / 3, (e->a->coord.y + e->b->coord.y + n->coord.y) / 3};
     nodes = {e->a, e->b, n};
     edges = {e, new Edge(e->a, n, this), new Edge(e->b, n, this)};
     e->shape_ptrs.push_back(this);
@@ -259,7 +270,7 @@ Triangle::Triangle(Edge* e, Edge* g, Node* n) {
         diff_n.push_back(g->a);
     }
     if (areCollinear(common_n, diff_n[0], diff_n[1])) throw IllegalTriangleException();
-    origin = {(common_n->coord.x + diff_n[0]->coord.x + diff_n[1]->coord.x) / 3,
+    center = {(common_n->coord.x + diff_n[0]->coord.x + diff_n[1]->coord.x) / 3,
               (common_n->coord.y + diff_n[0]->coord.y + diff_n[1]->coord.y) / 3};
     nodes = {common_n, diff_n[0], diff_n[1]};
     edges = {e, g, new Edge(diff_n[0], diff_n[1], this)};

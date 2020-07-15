@@ -5,7 +5,7 @@
 
 class Terrain: public Elem {
     public:
-        Terrain(Coord coord, int bounding_sphere_radius);
+        Terrain(Shape* shape, Coord center, int bounding_sphere_radius);
         void update(float ms) override;
 };
 

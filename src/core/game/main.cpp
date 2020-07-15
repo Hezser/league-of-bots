@@ -30,7 +30,8 @@ int main() {
     }
     // Obstacles
     for (auto i=0; i<6; i++) {
-        Terrain* obstacle = new Terrain({std::rand() % 2000, std::rand() % 2000}, 50);
+        Terrain* obstacle = new Terrain(new ConvexPolygon({{0,0}, {0,50}, {50,50}, {50,0}}),
+                {std::rand() % 2000, std::rand() % 2000}, 50);
         elems.push_back(obstacle);
     }
 
@@ -96,7 +97,8 @@ int main() {
                         bot_mesh.setOutlineColor(sf::Color::Red);
                     }
                     bot_mesh.setOutlineThickness(2);
-                    bot_mesh.setPosition(elems[i]->getCoord()[0]-10, elems[i]->getCoord()[1]-10);
+                    bot_mesh.setPosition(elems[i]->getCenter().x-10, 
+                            elems[i]->getCenter().y-10);
                     window.draw(bot_mesh);
                     break;
                 }
@@ -105,7 +107,8 @@ int main() {
                     ability_mesh.setRadius(5);
                     ability_mesh.setOutlineColor(sf::Color::Green);
                     ability_mesh.setOutlineThickness(1);
-                    ability_mesh.setPosition(elems[i]->getCoord()[0]-5, elems[i]->getCoord()[1]-5);
+                    ability_mesh.setPosition(elems[i]->getCenter().x-5, 
+                            elems[i]->getCenter().y-5);
                     window.draw(ability_mesh);
                     break;
                 }
@@ -113,7 +116,8 @@ int main() {
                     sf::RectangleShape terrain_mesh;
                     terrain_mesh.setSize(sf::Vector2f(32, 60));
                     terrain_mesh.setOutlineColor(sf::Color::White);
-                    terrain_mesh.setPosition(elems[i]->getCoord()[0]-16, elems[i]->getCoord()[1]-30);
+                    terrain_mesh.setPosition(elems[i]->getCenter().x-16, 
+                            elems[i]->getCenter().y-30);
                     window.draw(terrain_mesh);
                     break;
                 }

@@ -20,8 +20,10 @@ class Elem {
         mutable std::mutex mutex;
         ElemType getType();
         bool isAlive();
-        Coord getCoord();
-        void setCoord(Coord coord);
+        Shape* getShape();
+        void setShape(Shape* shape);
+        Coord getCenter();
+        void setCenter(Coord center);
         Team getTeam();
         int getBoundingSphereRadius();
         void setBoundingSphereRadius(int radius);
@@ -31,10 +33,13 @@ class Elem {
     protected:
         ElemType m_type;
         bool m_alive;
-        Coord m_coord;
+        Shape* m_shape;
+        Coord m_center;
         Team m_team;
         int m_bounding_sphere_radius;
-        Elem(ElemType type, bool alive, Coord coord, Team team, int boundingSphereRadius);
+        Elem();
+        Elem(ElemType type, bool alive, Shape* shape, Coord center, Team team,
+                int boundingSphereRadius);
 };
 
 #endif

@@ -4,8 +4,8 @@
 
 /* class Terrain */
 
-Terrain::Terrain(Coord coord, int bounding_sphere_radius): Elem(terrain_t,
-        true, coord, neutral_team, bounding_sphere_radius) {}
+Terrain::Terrain(Shape* shape, Coord center, int bounding_sphere_radius): Elem(terrain_t,
+        true, shape, center, neutral_team, bounding_sphere_radius) {}
 
 void Terrain::update(float ms) {
     // TODO: Update animations

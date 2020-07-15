@@ -9,20 +9,21 @@
 
 /* class bot */
 
-Bot::Bot(ElemType type, bool alive, Coord coord, Team team, int bounding_sphere_radius,
-        MovementManager* movement_manager): Elem(type, alive, coord, team, bounding_sphere_radius),
+Bot::Bot(ElemType type, bool alive, Shape* shape, Coord center, Team team, 
+        int bounding_sphere_radius, MovementManager* movement_manager): 
+        Elem(type, alive, shape, center, team, bounding_sphere_radius), 
         m_movement_manager{movement_manager} {}
 
 void Bot::moveTowards(Coord target) {
     mutex.lock();
-    Move* move = constructLinearMove(m_coord, target, right_click);
+    Move* move = constructLinearMove(m_center, target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
 
 void Bot::moveTo(Coord target) {
     mutex.lock();
-    Move* move = constructInstantMove(m_coord, target, right_click);
+    Move* move = constructInstantMove(m_center, target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
@@ -53,8 +54,8 @@ Ability* Bot::useAbility(AbilityKey key, Coord target) {
 
 /* class sai_bot */
 
-SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, start, team, 14,
-        new MovementManager(this, 1.0f)) {
+SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, new ConvexPolygon({{0,0}, {0,50},
+            {50,50}, {50, 0}}), start, team, 14, new MovementManager(this, 1.0f)) {
     /* We initialize abilities after the bot is fully initialized so that the Ability
      * constructor can use the bot's members */
     m_abilities = {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
