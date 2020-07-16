@@ -8,7 +8,9 @@
 
 Elem::Elem(ElemType type, bool alive, Shape* shape, Coord center, Team team, 
         int bounding_sphere_radius): m_type{type}, m_alive{alive}, m_shape{shape},
-        m_center{center}, m_team{team}, m_bounding_sphere_radius{bounding_sphere_radius} {}
+        m_team{team}, m_bounding_sphere_radius{bounding_sphere_radius} {
+    m_shape->center = center;
+}
 
 ElemType Elem::getType() {
     return m_type;
@@ -27,11 +29,11 @@ void Elem::setShape(Shape* shape) {
 }
 
 Coord Elem::getCenter() {
-    return m_center;
+    return m_shape->center;
 }
 
 void Elem::setCenter(Coord center) {
-    m_center = center;
+    m_shape->center = center;
 }
 
 Team Elem::getTeam() {
