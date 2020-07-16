@@ -34,7 +34,6 @@ class Elem {
         ElemType m_type;
         bool m_alive;
         Shape* m_shape;
-        Coord m_center;
         Team m_team;
         int m_bounding_sphere_radius;
         Elem();
