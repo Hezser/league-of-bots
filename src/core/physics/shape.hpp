@@ -75,10 +75,13 @@ typedef struct Edge {
 
 typedef struct Shape {
     Coord center;
-
+    sf::Drawable getDrawable();
+    // TODO: Functions to modify drawable (color, outline, etc)
+    
     protected:
         Shape(Coord center);
         Shape();
+        sf::Drawable drawable;
 } Shape;
 
 typedef struct Circle: Shape {
@@ -89,6 +92,8 @@ typedef struct Circle: Shape {
         Circle();
 } Circle;
 
+/* TODO: Polygons are not usable at the moment, as SFML does not support concave shapes
+ *       However, there is no need for them now */
 typedef struct Polygon: Shape {
     std::vector<Node*> nodes;
     std::vector<Edge*> edges;
@@ -104,12 +109,13 @@ typedef struct Polygon: Shape {
 typedef struct ConvexPolygon: Polygon {
     ConvexPolygon(std::vector<Coord> coords);
 
-    private:
+    protected:
         ConvexPolygon();
+        void constructDrawable(std::vector<Coord> coords);
         std::vector<Node*> createNodes(std::vector<Coord> coords);
 } ConvexPolygon;
 
-typedef struct Triangle: Polygon {
+typedef struct Triangle: ConvexPolygon {
     Triangle(Node* a, Node* b, Node* c);
     Triangle(Edge* e, Node* n);
     Triangle(Edge* e, Edge* g, Node* n);
@@ -126,7 +132,6 @@ typedef struct Triangle: Polygon {
         bool areCollinear(Node* a, Node* b, Node* c);
 } Triangle;
 
-// TODO: Let hulls be just shapes or inherit from shapes (CAUTION with belongToSameShape())
 typedef struct Hull {
     Coord origin;
     std::vector<Edge*> edges;
