@@ -161,10 +161,17 @@ Shape::Shape(Coord center) {
     this->center = center;
 }
 
+sf::Drawable Shape::getDrawable() {
+    drawable.setPosition(center.x, center.y);
+    return drawable;
+}
+
 /* struct Circle */
 
 Circle::Circle(Coord center, int radius): Shape(center) {
     this->radius = radius;
+    this->drawable = sf::CircleShape();
+    drawable.setRadius(radius);
 }
 
 /* struct Polygon */
@@ -181,6 +188,7 @@ Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges) {
     }
     center = findCenter(coords);
     restrictNodes();
+    // TODO: SFML does not supprot concave shapes, so we can't create the drawable
 }
 
 Polygon::~Polygon() {
@@ -222,6 +230,15 @@ ConvexPolygon::ConvexPolygon(std::vector<Coord> coords) {
     }
     edges.emplace_back(nodes[nodes.size()-1], nodes[0], this);
     restrictNodes();
+    constructDrawable(coords);
+}
+
+void ConvexPolygon::constructDrawable(std::vector<Coord> coords) {
+    drawable = sf::ConvexShape();
+    drawable.setPointCount(coords.size());
+    for (auto i=0; i<coords.size(); i++) {
+        drawable.setPoint(i, sf::Vector2f(coords[i].x, coords[i].y));
+    }
 }
 
 std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {
@@ -244,6 +261,8 @@ Triangle::Triangle(Node* a, Node* b, Node* c) {
     center = {(a->coord.x + b->coord.x + c->coord.x) / 3, (a->coord.y + b->coord.y + c->coord.y) / 3};
     nodes = {a, b, c};
     edges = {new Edge(a, b, this), new Edge(b, c, this), new Edge(c, a, this)};
+    restrictNodes();
+    constructDrawable({a->coord, b->coord, c->coord});
 }
 
 // Used for triangles created when adding a new node to the frontier
@@ -253,6 +272,8 @@ Triangle::Triangle(Edge* e, Node* n) {
     nodes = {e->a, e->b, n};
     edges = {e, new Edge(e->a, n, this), new Edge(e->b, n, this)};
     e->shape_ptrs.push_back(this);
+    restrictNodes();
+    constructDrawable({a->coord, b->coord, c->coord});
 }
 
 // Used for triangles created when left/right-side walking
@@ -276,6 +297,8 @@ Triangle::Triangle(Edge* e, Edge* g, Node* n) {
     edges = {e, g, new Edge(diff_n[0], diff_n[1], this)};
     e->shape_ptrs.push_back(this);
     g->shape_ptrs.push_back(this);
+    restrictNodes();
+    constructDrawable({a->coord, b->coord, c->coord});
 }
 
 Node* Triangle::nodeOppositeToEdge(Edge* edge) {
