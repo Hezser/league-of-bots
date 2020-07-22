@@ -32,11 +32,10 @@ class NavMesh {
     private:
         MapSize m_map_size;
         TriangleMesh m_mesh;
-        Hull* m_hull;
+        Coord m_origin;
         std::vector<Node*> m_nodes;
-        std::vector<Node*> getTerrainNodes(std::vector<Terrain*> terrains);
         Triangle* legalize(Triangle* candidate);
-        void triangulate();
+        void triangulate(std::vector<Terrain*> terrains);
         void populateNodes();
         Coord avgCoord(std::vector<Node*> nodes);
 };

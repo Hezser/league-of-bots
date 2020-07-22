@@ -1,20 +1,16 @@
 #include "nav_mesh.hpp"
 #include <cmath>
+#include <iostream>
 #include <algorithm>
 #include <vector>
 #include <queue>
 #include <unordered_set>
 
-#ifndef M_PI
-    #define M_PI 3.14159265358979323846
-#endif
-
 /* class NavMesh */
 
 // May throw InsufficientNodesException or FailedTriangulationException
 NavMesh::NavMesh(std::vector<Terrain*> terrains, MapSize map_size): m_map_size{map_size} {
-    m_nodes = getTerrainNodes(terrains);
-    triangulate();
+    triangulate(terrains);
     populateNodes();
 }
 
@@ -70,16 +66,33 @@ Triangle* NavMesh::legalize(Triangle* candidate) {
  * http://cglab.ca/~biniaz/papers/Sweep%20Circle.pdf */
 /* This implementation features restricted areas, corresponding to terrain
  * and other elements of the game */
-void NavMesh::triangulate() {
+void NavMesh::triangulate(std::vector<Terrain*> terrains) {
 
     // INITIALIZATION
-
+    
+    // Get nodes
+    for (Terrain* t : terrains) {
+        for (Node* n : t->getShape()->nodes) {
+            m_nodes.push_back(n);
+        }       
+    }
+    
     m_mesh = TriangleMesh();
-    Coord origin = avgCoord(m_nodes);
+    m_origin = avgCoord(m_nodes);
     if (m_nodes.size() < 3) throw InsufficientNodesException();
 
     std::vector<Node*> disconnected = m_nodes;
+    for (Node* n : disconnected) {
+        n->setOrigin(m_origin);
+    }
     std::sort(disconnected.begin(), disconnected.end(), Node::RComparator());
+
+    Hull* frontier = new Hull(m_origin);
+    for (Terrain* t : terrains)  {
+        for (Edge* e : t->getShape()->edges) {
+            frontier->edges.push_back(e);
+        }
+    }
 
     // Try all possible initial triangles in order of distance to the origin
     int i = 0;
@@ -90,8 +103,15 @@ void NavMesh::triangulate() {
             for (auto k=j+1; k<disconnected.size(); k++) {
                 if (j <= k) {
                     try {
+                        // TODO FIX: WHAT IF THE CENTER IS WITHIN TERRAIN?
                         t = new Triangle(disconnected[i], disconnected[j], disconnected[k]);
-                    } catch (ShapeException) {
+                    } catch (const IllegalShapeException &e) {
+                        std::cout << "Exception thrown when creating { (" << 
+                                disconnected[i]->coord.x << "," << disconnected[i]->coord.y <<
+                                "), (" << disconnected[j]->coord.x << "," << 
+                                disconnected[j]->coord.y << "), (" << disconnected[k]->coord.x 
+                                << "," << disconnected[k]->coord.y << ") }: " <<
+                                e.what() << std::endl;
                         continue;
                     }
                     disconnected.erase(disconnected.begin() + k);
@@ -108,7 +128,7 @@ void NavMesh::triangulate() {
     }
 
     // Failed creating initial triangle
-    if (m_mesh.empty()) FailedTriangulationException();
+    if (m_mesh.empty()) throw FailedTriangulationException();
 
     // Order the edges; left and right are considered by looking from the origin of the hull
     Edge* anchor_e = t->edges[0];
@@ -120,7 +140,9 @@ void NavMesh::triangulate() {
     left_e->right = anchor_e;
     right_e->left = anchor_e;
     right_e->right = left_e;
-    Hull* frontier = new Hull(origin, {anchor_e, left_e, right_e});
+    frontier->edges.push_back(anchor_e);
+    frontier->edges.push_back(left_e);
+    frontier->edges.push_back(right_e);
 
     // TRIANGULATION
     
@@ -128,7 +150,16 @@ void NavMesh::triangulate() {
     while(!disconnected.empty()) {
         n = disconnected[0];
         // Create new triangle
+        std::cout << "Mesh has " << m_mesh.size() << std::endl;
+        std::cout << "Hull (edges) has " << frontier->edges.size() << std::endl;
+        std::cout << "Nodes has " << m_nodes.size() << std::endl;
+        std::cout << "Origin is (" << m_origin.x << ", " << m_origin.y << ")\n";
         Edge* intersector = frontier->popIntersectingEdge(n);
+        if (intersector == nullptr) {
+            disconnected.erase(disconnected.begin());
+            std::cout << "Intersector is null\n";
+            continue;
+        } 
         Triangle* candidate;
         try {
             candidate = new Triangle(intersector, n);
@@ -143,10 +174,10 @@ void NavMesh::triangulate() {
              * other triangles, since n and the intersector are collinear */
             try {
                 candidate = new Triangle(intersector->left, n);
-            } catch (ShapeException) {
+            } catch (const IllegalShapeException &e) {
                 try {
                     candidate = new Triangle(intersector->right, n);
-                } catch (ShapeException) {
+                } catch (const IllegalShapeException &e) {
                     // One of the right and left edges of the intersector has restricted nodes
                     disconnected.erase(disconnected.begin());
                     continue;
@@ -175,16 +206,33 @@ void NavMesh::triangulate() {
                            left_edge->left->a == left_edge->b ?
                            left_edge->left->b : left_edge->left->a;
             Triangle* t;
-            try {
+            try { 
                 t = new Triangle(left_edge, left_edge->left, left_n);
-            } catch (ShapeException) {
-                left_edge = left_edge->left;
-                continue;
+            } catch (const IllegalShapeException &e) {
+                break;
             }
+
+            Edge* new_e;
+            if (t->edges[0] != left_edge && t->edges[0] != left_edge->left) new_e = t->edges[0];
+            else if (t->edges[1] != left_edge && t->edges[1] != left_edge->left) 
+                new_e = t->edges[1];
+            else new_e = t->edges[2];
+            frontier->edges.push_back(new_e);
+            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge);
+            if (pos != frontier->edges.end()) {
+                frontier->edges.erase(frontier->edges.begin() +
+                        std::distance(frontier->edges.begin(), pos));
+            }
+            pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge->left);
+            if (pos != frontier->edges.end()) {
+                frontier->edges.erase(frontier->edges.begin() +
+                        std::distance(frontier->edges.begin(), pos));
+            }
+
             t = legalize(t);
             m_mesh.push_back(t);
             left_edge = left_edge->left;
-        }
+        } 
 
         // Right-side walk
         while(right_edge->angleWith(right_edge->right) < M_PI / 2) {
@@ -194,13 +242,31 @@ void NavMesh::triangulate() {
             Triangle* t;
             try {
                 t = new Triangle(right_edge, right_edge->right, right_n);
-            } catch (ShapeException) {
-                right_edge = right_edge->right;
-                continue;
+            } catch (const IllegalShapeException &e) {
+                break;
             }
+
+            Edge* new_e;
+            if (t->edges[0] != right_edge && t->edges[0] != right_edge->right) 
+                new_e = t->edges[0];
+            else if (t->edges[1] != right_edge && t->edges[1] != right_edge->right) 
+                new_e = t->edges[1];
+            else new_e = t->edges[2];
+            frontier->edges.push_back(new_e);
+            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge);
+            if (pos != frontier->edges.end()) {
+                frontier->edges.erase(frontier->edges.begin() +
+                        std::distance(frontier->edges.begin(), pos));
+            }
+            pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge->right);
+            if (pos != frontier->edges.end()) {
+                frontier->edges.erase(frontier->edges.begin() +
+                        std::distance(frontier->edges.begin(), pos));
+            }
+
             t = legalize(t);
             m_mesh.push_back(t);
-            right_edge= right_edge->right;
+            right_edge = right_edge->right;
         }
 
         // TODO: Remove basins
@@ -216,7 +282,7 @@ void NavMesh::triangulate() {
         Triangle* t;
         try {
             t = new Triangle(e, e->left, left_n);
-        } catch(ShapeException) {
+        } catch(const IllegalShapeException &e) {
             continue;
         }
         t = legalize(t);
@@ -239,7 +305,8 @@ void NavMesh::populateNodes() {
                 int diff_x = xs[1] - xs[0];
                 int diff_y = ys[1] - ys[0];
                 if (diff_x >= 10 && diff_y >= 10) {
-                    m_nodes.emplace_back(xs[0] + (diff_x / 2), ys[0] + (diff_y / 2), m_hull->origin);
+                    Node* n = new Node({xs[0] + (diff_x / 2), ys[0] + (diff_y / 2)}, m_origin);
+                    m_nodes.push_back(n);
                 }
             }
         }

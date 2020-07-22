@@ -9,21 +9,21 @@
 
 /* class bot */
 
-Bot::Bot(ElemType type, bool alive, Shape* shape, Coord center, Team team, 
+Bot::Bot(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team, 
         int bounding_sphere_radius, MovementManager* movement_manager): 
         Elem(type, alive, shape, center, team, bounding_sphere_radius), 
         m_movement_manager{movement_manager} {}
 
 void Bot::moveTowards(Coord target) {
     mutex.lock();
-    Move* move = constructLinearMove(m_center, target, right_click);
+    Move* move = constructLinearMove(m_shape->center, target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
 
 void Bot::moveTo(Coord target) {
     mutex.lock();
-    Move* move = constructInstantMove(m_center, target, right_click);
+    Move* move = constructInstantMove(m_shape->center, target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
@@ -59,7 +59,7 @@ SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, new ConvexPolygon({{0,0
     /* We initialize abilities after the bot is fully initialized so that the Ability
      * constructor can use the bot's members */
     m_abilities = {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
-        new SaiRAbility(this)};
+                   new SaiRAbility(this)};
 }
 
 void SaiBot::update(float ms) {

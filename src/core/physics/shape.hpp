@@ -5,13 +5,14 @@
 #include <exception>
 #include <unordered_set>
 #include <queue>
+#include <SFML/Graphics.hpp>
 
 // Foward-declaration
 struct Shape;
 struct Edge;
 
-struct ShapeException: public std::exception {
-    virtual const char* what() const noexcept;
+struct IllegalShapeException: public std::exception {
+    virtual const char* what() const throw() = 0;
 };
 
 typedef struct Coord {
@@ -29,15 +30,14 @@ typedef struct Node {
     Node(Coord coord, Coord origin, Edge* edge_ptr);
     Edge* getEdgeWith(Node* node);
     void setOrigin(Coord origin);
-    float shortestDistanceTo(Edge* edge);
     bool isOn(Edge* edge);
 
     struct RComparator {
-        bool operator() (const Node& lhs, const Node& rhs);
+        bool operator() (Node* lhs, Node* rhs);
     };
 
     struct ThetaComparator {
-        bool operator() (const Node& lhs, const Node& rhs);
+        bool operator() (Node* lhs, Node* rhs);
     };
 
     private:
@@ -59,12 +59,22 @@ typedef struct Edge {
     float avgR();
     bool isCollinearWithNode(Node* node);
     bool intersectsWith(std::vector<Edge*> edges);
+    float shortestDistanceTo(Coord coord);
 
     struct GreaterEdgeComparator {
         bool operator() (const Edge& lhs, const Edge& rhs);
     };
 
-    struct IllegalEdgeException: public ShapeException {
+    struct ExistingEdgeException {
+        Edge* edge;
+        ExistingEdgeException(Edge* edge);
+        const char* what() const noexcept;
+        Edge* getExistingEdge();
+        private:
+            ExistingEdgeException();
+    };
+
+    struct IllegalEdgeException: public IllegalShapeException {
         const char* what() const noexcept;
     };
 
@@ -75,15 +85,18 @@ typedef struct Edge {
 
 typedef struct Shape {
     Coord center;
-    sf::Drawable getDrawable();
+    sf::Shape* getDrawable();
     // TODO: Functions to modify drawable (color, outline, etc)
     
     protected:
         Shape(Coord center);
         Shape();
-        sf::Drawable drawable;
+        sf::Shape* drawable;
 } Shape;
 
+/* TODO: Delete? 
+ * Cannot be used for elem shapes, as circles do not have edges or nodes to triangulate,
+ * check for collisions, etc */
 typedef struct Circle: Shape {
     int radius;
     Circle(Coord center, int radius);
@@ -123,7 +136,7 @@ typedef struct Triangle: ConvexPolygon {
     float angleOppositeToEdge(Edge* edge);
     std::vector<Edge*> adjacentEdges(Edge* edge);
 
-    struct IllegalTriangleException: public ShapeException {
+    struct IllegalTriangleException: public IllegalShapeException {
         const char* what() const noexcept;
     };
     
@@ -136,7 +149,6 @@ typedef struct Hull {
     Coord origin;
     std::vector<Edge*> edges;
     Hull(Coord origin);
-    Hull(Coord origin, std::vector<Edge*> edges);
     Edge* popIntersectingEdge(Node* node);
 
     private:

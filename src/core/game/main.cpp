@@ -87,43 +87,7 @@ int main() {
                 elems.erase(elems.begin() + i);
                 continue;
             }
-            switch (elems[i]->getType()) {
-                case bot_t: {
-                    sf::RectangleShape bot_mesh;
-                    bot_mesh.setSize(sf::Vector2f(20, 20));
-                    if (elems[i]->getTeam() == white_team) {
-                        bot_mesh.setOutlineColor(sf::Color::Green);
-                    } else {
-                        bot_mesh.setOutlineColor(sf::Color::Red);
-                    }
-                    bot_mesh.setOutlineThickness(2);
-                    bot_mesh.setPosition(elems[i]->getCenter().x-10, 
-                            elems[i]->getCenter().y-10);
-                    window.draw(bot_mesh);
-                    break;
-                }
-                case ability_t: {
-                    sf::CircleShape ability_mesh;
-                    ability_mesh.setRadius(5);
-                    ability_mesh.setOutlineColor(sf::Color::Green);
-                    ability_mesh.setOutlineThickness(1);
-                    ability_mesh.setPosition(elems[i]->getCenter().x-5, 
-                            elems[i]->getCenter().y-5);
-                    window.draw(ability_mesh);
-                    break;
-                }
-                case terrain_t: {
-                    sf::RectangleShape terrain_mesh;
-                    terrain_mesh.setSize(sf::Vector2f(32, 60));
-                    terrain_mesh.setOutlineColor(sf::Color::White);
-                    terrain_mesh.setPosition(elems[i]->getCenter().x-16, 
-                            elems[i]->getCenter().y-30);
-                    window.draw(terrain_mesh);
-                    break;
-                }
-                default:
-                    break;
-            }
+            window.draw(*elems[i]->getShape()->getDrawable());
         }
 
         // Debuffer the frame

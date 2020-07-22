@@ -16,7 +16,7 @@ class Bot: public Elem {
 
     protected:
         Bot();
-        Bot(ElemType type, bool alive, Shape* shape, Coord center, Team team,
+        Bot(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team,
                 int bounding_sphere_radius, MovementManager* movement_manager);
         std::vector<Ability*> m_abilities;
         MovementManager* m_movement_manager;
