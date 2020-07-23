@@ -15,6 +15,16 @@ Node::Node(Coord coord, Coord origin, Edge* edge_ptr): Node(coord, origin) {
     edge_ptrs.push_back(edge_ptr);
 }
 
+Node::~Node() {
+    for (Edge* e : edge_ptrs) {
+        delete e;
+    }
+    // Since restricted is symmetrical
+    for (Node* n : restricted) {
+        n->restricted.erase(this);
+    }
+}
+
 Edge* Node::getEdgeWith(Node* node) {
     for (auto e : edge_ptrs) {
         if (e->a == node || e->b == node) return e;
@@ -51,7 +61,7 @@ bool Node::ThetaComparator::operator() (Node* lhs, Node* rhs) {
 
 /* struct Edge */
 
-Edge::Edge(Node* a, Node* b, Shape* shape_ptr) {
+Edge::Edge(Node* a, Node* b, Polygon* shape_ptr) {
     Edge* existing_edge = a->getEdgeWith(b);
     if (existing_edge != nullptr) throw ExistingEdgeException(existing_edge);
     if (a->restricted.find(b) != a->restricted.end() ||
@@ -63,14 +73,18 @@ Edge::Edge(Node* a, Node* b, Shape* shape_ptr) {
     this->length = std::sqrt(std::pow(std::abs(a->coord.x - b->coord.x), 2) + 
                              std::pow(std::abs(a->coord.y - b->coord.y), 2));
     this->shape_ptrs.push_back(shape_ptr);
+    this->left = nullptr;
+    this->right = nullptr;
 }
 
-Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Shape* shape_ptr):
+Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr):
         Edge(a, b, shape_ptr) {
     this->left = left;
     this->right = right;
 }
 
+/* Note that we do not delete its nodes, as nodes are meaningful even
+ * if they do not belong to edges */
 Edge::~Edge() {
     // Remove edge from a's edge_ptrs
     auto pos = std::find(a->edge_ptrs.begin(), a->edge_ptrs.end(), this);
@@ -78,6 +92,12 @@ Edge::~Edge() {
     // Remove edge from b's edge_ptrs
     pos = std::find(b->edge_ptrs.begin(), b->edge_ptrs.end(), this);
     if (pos != b->edge_ptrs.end()) b->edge_ptrs.erase(b->edge_ptrs.begin() + std::distance(b->edge_ptrs.begin(), pos));
+    // Remove edge from shapes
+    for (Polygon* s : shape_ptrs) {
+        auto pos = std::find(s->edges.begin(), s->edges.end(), this);
+        if (pos != s->edges.end()) s->edges.erase(s->edges.begin() +
+                std::distance(s->edges.begin(), pos));
+    }
 }
 
 /* This method has two edge cases, for which left/right is not defined:
@@ -100,10 +120,10 @@ bool Edge::hasAtLeft(Edge* edge) {
 }
 
 float Edge::angleWith(Edge* edge) {
-    std::cout << "\nAngle between { (" << a->coord.x << "," << a->coord.y << "), (" << b->coord.x 
-              << "," << b->coord.y << ") } and { (" << edge->a->coord.x << ","
-              << edge->a->coord.y << "), (" << edge->b->coord.x << "," << edge->b->coord.y
-              << ") }\n";
+    /* std::cout << "\nAngle between { (" << a->coord.x << "," << a->coord.y << "), (" << b->coord.x */ 
+    /*           << "," << b->coord.y << ") } and { (" << edge->a->coord.x << "," */
+    /*           << edge->a->coord.y << "), (" << edge->b->coord.x << "," << edge->b->coord.y */
+    /*           << ") }\n"; */
     Node* common_n = a == edge->a || a == edge->b ? a : b;
     if (((common_n != a && common_n != b)) || (common_n != edge->a && common_n != edge->b)) {
         return -1;
@@ -122,7 +142,7 @@ float Edge::angleWith(Edge* edge) {
     bool is_reflex = a_n->getEdgeWith(b_n) != nullptr ||
                   a_n->restricted.find(b_n) != a_n->restricted.end();
     if (is_reflex && angle < M_PI) angle += M_PI;
-    std::cout << "\tAngle = " << angle << std::endl;
+    /* std::cout << "\tAngle = " << angle << std::endl; */
     return std::abs(angle);
 }
 
@@ -192,9 +212,11 @@ const char* Edge::IllegalEdgeException::what() const noexcept {
 
 /* struct Shape */
 
-Shape::Shape() {}
+Shape::Shape(ShapeType type) {
+    this->type = type;
+}
 
-Shape::Shape(Coord center) {
+Shape::Shape(ShapeType type, Coord center): Shape(type) {
     this->center = center;
 }
 
@@ -205,7 +227,7 @@ sf::Shape* Shape::getDrawable() {
 
 /* struct Circle */
 
-Circle::Circle(Coord center, int radius): Shape(center) {
+Circle::Circle(Coord center, int radius): Shape(circle, center) {
     this->radius = radius;
     sf::CircleShape* d = new sf::CircleShape();
     d->setRadius(radius);
@@ -214,9 +236,9 @@ Circle::Circle(Coord center, int radius): Shape(center) {
 
 /* struct Polygon */
 
-Polygon::Polygon() {}
+Polygon::Polygon(ShapeType subtype): Shape(subtype) {}
 
-Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges) {
+Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges): Shape(polygon) {
     this->edges = edges;
     this->nodes = nodes;
     std::vector<Coord> coords;
@@ -232,10 +254,16 @@ Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges) {
 }
 
 Polygon::~Polygon() {
-    // Remove shape from each edge's shape_ptrs
     for (Edge* e : edges) {
-        auto pos = std::find(e->shape_ptrs.begin(), e->shape_ptrs.end(), this);
-        if (pos != e->shape_ptrs.end()) e->shape_ptrs.erase(e->shape_ptrs.begin() + std::distance(e->shape_ptrs.begin(), pos));
+        if (e->shape_ptrs.size() == 1) {
+            // Delete the edge if it only belongs to this shape
+            delete e;
+        } else {
+            // Remove shape from each edge's shape_ptrs otherwise
+            auto pos = std::find(e->shape_ptrs.begin(), e->shape_ptrs.end(), this);
+            if (pos != e->shape_ptrs.end()) e->shape_ptrs.erase(e->shape_ptrs.begin() +
+                    std::distance(e->shape_ptrs.begin(), pos));
+        }
     }
 }
 
@@ -262,9 +290,9 @@ void Polygon::restrictNodes() {
 
 /* struct ConvexPolygon */
 
-ConvexPolygon::ConvexPolygon() {}
+ConvexPolygon::ConvexPolygon(ShapeType subtype): Polygon(subtype) {}
 
-ConvexPolygon::ConvexPolygon(std::vector<Coord> coords) {
+ConvexPolygon::ConvexPolygon(std::vector<Coord> coords): Polygon(convex_polygon) {
     center = findCenter(coords);
     nodes = createNodes(coords);
     std::sort(nodes.begin(), nodes.end());
@@ -316,7 +344,7 @@ std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {
  * updated */
 
 // Used for the first triangle of the mesh
-Triangle::Triangle(Node* a, Node* b, Node* c) {
+Triangle::Triangle(Node* a, Node* b, Node* c): ConvexPolygon(triangle) {
     if (areCollinear(a, b, c)) throw IllegalTriangleException();
     center = {(a->coord.x + b->coord.x + c->coord.x) / 3, (a->coord.y + b->coord.y + c->coord.y) / 3};
     nodes = {a, b, c};
@@ -347,7 +375,7 @@ Triangle::Triangle(Node* a, Node* b, Node* c) {
 }
 
 // Used for triangles created when adding a new node to the frontier
-Triangle::Triangle(Edge* e, Node* n) {
+Triangle::Triangle(Edge* e, Node* n): ConvexPolygon(triangle) {
     if (areCollinear(e->a, e->b, n)) throw IllegalTriangleException();
     center = {(e->a->coord.x + e->b->coord.x + n->coord.x) / 3, (e->a->coord.y + e->b->coord.y + n->coord.y) / 3};
     nodes = {e->a, e->b, n};
@@ -372,7 +400,7 @@ Triangle::Triangle(Edge* e, Node* n) {
 }
 
 // Used for triangles created when left/right-side walking
-Triangle::Triangle(Edge* e, Edge* g, Node* n) {
+Triangle::Triangle(Edge* e, Edge* g, Node* n): ConvexPolygon(triangle) {
     Node* common_n = e->a == g->a || e->a == g->b ? e->a : e->b;
     std::vector<Node*> diff_n;
     if (e->a == common_n) {
@@ -458,28 +486,28 @@ Edge* Hull::popIntersectingEdge(Node* node) {
     int j = -1;
     for (int i=0; i<edges.size(); i++) {
         Edge* e = edges[i];
-        std::cout << "Analysing possible intersector (j=" << j << ")...\n";
-        std::cout << "\tnode:\n";
-        std::cout << "\t\tx = " << node->coord.x << std::endl;
-        std::cout << "\t\ty = " << node->coord.y << std::endl;
-        std::cout << "\t\ttheta = " << node->theta << std::endl;
-        std::cout << "\t\tr = " << node->r << std::endl;
-        std::cout << "\te->a:\n";
-        std::cout << "\t\tx = " << e->a->coord.x << std::endl;
-        std::cout << "\t\ty = " << e->a->coord.y << std::endl;
-        std::cout << "\t\ttheta = " << e->a->theta << std::endl;
-        std::cout << "\t\tr = " << e->a->r << std::endl;
-        std::cout << "\te->b:\n";
-        std::cout << "\t\tx = " << e->b->coord.x << std::endl;
-        std::cout << "\t\ty = " << e->b->coord.y << std::endl;
-        std::cout << "\t\ttheta = " << e->b->theta << std::endl;
-        std::cout << "\t\tr = " << e->b->r << std::endl;
-        std::cout << "\tNode's sho. dist. to e = " << e->shortestDistanceTo(node->coord) << std::endl;
-        std::cout << "\tE's avg r = " << e->avgR() << std::endl;
+        /* std::cout << "Analysing possible intersector (j=" << j << ")...\n"; */
+        /* std::cout << "\tnode:\n"; */
+        /* std::cout << "\t\tx = " << node->coord.x << std::endl; */
+        /* std::cout << "\t\ty = " << node->coord.y << std::endl; */
+        /* std::cout << "\t\ttheta = " << node->theta << std::endl; */
+        /* std::cout << "\t\tr = " << node->r << std::endl; */
+        /* std::cout << "\te->a:\n"; */
+        /* std::cout << "\t\tx = " << e->a->coord.x << std::endl; */
+        /* std::cout << "\t\ty = " << e->a->coord.y << std::endl; */
+        /* std::cout << "\t\ttheta = " << e->a->theta << std::endl; */
+        /* std::cout << "\t\tr = " << e->a->r << std::endl; */
+        /* std::cout << "\te->b:\n"; */
+        /* std::cout << "\t\tx = " << e->b->coord.x << std::endl; */
+        /* std::cout << "\t\ty = " << e->b->coord.y << std::endl; */
+        /* std::cout << "\t\ttheta = " << e->b->theta << std::endl; */
+        /* std::cout << "\t\tr = " << e->b->r << std::endl; */
+        /* std::cout << "\tNode's sho. dist. to e = " << e->shortestDistanceTo(node->coord) << std::endl; */
+        /* std::cout << "\tE's avg r = " << e->avgR() << std::endl; */
         if (e->isCollinearWithNode(node)) {
-            std::cout << "\tThey are collinear!\n";
+            /* std::cout << "\tThey are collinear!\n"; */
         } else {
-            std::cout << "\tThey are NOT collinear\n";
+            /* std::cout << "\tThey are NOT collinear\n"; */
         }
         /* The node's angle is within the edge's angles (it intersects with it)
          *      ...accounting for the exception of when e passes through theta=0
@@ -495,7 +523,7 @@ Edge* Hull::popIntersectingEdge(Node* node) {
             float e_to_node = e->shortestDistanceTo(node->coord);
             if (e_to_node <= node->r && e->shortestDistanceTo(origin) <= e_to_node &&
                 e->a != node && e->b != node && !e->isCollinearWithNode(node)) {
-                std::cout << "We got a candidate intersector\n";
+                /* std::cout << "We got a candidate intersector\n"; */
                 // Pick the closest intersector to the node
                 if (j == -1 || e->avgR() > edges[j]->avgR()) j = i;
             }
@@ -504,7 +532,7 @@ Edge* Hull::popIntersectingEdge(Node* node) {
 
     // If the closest intersector belongs to the same shape, we cannot use it
     if (j != -1 && belongToSameShape(node, edges[j])) {
-        std::cout << "They belong to the same shape!\n";
+        /* std::cout << "They belong to the same shape!\n"; */
         j = -1;
     }
 
@@ -516,7 +544,7 @@ Edge* Hull::popIntersectingEdge(Node* node) {
     std::vector<Edge*> closer;
     if (j == -1) {
         for (int i=0; i<es.size(); i++) {
-            if (es[i]->a == node || edges[i]->b == node) continue;
+            if (es[i]->a == node || es[i]->b == node) continue;
             Edge* e;
             Edge* g;
             try {
@@ -541,17 +569,15 @@ Edge* Hull::popIntersectingEdge(Node* node) {
             delete e;
             delete g;
             if (legal) {
-                auto pos = std::find(edges.begin(), edges.end(), es[i]);
-                if (pos != edges.end()) j = std::distance(edges.begin(), pos);
+                auto pos = std::find(es.begin(), es.end(), es[i]);
+                if (pos != es.end()) j = std::distance(es.begin(), pos);
                 break;
             }
             closer.push_back(es[i]);
         }
     }
 
-    std::cout << "a\n";
     if (j == -1) return nullptr; 
-    std::cout << "b\n";
 
     Edge* intersector = edges[j];
     edges.erase(edges.begin() + j);
@@ -559,10 +585,10 @@ Edge* Hull::popIntersectingEdge(Node* node) {
 }
 
 bool Hull::belongToSameShape(Node* node, Edge* edge) {
-    std::cout << "\nChecking for shape violations...\n";
-    std::cout << "\tnode = (" << node->coord.x << ", " << node->coord.y << ")\n";
-    std::cout << "\tedge = (" << edge->a->coord.x << ", " << edge->a->coord.y << "), ("
-              << edge->b->coord.x << ", " << edge->b->coord.y << ")\n";
+    /* std::cout << "\nChecking for shape violations...\n"; */
+    /* std::cout << "\tnode = (" << node->coord.x << ", " << node->coord.y << ")\n"; */
+    /* std::cout << "\tedge = (" << edge->a->coord.x << ", " << edge->a->coord.y << "), (" */
+              /* << edge->b->coord.x << ", " << edge->b->coord.y << ")\n"; */
     for (auto s : edge->shape_ptrs) {
         for (auto e : node->edge_ptrs) {
             for (auto t : e->shape_ptrs) {

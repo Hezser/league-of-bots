@@ -25,7 +25,7 @@ Bot	src/core/graphics/test.game.cpp	/^class Bot : public Elem {$/;"	c	file:
 Bot	src/core/logic/elements/bot.cpp	/^Bot::Bot(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team, $/;"	f	class:Bot
 Bot	src/core/logic/elements/bot.hpp	/^class Bot: public Elem {$/;"	c
 COLLISION_HPP	src/core/physics/collision.hpp	/^#define COLLISION_HPP$/;"	d
-Circle	src/core/physics/shape.cpp	/^Circle::Circle(Coord center, int radius): Shape(center) {$/;"	f	class:Circle
+Circle	src/core/physics/shape.cpp	/^Circle::Circle(Coord center, int radius): Shape(circle, center) {$/;"	f	class:Circle
 Circle	src/core/physics/shape.hpp	/^typedef struct Circle: Shape {$/;"	s
 Circle	src/core/physics/shape.hpp	/^} Circle;$/;"	t	typeref:struct:Circle
 Collision	src/core/physics/collision.hpp	/^typedef std::vector<Elem*> Collision;$/;"	t	typeref:typename:std::vector<Elem * >
@@ -33,15 +33,15 @@ CollisionDetectionSystem	src/core/physics/collision.hpp	/^        CollisionDetec
 CollisionDetectionSystem	src/core/physics/collision.hpp	/^class CollisionDetectionSystem {$/;"	c
 CollisionResolutionSystem	src/core/physics/collision.hpp	/^        CollisionResolutionSystem() {}$/;"	f	class:CollisionResolutionSystem
 CollisionResolutionSystem	src/core/physics/collision.hpp	/^class CollisionResolutionSystem {$/;"	c
-ConvexPolygon	src/core/physics/shape.cpp	/^ConvexPolygon::ConvexPolygon() {}$/;"	f	class:ConvexPolygon
-ConvexPolygon	src/core/physics/shape.cpp	/^ConvexPolygon::ConvexPolygon(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon
+ConvexPolygon	src/core/physics/shape.cpp	/^ConvexPolygon::ConvexPolygon(ShapeType subtype): Polygon(subtype) {}$/;"	f	class:ConvexPolygon
+ConvexPolygon	src/core/physics/shape.cpp	/^ConvexPolygon::ConvexPolygon(std::vector<Coord> coords): Polygon(convex_polygon) {$/;"	f	class:ConvexPolygon
 ConvexPolygon	src/core/physics/shape.hpp	/^typedef struct ConvexPolygon: Polygon {$/;"	s
 ConvexPolygon	src/core/physics/shape.hpp	/^} ConvexPolygon;$/;"	t	typeref:struct:ConvexPolygon
 Coord	src/core/physics/shape.hpp	/^typedef struct Coord {$/;"	s
 Coord	src/core/physics/shape.hpp	/^} Coord;$/;"	t	typeref:struct:Coord
 ELEM_HPP	src/core/logic/elements/elem.hpp	/^#define ELEM_HPP$/;"	d
-Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Shape* shape_ptr):$/;"	f	class:Edge
-Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Shape* shape_ptr) {$/;"	f	class:Edge
+Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr):$/;"	f	class:Edge
+Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Polygon* shape_ptr) {$/;"	f	class:Edge
 Edge	src/core/physics/shape.hpp	/^typedef struct Edge {$/;"	s
 Edge	src/core/physics/shape.hpp	/^} Edge;$/;"	t	typeref:struct:Edge
 Elem	src/core/graphics/test.game.cpp	/^class Elem {$/;"	c	file:
@@ -98,8 +98,8 @@ Node	src/core/physics/shape.hpp	/^} Node;$/;"	t	typeref:struct:Node
 PATH_FINDER_HPP	src/core/physics/path_finder.hpp	/^#define PATH_FINDER_HPP$/;"	d
 Path	src/core/physics/path_finder.hpp	/^typedef std::vector<Move> Path;$/;"	t	typeref:typename:std::vector<Move>
 PathFinder	src/core/physics/path_finder.hpp	/^class PathFinder {$/;"	c
-Polygon	src/core/physics/shape.cpp	/^Polygon::Polygon() {}$/;"	f	class:Polygon
-Polygon	src/core/physics/shape.cpp	/^Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges) {$/;"	f	class:Polygon
+Polygon	src/core/physics/shape.cpp	/^Polygon::Polygon(ShapeType subtype): Shape(subtype) {}$/;"	f	class:Polygon
+Polygon	src/core/physics/shape.cpp	/^Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges): Shape(polygon) {$/;"	f	class:Polygon
 Polygon	src/core/physics/shape.hpp	/^typedef struct Polygon: Shape {$/;"	s
 Polygon	src/core/physics/shape.hpp	/^} Polygon;$/;"	t	typeref:struct:Polygon
 QABILITY_VELOCITY	src/core/graphics/test.game.cpp	/^const float QABILITY_VELOCITY = 3.0f;$/;"	v	typeref:typename:const float
@@ -117,10 +117,12 @@ SaiRAbility	src/core/logic/elements/ability.cpp	/^SaiRAbility::SaiRAbility(Bot* 
 SaiRAbility	src/core/logic/elements/ability.hpp	/^class SaiRAbility: public Ability {        $/;"	c
 SaiWAbility	src/core/logic/elements/ability.cpp	/^SaiWAbility::SaiWAbility(Bot* bot): Ability(ability_t, false,$/;"	f	class:SaiWAbility
 SaiWAbility	src/core/logic/elements/ability.hpp	/^class SaiWAbility: public Ability {        $/;"	c
-Shape	src/core/physics/shape.cpp	/^Shape::Shape() {}$/;"	f	class:Shape
-Shape	src/core/physics/shape.cpp	/^Shape::Shape(Coord center) {$/;"	f	class:Shape
+Shape	src/core/physics/shape.cpp	/^Shape::Shape(ShapeType type) {$/;"	f	class:Shape
+Shape	src/core/physics/shape.cpp	/^Shape::Shape(ShapeType type, Coord center): Shape(type) {$/;"	f	class:Shape
 Shape	src/core/physics/shape.hpp	/^typedef struct Shape {$/;"	s
 Shape	src/core/physics/shape.hpp	/^} Shape;$/;"	t	typeref:struct:Shape
+ShapeType	src/core/physics/shape.hpp	/^    typedef enum ShapeType {$/;"	g	struct:Shape
+ShapeType	src/core/physics/shape.hpp	/^    } ShapeType;$/;"	t	struct:Shape	typeref:enum:Shape::ShapeType
 TERRAIN_HPP	src/core/logic/elements/terrain.hpp	/^#define TERRAIN_HPP$/;"	d
 Team	src/core/graphics/test.game.cpp	/^enum Team {$/;"	g	file:
 Team	src/core/logic/elements/elem.hpp	/^typedef enum Team {  $/;"	g
@@ -128,9 +130,9 @@ Team	src/core/logic/elements/elem.hpp	/^} Team;$/;"	t	typeref:enum:Team
 Terrain	src/core/logic/elements/terrain.cpp	/^Terrain::Terrain(ConvexPolygon* shape, Coord center, int bounding_sphere_radius):$/;"	f	class:Terrain
 Terrain	src/core/logic/elements/terrain.hpp	/^class Terrain: public Elem {$/;"	c
 ThetaComparator	src/core/physics/shape.hpp	/^    struct ThetaComparator {$/;"	s	struct:Node
-Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Edge* e, Edge* g, Node* n) {$/;"	f	class:Triangle
-Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Edge* e, Node* n) {$/;"	f	class:Triangle
-Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Node* a, Node* b, Node* c) {$/;"	f	class:Triangle
+Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Edge* e, Edge* g, Node* n): ConvexPolygon(triangle) {$/;"	f	class:Triangle
+Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Edge* e, Node* n): ConvexPolygon(triangle) {$/;"	f	class:Triangle
+Triangle	src/core/physics/shape.cpp	/^Triangle::Triangle(Node* a, Node* b, Node* c): ConvexPolygon(triangle) {$/;"	f	class:Triangle
 Triangle	src/core/physics/shape.hpp	/^typedef struct Triangle: ConvexPolygon {$/;"	s
 Triangle	src/core/physics/shape.hpp	/^} Triangle;$/;"	t	typeref:struct:Triangle
 TriangleMesh	src/core/physics/nav_mesh.hpp	/^typedef std::vector<Triangle*> TriangleMesh;$/;"	t	typeref:typename:std::vector<Triangle * >
@@ -160,9 +162,11 @@ cast	src/core/logic/elements/ability.cpp	/^bool SaiQAbility::cast(Coord target) 
 cast	src/core/logic/elements/ability.cpp	/^bool SaiRAbility::cast(Coord target) {$/;"	f	class:SaiRAbility	typeref:typename:bool
 cast	src/core/logic/elements/ability.cpp	/^bool SaiWAbility::cast(Coord target) {$/;"	f	class:SaiWAbility	typeref:typename:bool
 center	src/core/physics/shape.hpp	/^    Coord center;$/;"	m	struct:Shape	typeref:typename:Coord
+circle	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
 constructDrawable	src/core/physics/shape.cpp	/^void ConvexPolygon::constructDrawable(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon	typeref:typename:void
 constructInstantMove	src/core/physics/movement.cpp	/^Move* constructInstantMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
 constructLinearMove	src/core/physics/movement.cpp	/^Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
+convex_polygon	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
 coord	src/core/physics/shape.hpp	/^    Coord coord;$/;"	m	struct:Node	typeref:typename:Coord
 counter	src/core/concurrency/job_scheduler.hpp	/^    std::atomic<int> counter;$/;"	m	struct:JobStatus	typeref:typename:std::atomic<int>
 createNodes	src/core/physics/shape.cpp	/^std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon	typeref:typename:std::vector<Node * >
@@ -287,6 +291,7 @@ own_ability	src/core/physics/movement.hpp	/^    right_click = 0, own_ability = 1
 param	src/core/concurrency/job_scheduler.hpp	/^        uintptr_t param;$/;"	m	class:Job	typeref:typename:uintptr_t
 param	src/core/concurrency/job_scheduler.hpp	/^typedef void Action(uintptr_t param);$/;"	t	typeref:typename:void Action (uintptr_t)
 play	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::play() {$/;"	f	class:ArtificialPlayer	typeref:typename:void
+polygon	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
 popIntersectingEdge	src/core/physics/shape.cpp	/^Edge* Hull::popIntersectingEdge(Node* node) {$/;"	f	class:Hull	typeref:typename:Edge *
 populateNodes	src/core/physics/nav_mesh.cpp	/^void NavMesh::populateNodes() {$/;"	f	class:NavMesh	typeref:typename:void
 priority	src/core/concurrency/job_scheduler.hpp	/^        JobPriority priority;$/;"	m	class:Job	typeref:typename:JobPriority
@@ -317,7 +322,7 @@ setOrigin	src/core/physics/shape.cpp	/^void Node::setOrigin(Coord origin) {$/;"	
 setShape	src/core/logic/elements/elem.cpp	/^void Elem::setShape(ConvexPolygon* shape) {$/;"	f	class:Elem	typeref:typename:void
 setUpdateInterval	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::setUpdateInterval(float update_interval) {$/;"	f	class:ArtificialPlayer	typeref:typename:void
 setVelocity	src/core/physics/movement.cpp	/^void MovementManager::setVelocity(float velocity) {$/;"	f	class:MovementManager	typeref:typename:void
-shape_ptrs	src/core/physics/shape.hpp	/^    std::vector<Shape*> shape_ptrs;$/;"	m	struct:Edge	typeref:typename:std::vector<Shape * >
+shape_ptrs	src/core/physics/shape.hpp	/^    std::vector<Polygon*> shape_ptrs;$/;"	m	struct:Edge	typeref:typename:std::vector<Polygon * >
 shortestDistanceTo	src/core/physics/shape.cpp	/^float Edge::shortestDistanceTo(Coord coord) {$/;"	f	class:Edge	typeref:typename:float
 start	src/core/physics/movement.hpp	/^    Coord start;$/;"	m	struct:Move	typeref:typename:Coord
 status	src/core/concurrency/job_scheduler.hpp	/^        JobStatus* status;  \/\/ It's public because of the atomic operations$/;"	m	class:Job	typeref:typename:JobStatus *
@@ -328,8 +333,10 @@ team	src/core/graphics/test.game.cpp	/^        Team team;$/;"	m	class:Elem	typer
 terrain_t	src/core/logic/elements/elem.hpp	/^    bot_t = 0, ability_t = 1, terrain_t = 2$/;"	e	enum:ElemType
 theta	src/core/physics/shape.hpp	/^    float theta;$/;"	m	struct:Node	typeref:typename:float
 travelled	src/core/physics/movement.hpp	/^    int travelled;$/;"	m	struct:Move	typeref:typename:int
+triangle	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
 triangulate	src/core/physics/nav_mesh.cpp	/^void NavMesh::triangulate(std::vector<Terrain*> terrains) {$/;"	f	class:NavMesh	typeref:typename:void
 type	src/core/graphics/test.game.cpp	/^        ElemType type;$/;"	m	class:Elem	typeref:typename:ElemType	file:
+type	src/core/physics/shape.hpp	/^    ShapeType type;$/;"	m	struct:Shape	typeref:typename:ShapeType
 unit_travel	src/core/physics/movement.hpp	/^    std::vector<float> unit_travel;$/;"	m	struct:Move	typeref:typename:std::vector<float>
 update	src/core/logic/elements/ability.cpp	/^void SaiEAbility::update(float ms) {$/;"	f	class:SaiEAbility	typeref:typename:void
 update	src/core/logic/elements/ability.cpp	/^void SaiQAbility::update(float ms) {$/;"	f	class:SaiQAbility	typeref:typename:void
@@ -359,4 +366,5 @@ y	src/core/physics/nav_mesh.hpp	/^    int y;$/;"	m	struct:MapSize	typeref:typena
 y	src/core/physics/shape.hpp	/^    int y;$/;"	m	struct:Coord	typeref:typename:int
 ~Edge	src/core/physics/shape.cpp	/^Edge::~Edge() {$/;"	f	class:Edge
 ~JobScheduler	src/core/concurrency/job_scheduler.cpp	/^JobScheduler::~JobScheduler() {$/;"	f	class:JobScheduler
+~Node	src/core/physics/shape.cpp	/^Node::~Node() {$/;"	f	class:Node
 ~Polygon	src/core/physics/shape.cpp	/^Polygon::~Polygon() {$/;"	f	class:Polygon

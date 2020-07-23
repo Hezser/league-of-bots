@@ -8,7 +8,7 @@
 #include <SFML/Graphics.hpp>
 
 // Foward-declaration
-struct Shape;
+struct Polygon;
 struct Edge;
 
 struct IllegalShapeException: public std::exception {
@@ -28,6 +28,7 @@ typedef struct Node {
     std::vector<Edge*> edge_ptrs;
     Node(Coord coord, Coord origin);
     Node(Coord coord, Coord origin, Edge* edge_ptr);
+    ~Node();
     Edge* getEdgeWith(Node* node);
     void setOrigin(Coord origin);
     bool isOn(Edge* edge);
@@ -50,9 +51,9 @@ typedef struct Edge {
     Edge* left;   // Triangles in meshes don't use this, because edges can be shared
     Edge* right;  // Triangles in meshes don't use this, because edges can be shared
     float length;
-    std::vector<Shape*> shape_ptrs;
-    Edge(Node* a, Node* b, Shape* shape_ptr);
-    Edge(Node* a, Node* b, Edge* left, Edge* right, Shape* shape_ptr);
+    std::vector<Polygon*> shape_ptrs;
+    Edge(Node* a, Node* b, Polygon* shape_ptr);
+    Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr);
     ~Edge();
     bool hasAtLeft(Edge* edge);
     float angleWith(Edge* edge);
@@ -84,13 +85,19 @@ typedef struct Edge {
 } Edge;
 
 typedef struct Shape {
+
+    typedef enum ShapeType {
+        circle, polygon, convex_polygon, triangle
+    } ShapeType;
+
+    ShapeType type;
     Coord center;
     sf::Shape* getDrawable();
     // TODO: Functions to modify drawable (color, outline, etc)
     
     protected:
-        Shape(Coord center);
-        Shape();
+        Shape(ShapeType type, Coord center);
+        Shape(ShapeType type);  // Used for instantiating subclasses
         sf::Shape* drawable;
 } Shape;
 
@@ -106,7 +113,7 @@ typedef struct Circle: Shape {
 } Circle;
 
 /* TODO: Polygons are not usable at the moment, as SFML does not support concave shapes
- *       However, there is no need for them now */
+ *       However, there is no need for them now (DELETE?) */
 typedef struct Polygon: Shape {
     std::vector<Node*> nodes;
     std::vector<Edge*> edges;
@@ -114,7 +121,7 @@ typedef struct Polygon: Shape {
     ~Polygon();
     
     protected:
-        Polygon();
+        Polygon(ShapeType subtype);  // Used for instantiating subclasses
         Coord findCenter(std::vector<Coord> coords);
         void restrictNodes();
 } Polygon;
@@ -123,7 +130,7 @@ typedef struct ConvexPolygon: Polygon {
     ConvexPolygon(std::vector<Coord> coords);
 
     protected:
-        ConvexPolygon();
+        ConvexPolygon(ShapeType subtype);  // Used for instantiating subclasses
         void constructDrawable(std::vector<Coord> coords);
         std::vector<Node*> createNodes(std::vector<Coord> coords);
 } ConvexPolygon;

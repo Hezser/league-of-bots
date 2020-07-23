@@ -24,13 +24,16 @@ const char* NavMesh::FailedTriangulationException::what() const throw() {
 
 Triangle* NavMesh::legalize(Triangle* candidate) {
     for (Edge* e : candidate->edges) {
-        if (e->shape_ptrs.size() < 2) continue;
-        Triangle* neighbour = (Triangle*) ((Triangle*) e->shape_ptrs[0] == candidate ?
-                e->shape_ptrs[1] : e->shape_ptrs[0]);
+        if (e->shape_ptrs.size() != 2) continue;
+        std::cout << "Size of e->shape_ptrs = " << e->shape_ptrs.size() << std::endl;
+        auto s = (e->shape_ptrs[0] == candidate ? e->shape_ptrs[1] : e->shape_ptrs[0]);
+        if (s->type != Shape::triangle) continue;
+        Triangle* neighbour = (Triangle*) s;
         // Legalize the triangle if it infringes the Delaunay condition
         float candidate_alpha = candidate->angleOppositeToEdge(e);
         float neighbour_alpha = neighbour->angleOppositeToEdge(e);
         if (candidate_alpha + neighbour_alpha > M_PI) {
+            std::cout << "Flipping edges\n";
             // Flip edges
             Node* candidate_a = candidate->nodeOppositeToEdge(e);
             std::vector<Edge*> neighbour_edges = neighbour->adjacentEdges(e);
@@ -57,6 +60,7 @@ Triangle* NavMesh::legalize(Triangle* candidate) {
             m_mesh.push_back(new_neighbour);
         }
     }
+    std::cout << "\t87\n";
     return candidate;
 }
 
@@ -148,13 +152,15 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
     
     Node* n;
     while(!disconnected.empty()) {
+        std::cout << "1\n";
         n = disconnected[0];
         // Create new triangle
-        std::cout << "Mesh has " << m_mesh.size() << std::endl;
-        std::cout << "Hull (edges) has " << frontier->edges.size() << std::endl;
-        std::cout << "Nodes has " << m_nodes.size() << std::endl;
-        std::cout << "Origin is (" << m_origin.x << ", " << m_origin.y << ")\n";
+        /* std::cout << "Mesh has " << m_mesh.size() << std::endl; */
+        /* std::cout << "Hull (edges) has " << frontier->edges.size() << std::endl; */
+        /* std::cout << "Nodes has " << m_nodes.size() << std::endl; */
+        /* std::cout << "Origin is (" << m_origin.x << ", " << m_origin.y << ")\n"; */
         Edge* intersector = frontier->popIntersectingEdge(n);
+        std::cout << "2\n";
         if (intersector == nullptr) {
             disconnected.erase(disconnected.begin());
             std::cout << "Intersector is null\n";
@@ -163,10 +169,13 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
         Triangle* candidate;
         try {
             candidate = new Triangle(intersector, n);
+            std::cout << "3\n";
         } catch (Edge::IllegalEdgeException) {
             disconnected.erase(disconnected.begin());
+            std::cout << "Tried to violate a shape\n";
             continue;
         } catch (Triangle::IllegalTriangleException) {
+            std::cout << "Collinear triangle\n";
             /* Attempt to create triangles with the right and left edge of intersector
              * One of them is guaranteed to not be collinear with n, because
              * we return the closest intersecting edge to n. Both of them are also
@@ -174,16 +183,21 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
              * other triangles, since n and the intersector are collinear */
             try {
                 candidate = new Triangle(intersector->left, n);
+                std::cout << "4\n";
             } catch (const IllegalShapeException &e) {
+                std::cout << "Collinear triangle, trying somethig else...\n";
                 try {
                     candidate = new Triangle(intersector->right, n);
+                    std::cout << "5\n";
                 } catch (const IllegalShapeException &e) {
                     // One of the right and left edges of the intersector has restricted nodes
+                    std::cout << "Collinear triangle, eventually a shape was violated\n";
                     disconnected.erase(disconnected.begin());
                     continue;
                 }
             }
         }
+        std::cout << "6\n";
 
         disconnected.erase(disconnected.begin());
         
@@ -200,74 +214,83 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
         frontier->edges.push_back(left_edge);
         frontier->edges.push_back(right_edge);
 
+        std::cout << "7\n";
         // Left-side walk
-        while(left_edge->angleWith(left_edge->left) < M_PI / 2) {
-            Node* left_n = left_edge->left->a == left_edge->a ||
-                           left_edge->left->a == left_edge->b ?
-                           left_edge->left->b : left_edge->left->a;
-            Triangle* t;
-            try { 
-                t = new Triangle(left_edge, left_edge->left, left_n);
-            } catch (const IllegalShapeException &e) {
-                break;
-            }
+        if (left_edge->left != nullptr) {
+            while(left_edge->angleWith(left_edge->left) < M_PI / 2) {
+                Node* left_n = left_edge->left->a == left_edge->a ||
+                               left_edge->left->a == left_edge->b ?
+                               left_edge->left->b : left_edge->left->a;
+                Triangle* t;
+                try { 
+                    t = new Triangle(left_edge, left_edge->left, left_n);
+                } catch (const IllegalShapeException &e) {
+                    break;
+                }
 
-            Edge* new_e;
-            if (t->edges[0] != left_edge && t->edges[0] != left_edge->left) new_e = t->edges[0];
-            else if (t->edges[1] != left_edge && t->edges[1] != left_edge->left) 
-                new_e = t->edges[1];
-            else new_e = t->edges[2];
-            frontier->edges.push_back(new_e);
-            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge);
-            if (pos != frontier->edges.end()) {
-                frontier->edges.erase(frontier->edges.begin() +
-                        std::distance(frontier->edges.begin(), pos));
-            }
-            pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge->left);
-            if (pos != frontier->edges.end()) {
-                frontier->edges.erase(frontier->edges.begin() +
-                        std::distance(frontier->edges.begin(), pos));
-            }
+                Edge* new_e;
+                if (t->edges[0] != left_edge && t->edges[0] != left_edge->left) new_e = t->edges[0];
+                else if (t->edges[1] != left_edge && t->edges[1] != left_edge->left) 
+                    new_e = t->edges[1];
+                else new_e = t->edges[2];
+                frontier->edges.push_back(new_e);
+                auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge);
+                if (pos != frontier->edges.end()) {
+                    frontier->edges.erase(frontier->edges.begin() +
+                            std::distance(frontier->edges.begin(), pos));
+                }
+                pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge->left);
+                if (pos != frontier->edges.end()) {
+                    frontier->edges.erase(frontier->edges.begin() +
+                            std::distance(frontier->edges.begin(), pos));
+                }
 
-            t = legalize(t);
-            m_mesh.push_back(t);
-            left_edge = left_edge->left;
-        } 
+                t = legalize(t);
+                m_mesh.push_back(t);
+                left_edge = left_edge->left;
+                if (left_edge->left == nullptr) break;
+            } 
+        }
+        std::cout << "8\n";
 
         // Right-side walk
-        while(right_edge->angleWith(right_edge->right) < M_PI / 2) {
-            Node* right_n = right_edge->right->a == right_edge->a ||
-                           right_edge->right->a == right_edge->b ?
-                           right_edge->right->b : right_edge->right->a;
-            Triangle* t;
-            try {
-                t = new Triangle(right_edge, right_edge->right, right_n);
-            } catch (const IllegalShapeException &e) {
-                break;
-            }
+        if (right_edge->right != nullptr) {
+            while(right_edge->angleWith(right_edge->right) < M_PI / 2) {
+                Node* right_n = right_edge->right->a == right_edge->a ||
+                               right_edge->right->a == right_edge->b ?
+                               right_edge->right->b : right_edge->right->a;
+                Triangle* t;
+                try {
+                    t = new Triangle(right_edge, right_edge->right, right_n);
+                } catch (const IllegalShapeException &e) {
+                    break;
+                }
 
-            Edge* new_e;
-            if (t->edges[0] != right_edge && t->edges[0] != right_edge->right) 
-                new_e = t->edges[0];
-            else if (t->edges[1] != right_edge && t->edges[1] != right_edge->right) 
-                new_e = t->edges[1];
-            else new_e = t->edges[2];
-            frontier->edges.push_back(new_e);
-            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge);
-            if (pos != frontier->edges.end()) {
-                frontier->edges.erase(frontier->edges.begin() +
-                        std::distance(frontier->edges.begin(), pos));
-            }
-            pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge->right);
-            if (pos != frontier->edges.end()) {
-                frontier->edges.erase(frontier->edges.begin() +
-                        std::distance(frontier->edges.begin(), pos));
-            }
+                Edge* new_e;
+                if (t->edges[0] != right_edge && t->edges[0] != right_edge->right) 
+                    new_e = t->edges[0];
+                else if (t->edges[1] != right_edge && t->edges[1] != right_edge->right) 
+                    new_e = t->edges[1];
+                else new_e = t->edges[2];
+                frontier->edges.push_back(new_e);
+                auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge);
+                if (pos != frontier->edges.end()) {
+                    frontier->edges.erase(frontier->edges.begin() +
+                            std::distance(frontier->edges.begin(), pos));
+                }
+                pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge->right);
+                if (pos != frontier->edges.end()) {
+                    frontier->edges.erase(frontier->edges.begin() +
+                            std::distance(frontier->edges.begin(), pos));
+                }
 
-            t = legalize(t);
-            m_mesh.push_back(t);
-            right_edge = right_edge->right;
+                t = legalize(t);
+                m_mesh.push_back(t);
+                right_edge = right_edge->right;
+                if (right_edge->right == nullptr) break;
+            }
         }
+        std::cout << "9\n";
 
         // TODO: Remove basins
     }
