@@ -40,8 +40,9 @@ ConvexPolygon	src/core/physics/shape.hpp	/^} ConvexPolygon;$/;"	t	typeref:struct
 Coord	src/core/physics/shape.hpp	/^typedef struct Coord {$/;"	s
 Coord	src/core/physics/shape.hpp	/^} Coord;$/;"	t	typeref:struct:Coord
 ELEM_HPP	src/core/logic/elements/elem.hpp	/^#define ELEM_HPP$/;"	d
+Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b) {$/;"	f	class:Edge
 Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr):$/;"	f	class:Edge
-Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Polygon* shape_ptr) {$/;"	f	class:Edge
+Edge	src/core/physics/shape.cpp	/^Edge::Edge(Node* a, Node* b, Polygon* shape_ptr): Edge(a, b) {$/;"	f	class:Edge
 Edge	src/core/physics/shape.hpp	/^typedef struct Edge {$/;"	s
 Edge	src/core/physics/shape.hpp	/^} Edge;$/;"	t	typeref:struct:Edge
 Elem	src/core/graphics/test.game.cpp	/^class Elem {$/;"	c	file:
@@ -63,6 +64,7 @@ IllegalEdgeException	src/core/physics/shape.hpp	/^    struct IllegalEdgeExceptio
 IllegalShapeException	src/core/physics/shape.hpp	/^struct IllegalShapeException: public std::exception {$/;"	s
 IllegalTriangleException	src/core/physics/shape.hpp	/^    struct IllegalTriangleException: public IllegalShapeException {$/;"	s	struct:Triangle
 InsufficientNodesException	src/core/physics/nav_mesh.hpp	/^        struct InsufficientNodesException: public std::exception {$/;"	s	class:NavMesh
+InsufficientNodesException	src/core/physics/shape.hpp	/^    struct InsufficientNodesException: public std::exception {$/;"	s	struct:Polygon
 JOB_SCHEDULER_HPP	src/core/concurrency/job_scheduler.hpp	/^#define JOB_SCHEDULER_HPP$/;"	d
 Job	src/core/concurrency/job_scheduler.cpp	/^Job::Job(Action* action, uintptr_t param, JobPriority priority): action{action}, param{param},$/;"	f	class:Job
 Job	src/core/concurrency/job_scheduler.hpp	/^class Job {$/;"	c
@@ -75,9 +77,13 @@ JobScheduler	src/core/concurrency/job_scheduler.cpp	/^JobScheduler::JobScheduler
 JobScheduler	src/core/concurrency/job_scheduler.hpp	/^class JobScheduler {$/;"	c
 JobStatus	src/core/concurrency/job_scheduler.hpp	/^typedef struct JobStatus {$/;"	s
 JobStatus	src/core/concurrency/job_scheduler.hpp	/^} JobStatus;$/;"	t	typeref:struct:JobStatus
+Launch	.vimspector.json	/^        "Launch": {$/;"	o	object:configurations
+Launch	src/test/.vimspector.json	/^        "Launch": {$/;"	o	object:configurations
 League of Bots	README.md	/^# League of Bots$/;"	c
 MAX_EABILITY_RANGE	src/core/graphics/test.game.cpp	/^const int MAX_EABILITY_RANGE = 100;$/;"	v	typeref:typename:const int
 MAX_QABILITY_RANGE	src/core/graphics/test.game.cpp	/^const int MAX_QABILITY_RANGE = 100;$/;"	v	typeref:typename:const int
+MIMode	.vimspector.json	/^                "MIMode": "gdb"$/;"	s	object:configurations.Launch.configuration
+MIMode	src/test/.vimspector.json	/^                "MIMode": "gdb"$/;"	s	object:configurations.Launch.configuration
 MOVEMENT_HPP	src/core/physics/movement.hpp	/^#define MOVEMENT_HPP$/;"	d
 MapSize	src/core/physics/nav_mesh.hpp	/^typedef struct MapSize {$/;"	s
 MapSize	src/core/physics/nav_mesh.hpp	/^} MapSize;$/;"	t	typeref:struct:MapSize
@@ -144,6 +150,8 @@ a	src/core/physics/shape.hpp	/^    Node* a;$/;"	m	struct:Edge	typeref:typename:N
 ability_t	src/core/logic/elements/elem.hpp	/^    bot_t = 0, ability_t = 1, terrain_t = 2$/;"	e	enum:ElemType
 action	src/core/concurrency/job_scheduler.hpp	/^        Action* action;$/;"	m	class:Job	typeref:typename:Action *
 action	src/test/job_scheduler_test.cpp	/^void action(uintptr_t param) {$/;"	f	typeref:typename:void
+adapter	.vimspector.json	/^            "adapter": "vscode-cpptools",$/;"	s	object:configurations.Launch
+adapter	src/test/.vimspector.json	/^            "adapter": "vscode-cpptools",$/;"	s	object:configurations.Launch
 adjacentEdges	src/core/physics/shape.cpp	/^std::vector<Edge*> Triangle::adjacentEdges(Edge* edge) {$/;"	f	class:Triangle	typeref:typename:std::vector<Edge * >
 alive	src/core/graphics/test.game.cpp	/^        bool alive;$/;"	m	class:Elem	typeref:typename:bool	file:
 angleOppositeToEdge	src/core/physics/shape.cpp	/^float Triangle::angleOppositeToEdge(Edge* edge) {$/;"	f	class:Triangle	typeref:typename:float
@@ -162,15 +170,21 @@ cast	src/core/logic/elements/ability.cpp	/^bool SaiQAbility::cast(Coord target) 
 cast	src/core/logic/elements/ability.cpp	/^bool SaiRAbility::cast(Coord target) {$/;"	f	class:SaiRAbility	typeref:typename:bool
 cast	src/core/logic/elements/ability.cpp	/^bool SaiWAbility::cast(Coord target) {$/;"	f	class:SaiWAbility	typeref:typename:bool
 center	src/core/physics/shape.hpp	/^    Coord center;$/;"	m	struct:Shape	typeref:typename:Coord
-circle	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
+circle	src/core/physics/shape.hpp	/^        circle = 0, polygon = 1, convex_polygon = 2, triangle = 3$/;"	e	enum:Shape::ShapeType
+configuration	.vimspector.json	/^            "configuration": {$/;"	o	object:configurations.Launch
+configuration	src/test/.vimspector.json	/^            "configuration": {$/;"	o	object:configurations.Launch
+configurations	.vimspector.json	/^    "configurations": {$/;"	o
+configurations	src/test/.vimspector.json	/^    "configurations": {$/;"	o
 constructDrawable	src/core/physics/shape.cpp	/^void ConvexPolygon::constructDrawable(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon	typeref:typename:void
 constructInstantMove	src/core/physics/movement.cpp	/^Move* constructInstantMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
 constructLinearMove	src/core/physics/movement.cpp	/^Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
-convex_polygon	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
+convex_polygon	src/core/physics/shape.hpp	/^        circle = 0, polygon = 1, convex_polygon = 2, triangle = 3$/;"	e	enum:Shape::ShapeType
 coord	src/core/physics/shape.hpp	/^    Coord coord;$/;"	m	struct:Node	typeref:typename:Coord
 counter	src/core/concurrency/job_scheduler.hpp	/^    std::atomic<int> counter;$/;"	m	struct:JobStatus	typeref:typename:std::atomic<int>
 createNodes	src/core/physics/shape.cpp	/^std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon	typeref:typename:std::vector<Node * >
 cv	src/core/concurrency/job_scheduler.hpp	/^    std::condition_variable cv;$/;"	m	struct:JobStatus	typeref:typename:std::condition_variable
+cwd	.vimspector.json	/^                "cwd": "\/home\/ser\/dev\/league-of-bots",$/;"	s	object:configurations.Launch.configuration
+cwd	src/test/.vimspector.json	/^                "cwd": "\/home\/ser\/dev\/league-of-bots",$/;"	s	object:configurations.Launch.configuration
 detect	src/core/physics/collision.cpp	/^std::vector<Collision> CollisionDetectionSystem::detect(std::vector<Elem*> elems) {$/;"	f	class:CollisionDetectionSystem	typeref:typename:std::vector<Collision>
 direction	src/core/physics/shape.cpp	/^int Edge::direction(Node* a, Node* b, Node* c) {$/;"	f	class:Edge	typeref:typename:int
 distance	src/core/physics/movement.hpp	/^    int distance;$/;"	m	struct:Move	typeref:typename:int
@@ -184,6 +198,8 @@ edge_ptrs	src/core/physics/shape.hpp	/^    std::vector<Edge*> edge_ptrs;$/;"	m	s
 edges	src/core/physics/shape.hpp	/^    std::vector<Edge*> edges;$/;"	m	struct:Hull	typeref:typename:std::vector<Edge * >
 edges	src/core/physics/shape.hpp	/^    std::vector<Edge*> edges;$/;"	m	struct:Polygon	typeref:typename:std::vector<Edge * >
 enemy_ability	src/core/physics/movement.hpp	/^    right_click = 0, own_ability = 1, enemy_ability = 2$/;"	e	enum:MovePriority
+externalConsole	.vimspector.json	/^                "externalConsole": true,$/;"	b	object:configurations.Launch.configuration
+externalConsole	src/test/.vimspector.json	/^                "externalConsole": true,$/;"	b	object:configurations.Launch.configuration
 findCenter	src/core/physics/shape.cpp	/^Coord Polygon::findCenter(std::vector<Coord> coords) {$/;"	f	class:Polygon	typeref:typename:Coord
 getAction	src/core/concurrency/job_scheduler.cpp	/^Action* Job::getAction() {$/;"	f	class:Job	typeref:typename:Action *
 getAimingPolicy	src/core/logic/ai/artificial_player.cpp	/^ArtificialAimingPolicy ArtificialPlayer::getAimingPolicy() {$/;"	f	class:ArtificialPlayer	typeref:typename:ArtificialAimingPolicy
@@ -226,7 +242,7 @@ kill	src/core/logic/elements/elem.cpp	/^void Elem::kill() {$/;"	f	class:Elem	typ
 last_eAbility	src/core/graphics/test.game.cpp	/^        std::chrono::steady_clock::time_point last_eAbility;$/;"	m	class:Bot	typeref:typename:std::chrono::steady_clock::time_point	file:
 last_qAbility	src/core/graphics/test.game.cpp	/^        std::chrono::steady_clock::time_point last_qAbility;$/;"	m	class:Bot	typeref:typename:std::chrono::steady_clock::time_point	file:
 left	src/core/physics/shape.hpp	/^    Edge* left;   \/\/ Triangles in meshes don't use this, because edges can be shared$/;"	m	struct:Edge	typeref:typename:Edge *
-legalize	src/core/physics/nav_mesh.cpp	/^Triangle* NavMesh::legalize(Triangle* candidate) {$/;"	f	class:NavMesh	typeref:typename:Triangle *
+legalize	src/core/physics/nav_mesh.cpp	/^Triangle* NavMesh::legalize(Triangle* candidate, Hull* frontier) {$/;"	f	class:NavMesh	typeref:typename:Triangle *
 length	src/core/physics/shape.hpp	/^    float length;$/;"	m	struct:Edge	typeref:typename:float
 low	src/core/concurrency/job_scheduler.hpp	/^    low = 0, medium = 1, high = 2$/;"	e	enum:JobPriority
 m_abilities	src/core/logic/elements/bot.hpp	/^        std::vector<Ability*> m_abilities;$/;"	m	class:Bot	typeref:typename:std::vector<Ability * >
@@ -291,11 +307,13 @@ own_ability	src/core/physics/movement.hpp	/^    right_click = 0, own_ability = 1
 param	src/core/concurrency/job_scheduler.hpp	/^        uintptr_t param;$/;"	m	class:Job	typeref:typename:uintptr_t
 param	src/core/concurrency/job_scheduler.hpp	/^typedef void Action(uintptr_t param);$/;"	t	typeref:typename:void Action (uintptr_t)
 play	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::play() {$/;"	f	class:ArtificialPlayer	typeref:typename:void
-polygon	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
+polygon	src/core/physics/shape.hpp	/^        circle = 0, polygon = 1, convex_polygon = 2, triangle = 3$/;"	e	enum:Shape::ShapeType
 popIntersectingEdge	src/core/physics/shape.cpp	/^Edge* Hull::popIntersectingEdge(Node* node) {$/;"	f	class:Hull	typeref:typename:Edge *
 populateNodes	src/core/physics/nav_mesh.cpp	/^void NavMesh::populateNodes() {$/;"	f	class:NavMesh	typeref:typename:void
 priority	src/core/concurrency/job_scheduler.hpp	/^        JobPriority priority;$/;"	m	class:Job	typeref:typename:JobPriority
 priority	src/core/physics/movement.hpp	/^    MovePriority priority;$/;"	m	struct:Move	typeref:typename:MovePriority
+program	.vimspector.json	/^                "program": "src\/test\/nav_mesh-test",$/;"	s	object:configurations.Launch.configuration
+program	src/test/.vimspector.json	/^                "program": "src\/test\/nav_mesh-test",$/;"	s	object:configurations.Launch.configuration
 q	src/core/logic/elements/ability.hpp	/^    q, w, e, r$/;"	e	enum:AbilityKey
 qAbilityCd	src/core/graphics/test.game.cpp	/^        const time_t qAbilityCd = std::chrono::milliseconds(1000).count();$/;"	m	class:Bot	typeref:typename:const time_t	file:
 qAbility_type	src/core/graphics/test.game.cpp	/^    bot_type = 0, qAbility_type = 1$/;"	e	enum:ElemType	file:
@@ -307,10 +325,12 @@ random_movement	src/core/logic/ai/artificial_player.hpp	/^    random_movement = 
 red_team	src/core/graphics/test.game.cpp	/^    red_team = 0, blue_team = 1, neutral = 2$/;"	e	enum:Team	file:
 removeRightClickMove	src/core/physics/movement.cpp	/^void MovePriorityQueue::removeRightClickMove() {$/;"	f	class:MovePriorityQueue	typeref:typename:void
 replaceRightClickMove	src/core/physics/movement.cpp	/^void MovePriorityQueue::replaceRightClickMove(Move* move) {$/;"	f	class:MovePriorityQueue	typeref:typename:void
+request	.vimspector.json	/^                "request": "launch",$/;"	s	object:configurations.Launch.configuration
 request	src/core/physics/movement.cpp	/^void MovementManager::request(Move* move) {$/;"	f	class:MovementManager	typeref:typename:void
+request	src/test/.vimspector.json	/^                "request": "launch",$/;"	s	object:configurations.Launch.configuration
 resolve	src/core/physics/collision.cpp	/^void CollisionResolutionSystem::resolve(std::vector<Collision> collisions) {$/;"	f	class:CollisionResolutionSystem	typeref:typename:void
 restrictNodes	src/core/physics/shape.cpp	/^void Polygon::restrictNodes() {$/;"	f	class:Polygon	typeref:typename:void
-restricted	src/core/physics/shape.hpp	/^    std::unordered_set<Node*> restricted;$/;"	m	struct:Node	typeref:typename:std::unordered_set<Node * >
+restricted	src/core/physics/shape.hpp	/^    std::vector<Node*> restricted;$/;"	m	struct:Node	typeref:typename:std::vector<Node * >
 right	src/core/physics/shape.hpp	/^    Edge* right;  \/\/ Triangles in meshes don't use this, because edges can be shared$/;"	m	struct:Edge	typeref:typename:Edge *
 right_click	src/core/physics/movement.hpp	/^    right_click = 0, own_ability = 1, enemy_ability = 2$/;"	e	enum:MovePriority
 setAimingPolicy	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::setAimingPolicy(ArtificialAimingPolicy aiming_policy) {$/;"	f	class:ArtificialPlayer	typeref:typename:void
@@ -333,7 +353,7 @@ team	src/core/graphics/test.game.cpp	/^        Team team;$/;"	m	class:Elem	typer
 terrain_t	src/core/logic/elements/elem.hpp	/^    bot_t = 0, ability_t = 1, terrain_t = 2$/;"	e	enum:ElemType
 theta	src/core/physics/shape.hpp	/^    float theta;$/;"	m	struct:Node	typeref:typename:float
 travelled	src/core/physics/movement.hpp	/^    int travelled;$/;"	m	struct:Move	typeref:typename:int
-triangle	src/core/physics/shape.hpp	/^        circle, polygon, convex_polygon, triangle$/;"	e	enum:Shape::ShapeType
+triangle	src/core/physics/shape.hpp	/^        circle = 0, polygon = 1, convex_polygon = 2, triangle = 3$/;"	e	enum:Shape::ShapeType
 triangulate	src/core/physics/nav_mesh.cpp	/^void NavMesh::triangulate(std::vector<Terrain*> terrains) {$/;"	f	class:NavMesh	typeref:typename:void
 type	src/core/graphics/test.game.cpp	/^        ElemType type;$/;"	m	class:Elem	typeref:typename:ElemType	file:
 type	src/core/physics/shape.hpp	/^    ShapeType type;$/;"	m	struct:Shape	typeref:typename:ShapeType
@@ -353,6 +373,7 @@ what	src/core/physics/nav_mesh.cpp	/^const char* NavMesh::FailedTriangulationExc
 what	src/core/physics/nav_mesh.cpp	/^const char* NavMesh::InsufficientNodesException::what() const throw() {$/;"	f	class:NavMesh::InsufficientNodesException	typeref:typename:const char *
 what	src/core/physics/shape.cpp	/^const char* Edge::ExistingEdgeException::what() const noexcept {$/;"	f	class:Edge::ExistingEdgeException	typeref:typename:const char *
 what	src/core/physics/shape.cpp	/^const char* Edge::IllegalEdgeException::what() const noexcept {$/;"	f	class:Edge::IllegalEdgeException	typeref:typename:const char *
+what	src/core/physics/shape.cpp	/^const char* Polygon::InsufficientNodesException::what() const throw() {$/;"	f	class:Polygon::InsufficientNodesException	typeref:typename:const char *
 what	src/core/physics/shape.cpp	/^const char* Triangle::IllegalTriangleException::what() const noexcept {$/;"	f	class:Triangle::IllegalTriangleException	typeref:typename:const char *
 white_team	src/core/logic/elements/elem.hpp	/^    neutral_team = 0, white_team = 1, black_team = 2  $/;"	e	enum:Team
 work	src/core/concurrency/job_scheduler.cpp	/^void JobScheduler::work(std::shared_future<void> signal) {$/;"	f	class:JobScheduler	typeref:typename:void

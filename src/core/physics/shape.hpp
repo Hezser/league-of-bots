@@ -24,7 +24,7 @@ typedef struct Node {
     Coord coord;
     float r;
     float theta;
-    std::unordered_set<Node*> restricted;
+    std::vector<Node*> restricted;
     std::vector<Edge*> edge_ptrs;
     Node(Coord coord, Coord origin);
     Node(Coord coord, Coord origin, Edge* edge_ptr);
@@ -52,6 +52,7 @@ typedef struct Edge {
     Edge* right;  // Triangles in meshes don't use this, because edges can be shared
     float length;
     std::vector<Polygon*> shape_ptrs;
+    Edge(Node* a, Node* b);
     Edge(Node* a, Node* b, Polygon* shape_ptr);
     Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr);
     ~Edge();
@@ -87,7 +88,7 @@ typedef struct Edge {
 typedef struct Shape {
 
     typedef enum ShapeType {
-        circle, polygon, convex_polygon, triangle
+        circle = 0, polygon = 1, convex_polygon = 2, triangle = 3
     } ShapeType;
 
     ShapeType type;
@@ -119,6 +120,10 @@ typedef struct Polygon: Shape {
     std::vector<Edge*> edges;
     Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges);
     ~Polygon();
+
+    struct InsufficientNodesException: public std::exception {
+        const char* what() const throw();
+    };
     
     protected:
         Polygon(ShapeType subtype);  // Used for instantiating subclasses

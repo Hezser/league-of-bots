@@ -34,7 +34,7 @@ class NavMesh {
         TriangleMesh m_mesh;
         Coord m_origin;
         std::vector<Node*> m_nodes;
-        Triangle* legalize(Triangle* candidate);
+        Triangle* legalize(Triangle* candidate, Hull* frontier);
         void triangulate(std::vector<Terrain*> terrains);
         void populateNodes();
         Coord avgCoord(std::vector<Node*> nodes);
