@@ -8,23 +8,26 @@
 
 void drawTerrain(sf::RenderWindow& window, std::vector<Terrain*> terrains) {
     for (Terrain* t : terrains) {
-        sf::Shape* drawable = t->getShape()->getDrawable();  // TODO: Implement
+        sf::Shape* drawable = t->getShape()->getDrawable();
         window.draw(*drawable);
     }
 }
 
 void drawNavMesh(sf::RenderWindow& window, TriangleMesh mesh) {
     for (Triangle* t : mesh) {
-        sf::Drawable* drawable = t->getDrawable();  // TODO: Implement
+        sf::Shape* drawable = t->getDrawable();
+        drawable->setFillColor(sf::Color::Transparent);
+        drawable->setOutlineColor(sf::Color::Red);
+        drawable->setOutlineThickness(2.0);
         window.draw(*drawable);
     }
 }
 
 int main() {
     // Create terrain
-    MapSize map_size = {1920, 1080};
+    MapSize map_size = {500, 500};
     std::vector<Terrain*> terrains;
-    for (auto i=0; i<map_size.y; i += 200) {
+    for (auto i=0; i<map_size.y; i += 100) {
         ConvexPolygon* s = new ConvexPolygon({{i, i}, {i, i+50}, {i+50, i+50}, {i+50, i}});
         Terrain* t = new Terrain(s, {i+25, i+25}, 71);
         terrains.push_back(t);
@@ -35,7 +38,7 @@ int main() {
         // Display naked map for a few seconds
         drawTerrain(window, terrains);
         window.display();
-        std::this_thread::sleep_for(std::chrono::seconds(0));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
         
         // Triangulate map
         NavMesh* nav_mesh;

@@ -135,7 +135,7 @@ TriangleMesh	src/core/physics/nav_mesh.hpp	/^typedef std::vector<Triangle*> Tria
 __anon5a542e180102	src/core/concurrency/job_scheduler.cpp	/^        status->cv.wait(lock, [this]{ return status->counter.load() == 0; });$/;"	f	function:Job::join	file:
 __anon5a542e180202	src/core/concurrency/job_scheduler.cpp	/^        status->cv.wait(lock, [this]{ return status->counter.load() == 0; });$/;"	f	function:JobBatch::join	file:
 __anon5a542e180302	src/core/concurrency/job_scheduler.cpp	/^            m_job_available.wait(lock, [this, signal]{$/;"	f	function:JobScheduler::work	file:
-__anon70ecd0e80102	src/core/physics/shape.cpp	/^        std::sort(es.begin(), es.end(), [&](Edge* lhs, Edge* rhs) {$/;"	f	function:Hull::popIntersectingEdge	file:
+__anon70ecd0e80102	src/core/physics/shape.cpp	/^        std::sort(es.begin(), es.end(), [&](Edge* lhs, Edge* rhs) {$/;"	f	function:Hull::getIntersectingEdge	file:
 a	src/core/physics/shape.hpp	/^        Node* a;$/;"	m	class:Edge	typeref:typename:Node *
 ability_t	src/core/logic/elements/elem.hpp	/^    bot_t = 0, ability_t = 1, terrain_t = 2$/;"	e	enum:ElemType
 action	src/core/concurrency/job_scheduler.hpp	/^        Action* action;$/;"	m	class:Job	typeref:typename:Action *
@@ -200,6 +200,7 @@ getCenter	src/core/logic/elements/elem.cpp	/^Coord Elem::getCenter() {$/;"	f	cla
 getDrawable	src/core/physics/shape.cpp	/^sf::Shape* Shape::getDrawable() {$/;"	f	class:Shape	typeref:typename:sf::Shape *
 getEdgeWith	src/core/physics/shape.cpp	/^Edge* Node::getEdgeWith(Node* node) {$/;"	f	class:Node	typeref:typename:Edge *
 getExistingEdge	src/core/physics/shape.cpp	/^Edge* Edge::ExistingEdgeException::getExistingEdge() {$/;"	f	class:Edge::ExistingEdgeException	typeref:typename:Edge *
+getIntersectingEdge	src/core/physics/shape.cpp	/^Edge* Hull::getIntersectingEdge(Node* node) {$/;"	f	class:Hull	typeref:typename:Edge *
 getJobs	src/core/concurrency/job_scheduler.cpp	/^std::vector<Job*> JobBatch::getJobs() {$/;"	f	class:JobBatch	typeref:typename:std::vector<Job * >
 getLastUsed	src/core/logic/elements/ability.cpp	/^std::chrono::steady_clock::time_point Ability::getLastUsed() {$/;"	f	class:Ability	typeref:typename:std::chrono::steady_clock::time_point
 getMapSize	src/core/physics/nav_mesh.cpp	/^MapSize NavMesh::getMapSize() {$/;"	f	class:NavMesh	typeref:typename:MapSize
@@ -299,7 +300,6 @@ param	src/core/concurrency/job_scheduler.hpp	/^        uintptr_t param;$/;"	m	cl
 param	src/core/concurrency/job_scheduler.hpp	/^typedef void Action(uintptr_t param);$/;"	t	typeref:typename:void Action (uintptr_t)
 play	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::play() {$/;"	f	class:ArtificialPlayer	typeref:typename:void
 polygon	src/core/physics/shape.hpp	/^            circle = 0, polygon = 1, convex_polygon = 2, triangle = 3$/;"	e	enum:Shape::ShapeType
-popIntersectingEdge	src/core/physics/shape.cpp	/^Edge* Hull::popIntersectingEdge(Node* node) {$/;"	f	class:Hull	typeref:typename:Edge *
 populateNodes	src/core/physics/nav_mesh.cpp	/^void NavMesh::populateNodes() {$/;"	f	class:NavMesh	typeref:typename:void
 priority	src/core/concurrency/job_scheduler.hpp	/^        JobPriority priority;$/;"	m	class:Job	typeref:typename:JobPriority
 priority	src/core/physics/movement.hpp	/^    MovePriority priority;$/;"	m	struct:Move	typeref:typename:MovePriority

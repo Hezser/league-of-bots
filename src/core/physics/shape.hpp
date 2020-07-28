@@ -160,7 +160,7 @@ class Hull {
         Coord origin;
         std::vector<Edge*> edges;
         Hull(Coord origin);
-        Edge* popIntersectingEdge(Node* node);
+        Edge* getIntersectingEdge(Node* node);
 
     private:
         Hull();

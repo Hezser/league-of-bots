@@ -415,18 +415,30 @@ Triangle::Triangle(Edge* e, Node* n): ConvexPolygon(triangle) {
     nodes = {e->a, e->b, n};
     Edge* g;
     Edge* h;
+    std::cout << "Creating TRIANGLE(" << e << ", " << n << ")\n";
+    std::cout << "\te->a = " << e->a << "\n";
+    std::cout << "\te->b = " << e->b << "\n";
+    std::cout << "\tn = " << n << "\n";
     try {
         g = new Edge(e->a, n, this);
     } catch (Edge::ExistingEdgeException &ex) {
+        std::cout << "\tG EXISTS!\n";
         g = ex.getExistingEdge();
         g->shape_ptrs.push_back(this);
     }
     try {
         h = new Edge(e->b, n, this);
     } catch (Edge::ExistingEdgeException &ex) {
+        std::cout << "\tH EXISTS!\n";
         h = ex.getExistingEdge();
         h->shape_ptrs.push_back(this);
     }
+    std::cout << "\tg = " << g << "\n";
+    std::cout << "\t\tg->a = " << g->a << "\n";
+    std::cout << "\t\tg->b = " << g->b << "\n";
+    std::cout << "\th = " << h << "\n";
+    std::cout << "\t\th->a = " << h->a << "\n";
+    std::cout << "\t\th->b = " << h->b << "\n";
     edges = {e, g, h}; 
     e->shape_ptrs.push_back(this);
     constructDrawable({e->a->coord, e->b->coord, n->coord});
@@ -511,7 +523,7 @@ Hull::Hull(Coord origin) {
 /* If there are >3 edges being collinear and a node intersects with them, the node needs to
  * get the closest edge to it (furtherst away from origin), which guarantees that the node can
  * make a non-collinear triangle with the left or right edge of the intersector */
-Edge* Hull::popIntersectingEdge(Node* node) {
+Edge* Hull::getIntersectingEdge(Node* node) {
     // Empty hull
     if (edges.size() == 0) return nullptr;
 
@@ -574,23 +586,5 @@ Edge* Hull::popIntersectingEdge(Node* node) {
 
     if (j == -1) return nullptr; 
 
-    Edge* intersector = edges[j];
-    /* std::cout << "POPPING ( " << edges.size() << " )------\n"; */
-    /* for (int i=0; i<edges.size(); i++) { */
-    /*     std::cout << "left of " << i << " [" << edges[i] << "] = " << */
-    /*              edges[i]->left << "\n"; */
-    /*     std::cout << "righ of " << i << " [" << edges[i] << "] = " << */
-    /*              edges[i]->right << "\n"; */
-    /* } */
-    /* std::cout << "\n\n"; */
-    edges.erase(edges.begin() + j);
-    /* std::cout << "POPPING-2 ( " << edges.size() << " )------\n"; */
-    /* for (int i=0; i<edges.size(); i++) { */
-    /*     std::cout << "left of " << i << " [" << edges[i] << "] = " << */
-    /*              edges[i]->left << "\n"; */
-    /*     std::cout << "righ of " << i << " [" << edges[i] << "] = " << */
-    /*              edges[i]->right << "\n"; */
-    /* } */
-    /* std::cout << "\n\n"; */
-    return intersector;
+    return edges[j];
 }
