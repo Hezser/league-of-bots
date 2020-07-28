@@ -22,17 +22,20 @@ const char* NavMesh::FailedTriangulationException::what() const throw() {
 }
 
 Triangle* NavMesh::legalize(Triangle* candidate, Hull* frontier) {
-    for (Edge* e : candidate->edges) {
-        std::cout << "Size of " << e << "->shape_ptrs = " << e->shape_ptrs.size() << std::endl;
-        if (e->shape_ptrs.size() != 2) continue;
-        auto s = e->shape_ptrs[0] == candidate ? e->shape_ptrs[1] : e->shape_ptrs[0];
-        if (s->type != Shape::triangle) continue;
-        Triangle* neighbour = (Triangle*) s;
+    int i = 0;
+    // TODO: Potential infinite loop if Delaunay condition cannot be met?
+    while (i < 3) {
+        Edge* e = candidate->edges[i++];
+        Triangle* neighbour = nullptr;
+        for (Polygon* s : e->shape_ptrs) {
+            // TODO: What if the original terrain was a triangle?
+            if (s->type == Shape::triangle && s != candidate) neighbour = (Triangle*) s;
+        }
+        if (neighbour == nullptr) continue;
         // Legalize the triangle if it infringes the Delaunay condition
         float candidate_alpha = candidate->angleOppositeToEdge(e);
         float neighbour_alpha = neighbour->angleOppositeToEdge(e);
         if (candidate_alpha + neighbour_alpha > M_PI) {
-            std::cout << "Flipping edges\n";
             // Flip edges
             Node* candidate_a = candidate->nodeOppositeToEdge(e);
             std::vector<Edge*> neighbour_edges = neighbour->adjacentEdges(e);
@@ -40,36 +43,25 @@ Triangle* NavMesh::legalize(Triangle* candidate, Hull* frontier) {
             Triangle* new_candidate;
             try {
                 new_neighbour = new Triangle(neighbour_edges[0], candidate_a);
-                new_candidate = new Triangle(neighbour_edges[1], candidate_a);
-            } catch (Edge::IllegalEdgeException e) {
-                continue;
             } catch (Triangle::IllegalTriangleException e) {
                 continue;
             }
-            // Remove neighbour and candidate and their edges from the mesh and the frontier
+            try {
+                new_candidate = new Triangle(neighbour_edges[1], candidate_a);
+            } catch (Triangle::IllegalTriangleException e) {
+                delete new_neighbour;
+                continue;
+            }
+            // Remove neighbour from the mesh 
             auto pos_m = std::find(m_mesh.begin(), m_mesh.end(), neighbour);
             if (pos_m != m_mesh.end()) m_mesh.erase(pos_m);
-            for (Edge* g : neighbour->edges) {
-                if (g->shape_ptrs.size() <= 1) {
-                    auto pos_f = std::find(frontier->edges.begin(), frontier->edges.end(), g);
-                    if (pos_f != frontier->edges.end()){ 
-                        std::cout << "---------- Removing from frontier edge " << g << "...\n";
-                        frontier->edges.erase(pos_f);
-                    }
-                }
-            }
-            auto pos_f = std::find(frontier->edges.begin(), frontier->edges.end(), e);
-            if (pos_f != frontier->edges.end()) {
-                std::cout << "---------- Removing from frontier edge " << e << " (legalizing)...\n";
-                frontier->edges.erase(pos_f);
-            }
-            std::cout << "---------- Deleting edge " << e << " (legalizing)...\n";
             delete e;
             delete neighbour;
             delete candidate;
             candidate = new_candidate;
             // Add the new neighbour to the mesh
             m_mesh.push_back(new_neighbour);
+            i = 0;
         }
     }
     return candidate;
@@ -91,23 +83,26 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             m_nodes.push_back(n);
         }       
     }
-    
+    if (m_nodes.size() < 3) throw InsufficientNodesException();
+
     m_mesh = TriangleMesh();
     m_origin = avgCoord(m_nodes);
-    if (m_nodes.size() < 3) throw InsufficientNodesException();
+    Hull* frontier = new Hull(m_origin);
 
     std::vector<Node*> disconnected = m_nodes;
     for (Node* n : disconnected) {
         n->setOrigin(m_origin);
     }
+    // Add corner nodes
+    Node* n = new Node({0, 0}, m_origin);
+    m_nodes.push_back(n);
+    n = new Node({0, m_map_size.y}, m_origin);
+    m_nodes.push_back(n);
+    n = new Node({m_map_size.x, m_map_size.y}, m_origin);
+    m_nodes.push_back(n);
+    n = new Node({m_map_size.x, 0}, m_origin);
+    m_nodes.push_back(n);
     std::sort(disconnected.begin(), disconnected.end(), Node::RComparator());
-
-    Hull* frontier = new Hull(m_origin);
-    for (Terrain* t : terrains)  {
-        for (Edge* e : t->getShape()->edges) {
-            frontier->edges.push_back(e);
-        }
-    }
 
     // Try all possible initial triangles in order of distance to the origin
     int i = 0;
@@ -119,13 +114,7 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
                 if (j <= k) {
                     try {
                         t = new Triangle(disconnected[i], disconnected[j], disconnected[k]);
-                    } catch (const IllegalShapeException &e) {
-                        std::cout << "Exception thrown when creating { (" << 
-                                disconnected[i]->coord.x << "," << disconnected[i]->coord.y <<
-                                "), (" << disconnected[j]->coord.x << "," << 
-                                disconnected[j]->coord.y << "), (" << disconnected[k]->coord.x 
-                                << "," << disconnected[k]->coord.y << ") }: " <<
-                                e.what() << std::endl;
+                    } catch (const Triangle::IllegalTriangleException &e) {
                         continue;
                     }
                     disconnected.erase(disconnected.begin() + k);
@@ -145,47 +134,35 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
     if (m_mesh.empty()) throw FailedTriangulationException();
 
     // Order the edges; left and right are considered by looking from the origin of the hull
-    Edge* anchor_e = t->edges[0];
-    Edge* left_e = anchor_e->hasAtLeft(t->edges[1]) ? t->edges[1] : t->edges[2];
-    Edge* right_e = t->edges[1] == left_e ? t->edges[2] : t->edges[1];
-    anchor_e->left = left_e;
-    anchor_e->right = right_e;
-    left_e->left = right_e;
-    left_e->right = anchor_e;
-    right_e->left = anchor_e;
-    right_e->right = left_e;
-    frontier->edges.push_back(anchor_e);
-    frontier->edges.push_back(left_e);
-    frontier->edges.push_back(right_e);
+    t->defineNeighboursFromCenter(m_origin);
+    frontier->edges.push_back(t->edges[0]);
+    frontier->edges.push_back(t->edges[1]);
+    frontier->edges.push_back(t->edges[2]);
 
+    std::cout << "AFTER CREATING FIRST TRIANGLE ( " << frontier->edges.size() << " )------\n";
+    for (int i=0; i<frontier->edges.size(); i++) {
+        std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+        std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+        std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+        std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+        std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
+    }
+    std::cout << "\n\n";
+    
     // TRIANGULATION
     
-    Node* n;
     while(!disconnected.empty()) {
-        std::cout << "1\n";
         n = disconnected[0];
         // Create new triangle
-        /* std::cout << "Mesh has " << m_mesh.size() << std::endl; */
-        /* std::cout << "Hull (edges) has " << frontier->edges.size() << std::endl; */
-        /* std::cout << "Nodes has " << m_nodes.size() << std::endl; */
-        /* std::cout << "Origin is (" << m_origin.x << ", " << m_origin.y << ")\n"; */
         Edge* intersector = frontier->popIntersectingEdge(n);
-        std::cout << "2\n";
         if (intersector == nullptr) {
             disconnected.erase(disconnected.begin());
-            std::cout << "Intersector is null\n";
             continue;
         } 
         Triangle* candidate;
         try {
             candidate = new Triangle(intersector, n);
-            std::cout << "3\n";
-        } catch (Edge::IllegalEdgeException) {
-            disconnected.erase(disconnected.begin());
-            std::cout << "Tried to violate a shape\n";
-            continue;
         } catch (Triangle::IllegalTriangleException) {
-            std::cout << "Collinear triangle\n";
             /* Attempt to create triangles with the right and left edge of intersector
              * One of them is guaranteed to not be collinear with n, because
              * we return the closest intersecting edge to n. Both of them are also
@@ -193,173 +170,254 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
              * other triangles, since n and the intersector are collinear */
             try {
                 candidate = new Triangle(intersector->left, n);
-                std::cout << "4\n";
-            } catch (const IllegalShapeException &e) {
-                std::cout << "Collinear triangle, trying somethig else...\n";
+            } catch (const Triangle::IllegalTriangleException &e) {
                 try {
                     candidate = new Triangle(intersector->right, n);
-                    std::cout << "5\n";
-                } catch (const IllegalShapeException &e) {
-                    // One of the right and left edges of the intersector has restricted nodes
-                    std::cout << "Collinear triangle, eventually a shape was violated\n";
+                } catch (const Triangle::IllegalTriangleException &e) {
+                    // Should not happen
                     disconnected.erase(disconnected.begin());
                     continue;
                 }
             }
         }
-        std::cout << "6\n";
 
         disconnected.erase(disconnected.begin());
         
-        // Update mesh and frontier
-        candidate = legalize(candidate, frontier);
-        m_mesh.push_back(candidate);
+        /* Update frontier. We need the intersector as reference, but it may be deleted while
+         * legalizing, so we do this before legalizing */
         std::vector<Edge*> new_frontier = candidate->adjacentEdges(intersector);
-        Edge* left_edge = new_frontier[0]->hasAtLeft(new_frontier[1]) ? new_frontier[1] : new_frontier[0];
+        Node* left_n = intersector->commonNodeWith(intersector->left);
+        Edge* left_edge = new_frontier[0]->a == left_n || new_frontier[0]->b == left_n ?
+                          new_frontier[0] : new_frontier[1];
         Edge* right_edge = new_frontier[0] == left_edge ? new_frontier[1] : new_frontier[0];
+        std::cout << "BUG IS HERE --------*********\n";
+        std::cout << "Intersector = " << intersector << "\n";
+        std::cout << "\tA = " << intersector->a << "\n";
+        std::cout << "\tB = " << intersector->b << "\n";
+        std::cout << "\tLeft = " << intersector->left << "\n";
+        std::cout << "\tRigh = " << intersector->right << "\n";
+        std::cout << "Left = " << left_edge << "\n";
+        std::cout << "\tA = " << left_edge->a << "\n";
+        std::cout << "\tB = " << left_edge->b << "\n";
+        std::cout << "\tLeft = " << left_edge->left << "\n";
+        std::cout << "\tRigh = " << left_edge->right << "\n";
+        std::cout << "Right = " << right_edge << "\n";
+        std::cout << "\tA = " << right_edge->a << "\n";
+        std::cout << "\tB = " << right_edge->b << "\n";
+        std::cout << "\tLeft = " << right_edge->left << "\n";
+        std::cout << "\tRigh = " << right_edge->right << "\n";
         left_edge->left = intersector->left;
         left_edge->right = right_edge;
         right_edge->left = left_edge;
         right_edge->right = intersector->right;
-        std::cout << "6.1\n";
         intersector->left->right = left_edge;
         intersector->right->left = right_edge;
-        std::cout << "6.2\n";
         intersector->left = nullptr;
         intersector->right = nullptr;
         frontier->edges.push_back(left_edge);
         frontier->edges.push_back(right_edge);
-
-        std::cout << "7\n";
-        // Left-side walk
-        if (left_edge->left != nullptr) {
-            while(left_edge->angleWith(left_edge->left) < M_PI / 2) {
-                Node* left_n = left_edge->left->a == left_edge->a ||
-                               left_edge->left->a == left_edge->b ?
-                               left_edge->left->b : left_edge->left->a;
-                Triangle* t;
-                try { 
-                    t = new Triangle(left_edge, left_edge->left, left_n);
-                } catch (const IllegalShapeException &e) {
-                    break;
-                }
-
-                Edge* new_e;
-                if (t->edges[0] != left_edge && t->edges[0] != left_edge->left) new_e = t->edges[0];
-                else if (t->edges[1] != left_edge && t->edges[1] != left_edge->left) 
-                    new_e = t->edges[1];
-                else new_e = t->edges[2];
-                frontier->edges.push_back(new_e);
-
-                // Remove prev. edges from frontier
-                auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge);
-                if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-                pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge->left);
-                if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-
-                std::cout << "7.1\n";
-                // Update left & right
-                new_e->left = left_edge->left->left;
-                new_e->right = left_edge->right;
-                left_edge->left->left->right = new_e;
-                left_edge->right->left = new_e;
-                left_edge->left = nullptr;
-                left_edge->right = nullptr;
-                if (left_edge->left != nullptr) {
-                    if (left_edge->left->left != nullptr) left_edge->left->left = nullptr;
-                    if (left_edge->left->right != nullptr) left_edge->left->right = nullptr;
-                }
-                std::cout << "7.3\n";
-
-                t = legalize(t, frontier);
-                std::cout << "7.4\n";
-                m_mesh.push_back(t);
-                left_edge = left_edge->left;
-                std::cout << "7.5\n";
-                if (left_edge == nullptr || left_edge->left == nullptr) break;
-            } 
+        
+        // Update mesh
+        candidate = legalize(candidate, frontier);
+        m_mesh.push_back(candidate);
+        std::cout << "AFTER UPDATING FRONTIER ( " << frontier->edges.size() << " )------\n";
+        for (int i=0; i<frontier->edges.size(); i++) {
+            std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+            std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+            std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+            std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+            std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
         }
-        std::cout << "8\n";
+        std::cout << "\n\n";
+
+        // Left-side walk
+        while(left_edge->angleWith(left_edge->left) < M_PI / 2) {
+            Triangle* t;
+            try { 
+                t = new Triangle(left_edge, left_edge->left);
+            } catch (const Triangle::IllegalTriangleException &e) {
+                break;
+            }
+
+            Edge* new_e;
+            if (t->edges[0] != left_edge && t->edges[0] != left_edge->left) new_e = t->edges[0];
+            else if (t->edges[1] != left_edge && t->edges[1] != left_edge->left) 
+                new_e = t->edges[1];
+            else new_e = t->edges[2];
+            frontier->edges.push_back(new_e);
+
+            std::cout << "left_edge = " << left_edge << "\n";
+            std::cout << "[L] BEFORE REMOVING PREV. EDGES ( " << frontier->edges.size() << " )------\n";
+            for (int i=0; i<frontier->edges.size(); i++) {
+                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
+            }
+            std::cout << "\n\n";
+
+            // Remove prev. edges from frontier
+            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge);
+            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
+            pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge->left);
+            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
+
+            // Update left & right
+            std::cout << "left_edge = " << left_edge << "\n";
+            std::cout << "[L] GONNA UPDATE LEFT&RIGHT ( " << frontier->edges.size() << " )------\n";
+            for (int i=0; i<frontier->edges.size(); i++) {
+                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
+            }
+            std::cout << "\n\n";
+            new_e->left = left_edge->left->left;
+            new_e->right = left_edge->right;
+            left_edge->left->left->right = new_e;
+            left_edge->right->left = new_e;
+            left_edge->left->left = nullptr;
+            left_edge->left->right = nullptr;
+            left_edge->left = nullptr;
+            left_edge->right = nullptr;
+            std::cout << "[L] UPDATED LEFT&RIGHT ( " << frontier->edges.size() << " )------\n";
+            for (int i=0; i<frontier->edges.size(); i++) {
+                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
+            }
+            std::cout << "\n\n";
+            /* std::cout << "\nTriangle to legalize: " << t->type << "\n"; */
+            /* std::cout << "\t" << t->edges[0] << "->length = " << t->edges[0]->length << "\n"; */
+            /* std::cout << "\t" << t->edges[1] << "->length = " << t->edges[1]->length << "\n"; */
+            /* std::cout << "\t" << t->edges[2] << "->length = " << t->edges[2]->length << "\n"; */
+            t = legalize(t, frontier);
+            m_mesh.push_back(t);
+            left_edge = new_e;
+        } 
 
         // Right-side walk
-        if (right_edge->right != nullptr) {
-            while(right_edge->angleWith(right_edge->right) < M_PI / 2) {
-                Node* right_n = right_edge->right->a == right_edge->a ||
-                               right_edge->right->a == right_edge->b ?
-                               right_edge->right->b : right_edge->right->a;
-                Triangle* t;
-                try {
-                    t = new Triangle(right_edge, right_edge->right, right_n);
-                } catch (const IllegalShapeException &e) {
-                    break;
-                }
-
-                Edge* new_e;
-                if (t->edges[0] != right_edge && t->edges[0] != right_edge->right) 
-                    new_e = t->edges[0];
-                else if (t->edges[1] != right_edge && t->edges[1] != right_edge->right) 
-                    new_e = t->edges[1];
-                else new_e = t->edges[2];
-                frontier->edges.push_back(new_e);
-
-                // Remove prev. edges from frontier
-                auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge);
-                if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-                pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge->right);
-                if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-
-                // Update left & right
-                new_e->left = right_edge->left;
-                new_e->right = right_edge->right->right;
-                right_edge->left->right = new_e;
-                right_edge->right->right->left = new_e;
-                right_edge->left = nullptr;
-                right_edge->right = nullptr;
-                right_edge->right->left = nullptr;
-                right_edge->right->right = nullptr;
-
-                t = legalize(t, frontier);
-                m_mesh.push_back(t);
-                right_edge = right_edge->right;
-                if (right_edge == nullptr || right_edge->right == nullptr) break;
+        while(right_edge->angleWith(right_edge->right) < M_PI / 2) {
+            Triangle* t;
+            try { 
+                t = new Triangle(right_edge, right_edge->right);
+            } catch (const Triangle::IllegalTriangleException &e) {
+                break;
             }
-        }
-        std::cout << "9\n";
 
+            Edge* new_e;
+            if (t->edges[0] != right_edge && t->edges[0] != right_edge->right) new_e = t->edges[0];
+            else if (t->edges[1] != right_edge && t->edges[1] != right_edge->right) 
+                new_e = t->edges[1];
+            else new_e = t->edges[2];
+            frontier->edges.push_back(new_e);
+
+            std::cout << "right_edge = " << right_edge << "\n";
+            std::cout << "[R] BEFORE REMOVING PREV. EDGES ( " << frontier->edges.size() << " )------\n";
+            for (int i=0; i<frontier->edges.size(); i++) {
+                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
+            }
+            std::cout << "\n\n";
+            // Remove prev. edges from frontier
+            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge);
+            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
+            pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge->right);
+            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
+
+            std::cout << "right_edge = " << right_edge << "\n";
+            std::cout << "[R] BEFORE UPDATING LEFT&RIGHT ( " << frontier->edges.size() << " )------\n";
+            for (int i=0; i<frontier->edges.size(); i++) {
+                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
+            }
+            std::cout << "\n\n";
+            // Update left & right
+            new_e->left = right_edge->left;
+            new_e->right = right_edge->right->right;
+            right_edge->left->right = new_e;
+            right_edge->right->right->left = new_e;
+            right_edge->right->left = nullptr;
+            right_edge->right->right = nullptr;
+            right_edge->left = nullptr;
+            right_edge->right = nullptr;
+            std::cout << "right_edge = " << right_edge << "\n";
+            std::cout << "[R] AFTER UPDATING LEFT&RIGHT ( " << frontier->edges.size() << " )------\n";
+            for (int i=0; i<frontier->edges.size(); i++) {
+                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
+                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
+                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
+                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
+                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
+            }
+            std::cout << "\n\n";
+
+            t = legalize(t, frontier);
+            m_mesh.push_back(t);
+            right_edge = new_e;
+        }
+       
         // TODO: Remove basins
     }
-    std::cout << "10\n";
+
+    std::cout << "\nFINALIZING\n";
 
     // FINALIZATION 
-        
-    // Check for acute angles in the frontier (make a concave hull convex) 
-    /* for (Edge* e : frontier->edges) { */
-    /*     std::cout << "10-1\n"; */
-    /*     if (e->left == nullptr) continue; */
-    /*     Node* left_n = e->left->a == e->a || */
-    /*                    e->left->a == e->b ? */
-    /*                    e->left->b : e->left->a; */
-    /*     std::cout << "10-2\n"; */
-    /*     Triangle* t; */
-    /*     try { */
-    /*         std::cout << "10-2-1\n"; */
-    /*         if (e == nullptr) std::cout << "e is null.......\n"; */
-    /*         if (e->left == nullptr) std::cout << "e->left is null.......\n"; */
-    /*         std::cout << "e length = " << e->length << "\n"; */
-    /*         std::cout << "e->left length = " << e->left->length << "\n"; */
-    /*         t = new Triangle(e, e->left, left_n); */
-    /*         std::cout << "10-2-2\n"; */
-    /*     } catch (const IllegalShapeException &e) { */
-    /*         std::cout << "10-2-3\n"; */
-    /*         continue; */
-    /*     } */
-    /*     std::cout << "10-3\n"; */
-    /*     t = legalize(t, frontier); */
-    /*     std::cout << "10-4\n"; */
-    /*     m_mesh.push_back(t); */
-    /*     std::cout << "10-5\n"; */
-    /* } */
-    std::cout << "11\n";
+   
+    Edge* initial_edge = frontier->edges[0];
+    Edge* edge = initial_edge;
+    do {
+        if(edge->angleWith(edge->left) < M_PI / 2) {
+            Node* left_n = edge->left->a == edge->a ||
+                           edge->left->a == edge->b ?
+                           edge->left->b : edge->left->a;
+            Triangle* t;
+            try { 
+                t = new Triangle(edge, edge->left);
+            } catch (const Triangle::IllegalTriangleException &e) {
+                continue;
+            }
+
+            Edge* new_e;
+            if (t->edges[0] != edge && t->edges[0] != edge->left) new_e = t->edges[0];
+            else if (t->edges[1] != edge && t->edges[1] != edge->left) 
+                new_e = t->edges[1];
+            else new_e = t->edges[2];
+            frontier->edges.push_back(new_e);
+
+            // Remove prev. edges from frontier
+            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), edge);
+            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
+            pos = std::find(frontier->edges.begin(), frontier->edges.end(), edge->left);
+            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
+
+            // Update left & right
+            new_e->left = edge->left->left;
+            new_e->right = edge->right;
+            edge->left->left->right = new_e;
+            edge->right->left = new_e;
+            edge->left = nullptr;
+            edge->right = nullptr;
+            edge->left->left = nullptr;
+            edge->left->right = nullptr;
+
+            t = legalize(t, frontier);
+            m_mesh.push_back(t);
+            edge = new_e;
+        } else {
+            edge = edge->left;
+        }
+    } while (edge != initial_edge);
 
     delete frontier;
 }

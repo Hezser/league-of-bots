@@ -11,161 +11,159 @@
 struct Polygon;
 struct Edge;
 
-struct IllegalShapeException: public std::exception {
-    virtual const char* what() const throw() = 0;
-};
-
 typedef struct Coord {
     int x;
     int y;
 } Coord;
 
-typedef struct Node {
-    Coord coord;
-    float r;
-    float theta;
-    std::vector<Node*> restricted;
-    std::vector<Edge*> edge_ptrs;
-    Node(Coord coord, Coord origin);
-    Node(Coord coord, Coord origin, Edge* edge_ptr);
-    ~Node();
-    Edge* getEdgeWith(Node* node);
-    void setOrigin(Coord origin);
-    bool isOn(Edge* edge);
+class Node {
+    public:
+        Coord coord;
+        float r;
+        float theta;
+        std::vector<Edge*> edge_ptrs;
+        Node(Coord coord, Coord origin);
+        Node(Coord coord, Coord origin, Edge* edge_ptr);
+        ~Node();
+        Edge* getEdgeWith(Node* node);
+        void setOrigin(Coord origin);
+        bool isOn(Edge* edge);
 
-    struct RComparator {
-        bool operator() (Node* lhs, Node* rhs);
-    };
+        struct RComparator {
+            bool operator() (Node* lhs, Node* rhs);
+        };
 
-    struct ThetaComparator {
-        bool operator() (Node* lhs, Node* rhs);
-    };
+        struct ThetaComparator {
+            bool operator() (Node* lhs, Node* rhs);
+        };
 
     private:
         Node();
-} Node;
+};
 
-typedef struct Edge {
-    Node* a;
-    Node* b;
-    Edge* left;   // Triangles in meshes don't use this, because edges can be shared
-    Edge* right;  // Triangles in meshes don't use this, because edges can be shared
-    float length;
-    std::vector<Polygon*> shape_ptrs;
-    Edge(Node* a, Node* b);
-    Edge(Node* a, Node* b, Polygon* shape_ptr);
-    Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr);
-    ~Edge();
-    bool hasAtLeft(Edge* edge);
-    float angleWith(Edge* edge);
-    float avgR();
-    bool isCollinearWithNode(Node* node);
-    bool intersectsWith(std::vector<Edge*> edges);
-    float shortestDistanceTo(Coord coord);
+class Edge {
+    public:
+        Node* a;
+        Node* b;
+        Edge* left;   // Triangles in meshes don't use this, because edges can be shared
+        Edge* right;  // Triangles in meshes don't use this, because edges can be shared
+        float length;
+        std::vector<Polygon*> shape_ptrs;
+        Edge(Node* a, Node* b);
+        Edge(Node* a, Node* b, Polygon* shape_ptr);
+        Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr);
+        ~Edge();
+        bool hasAtLeft(Edge* edge);
+        float angleWith(Edge* edge);
+        float avgR();
+        bool isCollinearWithNode(Node* node);
+        bool intersectsWith(std::vector<Edge*> edges);
+        float shortestDistanceTo(Coord coord);
+        Node* commonNodeWith(Edge* edge);
 
-    struct GreaterEdgeComparator {
-        bool operator() (const Edge& lhs, const Edge& rhs);
-    };
+        struct GreaterEdgeComparator {
+            bool operator() (const Edge& lhs, const Edge& rhs);
+        };
 
-    struct ExistingEdgeException {
-        Edge* edge;
-        ExistingEdgeException(Edge* edge);
-        const char* what() const noexcept;
-        Edge* getExistingEdge();
-        private:
-            ExistingEdgeException();
-    };
-
-    struct IllegalEdgeException: public IllegalShapeException {
-        const char* what() const noexcept;
-    };
+        struct ExistingEdgeException {
+            Edge* edge;
+            ExistingEdgeException(Edge* edge);
+            const char* what() const noexcept;
+            Edge* getExistingEdge();
+            private:
+                ExistingEdgeException();
+        };
 
     private:
         int direction(Node* a, Node* b, Node* c);
         Edge();
-} Edge;
+};
 
-typedef struct Shape {
+class Shape {
+    public:
+        typedef enum ShapeType {
+            circle = 0, polygon = 1, convex_polygon = 2, triangle = 3
+        } ShapeType;
 
-    typedef enum ShapeType {
-        circle = 0, polygon = 1, convex_polygon = 2, triangle = 3
-    } ShapeType;
-
-    ShapeType type;
-    Coord center;
-    sf::Shape* getDrawable();
-    // TODO: Functions to modify drawable (color, outline, etc)
+        ShapeType type;
+        Coord center;
+        sf::Shape* getDrawable();
+        // TODO: Functions to modify drawable (color, outline, etc)
     
     protected:
         Shape(ShapeType type, Coord center);
         Shape(ShapeType type);  // Used for instantiating subclasses
         sf::Shape* drawable;
-} Shape;
+};
 
 /* TODO: Delete? 
  * Cannot be used for elem shapes, as circles do not have edges or nodes to triangulate,
  * check for collisions, etc */
-typedef struct Circle: Shape {
-    int radius;
-    Circle(Coord center, int radius);
+class Circle: Shape {
+    public:
+        int radius;
+        Circle(Coord center, int radius);
 
     private:
         Circle();
-} Circle;
+};
 
 /* TODO: Polygons are not usable at the moment, as SFML does not support concave shapes
  *       However, there is no need for them now (DELETE?) */
-typedef struct Polygon: Shape {
-    std::vector<Node*> nodes;
-    std::vector<Edge*> edges;
-    Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges);
-    ~Polygon();
+class Polygon: public Shape {
+    public:
+        std::vector<Node*> nodes;
+        std::vector<Edge*> edges;
+        Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges);
+        ~Polygon();
+        void defineNeighboursFromCenter(Coord origin);
 
-    struct InsufficientNodesException: public std::exception {
-        const char* what() const throw();
-    };
+        struct InsufficientNodesException: public std::exception {
+            const char* what() const throw();
+        };
     
     protected:
         Polygon(ShapeType subtype);  // Used for instantiating subclasses
         Coord findCenter(std::vector<Coord> coords);
-        void restrictNodes();
-} Polygon;
+};
 
-typedef struct ConvexPolygon: Polygon {
-    ConvexPolygon(std::vector<Coord> coords);
+class ConvexPolygon: public Polygon {
+    public:
+        ConvexPolygon(std::vector<Coord> coords);
 
     protected:
         ConvexPolygon(ShapeType subtype);  // Used for instantiating subclasses
         void constructDrawable(std::vector<Coord> coords);
         std::vector<Node*> createNodes(std::vector<Coord> coords);
-} ConvexPolygon;
+};
 
-typedef struct Triangle: ConvexPolygon {
-    Triangle(Node* a, Node* b, Node* c);
-    Triangle(Edge* e, Node* n);
-    Triangle(Edge* e, Edge* g, Node* n);
-    Node* nodeOppositeToEdge(Edge* edge);
-    float angleOppositeToEdge(Edge* edge);
-    std::vector<Edge*> adjacentEdges(Edge* edge);
+class Triangle: public ConvexPolygon {
+    public:
+        Triangle(Node* a, Node* b, Node* c);
+        Triangle(Edge* e, Node* n);
+        Triangle(Edge* e, Edge* g);
+        Node* nodeOppositeToEdge(Edge* edge);
+        float angleOppositeToEdge(Edge* edge);
+        std::vector<Edge*> adjacentEdges(Edge* edge);
 
-    struct IllegalTriangleException: public IllegalShapeException {
-        const char* what() const noexcept;
-    };
+        struct IllegalTriangleException {
+            const char* what() const noexcept;
+        };
     
     private:
         Triangle();
         bool areCollinear(Node* a, Node* b, Node* c);
-} Triangle;
+};
 
-typedef struct Hull {
-    Coord origin;
-    std::vector<Edge*> edges;
-    Hull(Coord origin);
-    Edge* popIntersectingEdge(Node* node);
+class Hull {
+    public:
+        Coord origin;
+        std::vector<Edge*> edges;
+        Hull(Coord origin);
+        Edge* popIntersectingEdge(Node* node);
 
     private:
-        bool belongToSameShape(Node* node, Edge* edge);
         Hull();
-} Hull;
+} ;
 
 #endif
