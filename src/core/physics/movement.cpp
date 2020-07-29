@@ -7,25 +7,6 @@
 #include <limits>
 #include "movement.hpp"
 
-/* Helpers */
-
-Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {
-    // Convert the target vector to a basis where the start is the origin
-    std::vector<float> alpha_target = {(float)target.x - start.x, (float)target.y - start.y};
-    // Normalize the alpha vector
-    int d = std::round(sqrt(pow(alpha_target[0], 2) + pow(alpha_target[1], 2)));
-    std::vector<float> unit_travel = {alpha_target[0] / d, alpha_target[1] / d};
-    Move* move = new Move{start, target, unit_travel, d, 0, priority};
-    return move;
-}
-
-Move* constructInstantMove(Coord start, Coord target, MovePriority priority) {
-    // Convert the target vector to a basis where the start is the origin
-    std::vector<float> alpha_target = {(float)target.x - start.x, (float)target.y - start.y};
-    Move* move = new Move{start, target, alpha_target, 1, 0, priority};
-    return move;
-}
-
 /* struct Move */
 
 bool operator < (const Move& lhs, const Move& rhs) {
@@ -54,6 +35,32 @@ void MovePriorityQueue::removeRightClickMove() {
 void MovePriorityQueue::replaceRightClickMove(Move* move) {
     removeRightClickMove();
     push(move);
+}
+
+/* Helpers */
+
+LinearMove::LinearMove(Coord start, Coord target, MovePriority priority) {
+    // Convert the target vector to a basis where the start is the origin
+    std::vector<float> alpha_target = {(float)target.x - start.x, (float)target.y - start.y};
+    // Normalize the alpha vector
+    int d = std::round(sqrt(pow(alpha_target[0], 2) + pow(alpha_target[1], 2)));
+    std::vector<float> unit_travel = {alpha_target[0] / d, alpha_target[1] / d};
+    this->start = start;
+    this->target = target;
+    this->unit_travel = unit_travel;
+    this->distance = d;
+    this->travelled = 0;
+    this->priority = priority;
+}
+
+InstantMove::InstantMove(Coord start, Coord target, MovePriority priority) {
+    // Convert the target vector to a basis where the start is the origin
+    this->start = start;
+    this->target = target;
+    this->unit_travel = {(float)target.x - start.x, (float)target.y - start.y};
+    this->distance = 1;
+    this->travelled = 0;
+    this->priority = priority;
 }
 
 /* class MovementManager */

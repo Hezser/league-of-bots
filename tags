@@ -26,7 +26,7 @@ Bot	src/core/logic/elements/bot.cpp	/^Bot::Bot(ElemType type, bool alive, Convex
 Bot	src/core/logic/elements/bot.hpp	/^class Bot: public Elem {$/;"	c
 COLLISION_HPP	src/core/physics/collision.hpp	/^#define COLLISION_HPP$/;"	d
 Circle	src/core/physics/shape.cpp	/^Circle::Circle(Coord center, int radius): Shape(circle, center) {$/;"	f	class:Circle
-Circle	src/core/physics/shape.hpp	/^class Circle: Shape {$/;"	c
+Circle	src/core/physics/shape.hpp	/^class Circle: public Shape {$/;"	c
 Collision	src/core/physics/collision.hpp	/^typedef std::vector<Elem*> Collision;$/;"	t	typeref:typename:std::vector<Elem * >
 CollisionDetectionSystem	src/core/physics/collision.hpp	/^        CollisionDetectionSystem() {}$/;"	f	class:CollisionDetectionSystem
 CollisionDetectionSystem	src/core/physics/collision.hpp	/^class CollisionDetectionSystem {$/;"	c
@@ -57,6 +57,9 @@ GreaterEdgeComparator	src/core/physics/shape.hpp	/^        struct GreaterEdgeCom
 Hull	src/core/physics/shape.cpp	/^Hull::Hull(Coord origin) {$/;"	f	class:Hull
 Hull	src/core/physics/shape.hpp	/^class Hull {$/;"	c
 IllegalTriangleException	src/core/physics/shape.hpp	/^        struct IllegalTriangleException {$/;"	s	class:Triangle
+InstantMove	src/core/physics/movement.cpp	/^InstantMove::InstantMove(Coord start, Coord target, MovePriority priority) {$/;"	f	class:InstantMove
+InstantMove	src/core/physics/movement.hpp	/^typedef struct InstantMove: public Move {$/;"	s
+InstantMove	src/core/physics/movement.hpp	/^} InstantMove;$/;"	t	typeref:struct:InstantMove
 InsufficientNodesException	src/core/physics/nav_mesh.hpp	/^        struct InsufficientNodesException: public std::exception {$/;"	s	class:NavMesh
 InsufficientNodesException	src/core/physics/shape.hpp	/^        struct InsufficientNodesException: public std::exception {$/;"	s	class:Polygon
 JOB_SCHEDULER_HPP	src/core/concurrency/job_scheduler.hpp	/^#define JOB_SCHEDULER_HPP$/;"	d
@@ -74,6 +77,9 @@ JobStatus	src/core/concurrency/job_scheduler.hpp	/^} JobStatus;$/;"	t	typeref:st
 Launch	.vimspector.json	/^        "Launch": {$/;"	o	object:configurations
 Launch	src/test/.vimspector.json	/^        "Launch": {$/;"	o	object:configurations
 League of Bots	README.md	/^# League of Bots$/;"	c
+LinearMove	src/core/physics/movement.cpp	/^LinearMove::LinearMove(Coord start, Coord target, MovePriority priority) {$/;"	f	class:LinearMove
+LinearMove	src/core/physics/movement.hpp	/^typedef struct LinearMove: public Move {$/;"	s
+LinearMove	src/core/physics/movement.hpp	/^} LinearMove;$/;"	t	typeref:struct:LinearMove
 MAX_EABILITY_RANGE	src/core/graphics/test.game.cpp	/^const int MAX_EABILITY_RANGE = 100;$/;"	v	typeref:typename:const int
 MAX_QABILITY_RANGE	src/core/graphics/test.game.cpp	/^const int MAX_QABILITY_RANGE = 100;$/;"	v	typeref:typename:const int
 MIMode	.vimspector.json	/^                "MIMode": "gdb"$/;"	s	object:configurations.Launch.configuration
@@ -158,7 +164,6 @@ cast	src/core/logic/elements/ability.cpp	/^bool SaiEAbility::cast(Coord target) 
 cast	src/core/logic/elements/ability.cpp	/^bool SaiQAbility::cast(Coord target) {$/;"	f	class:SaiQAbility	typeref:typename:bool
 cast	src/core/logic/elements/ability.cpp	/^bool SaiRAbility::cast(Coord target) {$/;"	f	class:SaiRAbility	typeref:typename:bool
 cast	src/core/logic/elements/ability.cpp	/^bool SaiWAbility::cast(Coord target) {$/;"	f	class:SaiWAbility	typeref:typename:bool
-center	src/core/physics/shape.hpp	/^        Coord center;$/;"	m	class:Shape	typeref:typename:Coord
 circle	src/core/physics/shape.hpp	/^            circle = 0, polygon = 1, convex_polygon = 2, triangle = 3$/;"	e	enum:Shape::ShapeType
 commonNodeWith	src/core/physics/shape.cpp	/^Node* Edge::commonNodeWith(Edge* edge) {$/;"	f	class:Edge	typeref:typename:Node *
 configuration	.vimspector.json	/^            "configuration": {$/;"	o	object:configurations.Launch
@@ -166,8 +171,6 @@ configuration	src/test/.vimspector.json	/^            "configuration": {$/;"	o	o
 configurations	.vimspector.json	/^    "configurations": {$/;"	o
 configurations	src/test/.vimspector.json	/^    "configurations": {$/;"	o
 constructDrawable	src/core/physics/shape.cpp	/^void ConvexPolygon::constructDrawable(std::vector<Coord> coords) {$/;"	f	class:ConvexPolygon	typeref:typename:void
-constructInstantMove	src/core/physics/movement.cpp	/^Move* constructInstantMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
-constructLinearMove	src/core/physics/movement.cpp	/^Move* constructLinearMove(Coord start, Coord target, MovePriority priority) {$/;"	f	typeref:typename:Move *
 convex_polygon	src/core/physics/shape.hpp	/^            circle = 0, polygon = 1, convex_polygon = 2, triangle = 3$/;"	e	enum:Shape::ShapeType
 coord	src/core/physics/shape.hpp	/^        Coord coord;$/;"	m	class:Node	typeref:typename:Coord
 counter	src/core/concurrency/job_scheduler.hpp	/^    std::atomic<int> counter;$/;"	m	struct:JobStatus	typeref:typename:std::atomic<int>
@@ -180,6 +183,7 @@ detect	src/core/physics/collision.cpp	/^std::vector<Collision> CollisionDetectio
 direction	src/core/physics/shape.cpp	/^int Edge::direction(Node* a, Node* b, Node* c) {$/;"	f	class:Edge	typeref:typename:int
 distance	src/core/physics/movement.hpp	/^    int distance;$/;"	m	struct:Move	typeref:typename:int
 drawNavMesh	src/test/nav_mesh_test.cpp	/^void drawNavMesh(sf::RenderWindow& window, TriangleMesh mesh) {$/;"	f	typeref:typename:void
+drawNodes	src/test/nav_mesh_test.cpp	/^void drawNodes(sf::RenderWindow& window, std::vector<Node*> nodes) {$/;"	f	typeref:typename:void
 drawTerrain	src/test/nav_mesh_test.cpp	/^void drawTerrain(sf::RenderWindow& window, std::vector<Terrain*> terrains) {$/;"	f	typeref:typename:void
 drawable	src/core/physics/shape.hpp	/^        sf::Shape* drawable;$/;"	m	class:Shape	typeref:typename:sf::Shape *
 e	src/core/logic/elements/ability.hpp	/^    q, w, e, r$/;"	e	enum:AbilityKey
@@ -197,7 +201,9 @@ getAimingPolicy	src/core/logic/ai/artificial_player.cpp	/^ArtificialAimingPolicy
 getBoundingSphereRadius	src/core/logic/elements/elem.cpp	/^int Elem::getBoundingSphereRadius() {$/;"	f	class:Elem	typeref:typename:int
 getCd	src/core/logic/elements/ability.cpp	/^time_t Ability::getCd() {$/;"	f	class:Ability	typeref:typename:time_t
 getCenter	src/core/logic/elements/elem.cpp	/^Coord Elem::getCenter() {$/;"	f	class:Elem	typeref:typename:Coord
-getDrawable	src/core/physics/shape.cpp	/^sf::Shape* Shape::getDrawable() {$/;"	f	class:Shape	typeref:typename:sf::Shape *
+getCenter	src/core/physics/shape.cpp	/^Coord Shape::getCenter() {$/;"	f	class:Shape	typeref:typename:Coord
+getDrawable	src/core/physics/shape.cpp	/^sf::Shape* Circle::getDrawable() {$/;"	f	class:Circle	typeref:typename:sf::Shape *
+getDrawable	src/core/physics/shape.cpp	/^sf::Shape* Polygon::getDrawable() {$/;"	f	class:Polygon	typeref:typename:sf::Shape *
 getEdgeWith	src/core/physics/shape.cpp	/^Edge* Node::getEdgeWith(Node* node) {$/;"	f	class:Node	typeref:typename:Edge *
 getExistingEdge	src/core/physics/shape.cpp	/^Edge* Edge::ExistingEdgeException::getExistingEdge() {$/;"	f	class:Edge::ExistingEdgeException	typeref:typename:Edge *
 getIntersectingEdge	src/core/physics/shape.cpp	/^Edge* Hull::getIntersectingEdge(Node* node) {$/;"	f	class:Hull	typeref:typename:Edge *
@@ -244,6 +250,7 @@ m_bot	src/core/logic/ai/artificial_player.hpp	/^        Bot* m_bot;$/;"	m	class:
 m_bot	src/core/logic/elements/ability.hpp	/^        Bot* m_bot;$/;"	m	class:Ability	typeref:typename:Bot *
 m_bounding_sphere_radius	src/core/logic/elements/elem.hpp	/^        int m_bounding_sphere_radius;$/;"	m	class:Elem	typeref:typename:int
 m_cd	src/core/logic/elements/ability.hpp	/^        time_t m_cd;$/;"	m	class:Ability	typeref:typename:time_t
+m_center	src/core/physics/shape.hpp	/^        Coord m_center;$/;"	m	class:Shape	typeref:typename:Coord
 m_elem	src/core/physics/movement.hpp	/^        Elem* m_elem;$/;"	m	class:MovementManager	typeref:typename:Elem *
 m_exit_signal	src/core/concurrency/job_scheduler.hpp	/^        std::promise<void> m_exit_signal;$/;"	m	class:JobScheduler	typeref:typename:std::promise<void>
 m_job_available	src/core/concurrency/job_scheduler.hpp	/^        std::condition_variable m_job_available;$/;"	m	class:JobScheduler	typeref:typename:std::condition_variable
@@ -326,6 +333,8 @@ setAimingPolicy	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer:
 setBoundingSphereRadius	src/core/logic/elements/elem.cpp	/^void Elem::setBoundingSphereRadius(int radius) {$/;"	f	class:Elem	typeref:typename:void
 setCd	src/core/logic/elements/ability.cpp	/^void Ability::setCd(time_t cd) {$/;"	f	class:Ability	typeref:typename:void
 setCenter	src/core/logic/elements/elem.cpp	/^void Elem::setCenter(Coord center) {$/;"	f	class:Elem	typeref:typename:void
+setCenter	src/core/physics/shape.cpp	/^void Polygon::setCenter(Coord center) {$/;"	f	class:Polygon	typeref:typename:void
+setCenter	src/core/physics/shape.cpp	/^void Shape::setCenter(Coord center) {$/;"	f	class:Shape	typeref:typename:void
 setMovementPolicy	src/core/logic/ai/artificial_player.cpp	/^void ArtificialPlayer::setMovementPolicy(ArtificialMovementPolicy movement_policy) {$/;"	f	class:ArtificialPlayer	typeref:typename:void
 setOrigin	src/core/physics/shape.cpp	/^void Node::setOrigin(Coord origin) {$/;"	f	class:Node	typeref:typename:void
 setShape	src/core/logic/elements/elem.cpp	/^void Elem::setShape(ConvexPolygon* shape) {$/;"	f	class:Elem	typeref:typename:void

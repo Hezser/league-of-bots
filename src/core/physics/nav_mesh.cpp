@@ -25,7 +25,6 @@ Triangle* NavMesh::legalize(Triangle* candidate, Hull* frontier) {
     int i = 0;
     // TODO: Does not consider legalizations after legalizing once
     while (i < 3) {
-        std::cout << "Legalizing!\n";
         Edge* e = candidate->edges[i++];
         Triangle* neighbour = nullptr;
         for (Polygon* s : e->shape_ptrs) {
@@ -105,12 +104,6 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
     }
     std::sort(disconnected.begin(), disconnected.end(), Node::RComparator());
 
-    std::cout << "\nDisconnected (" << disconnected.size() << ")= [";
-    for (auto i=0; i<disconnected.size(); i++) {
-        std::cout << disconnected[i] << ", ";
-    }
-    std::cout << "]\n\n";
-
     // Try all possible initial triangles in order of distance to the origin
     int i = 0;
     bool done = false;
@@ -146,36 +139,16 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
     frontier->edges.push_back(t->edges[1]);
     frontier->edges.push_back(t->edges[2]);
 
-    std::cout << "AFTER CREATING FIRST TRIANGLE ( " << frontier->edges.size() << " )------\n";
-    for (int i=0; i<frontier->edges.size(); i++) {
-        std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
-        std::cout << "\tA = " << frontier->edges[i]->a << "\n";
-        std::cout << "\tB = " << frontier->edges[i]->b << "\n";
-        std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
-        std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
-    }
-    std::cout << "\n\n";
-    
     // TRIANGULATION
     
     while(!disconnected.empty()) {
-        std::cout << "\nDisconnected (" << disconnected.size() << ")= [";
-        for (auto i=0; i<disconnected.size(); i++) {
-            std::cout << disconnected[i] << ", ";
-        }
-        std::cout << "]\n\n";
         n = disconnected[0];
-        std::cout << "\n\nNODE TO CONNECT = " << n << "\n";
         // Create new triangle
         Edge* intersector = frontier->getIntersectingEdge(n);
         if (intersector == nullptr) {
-            std::cout << "**** Intersector is NULL!! ****\n";
             disconnected.erase(disconnected.begin());
             continue;
         } 
-        std::cout << "Initial intersector = " << intersector << "\n";
-        std::cout << "Initial intersector->left = " << intersector->left << "\n";
-        std::cout << "Initial intersector->right = " << intersector->right << "\n";
         Triangle* candidate;
         try {
             candidate = new Triangle(intersector, n);
@@ -186,16 +159,13 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
              * guaranteed to form a triangle with n which does not intersect with
              * other triangles, since n and the intersector are collinear */
             try {
-                std::cout << "**** TRYING INTERSECTOR'S LEFT!! ****\n";
                 candidate = new Triangle(intersector->left, n);
                 intersector = intersector->left;
             } catch (const Triangle::IllegalTriangleException &e) {
                 try {
-                    std::cout << "**** TRYING INTERSECTOR'S RIGHT!! ****\n";
                     candidate = new Triangle(intersector->right, n);
                     intersector = intersector->right;
                 } catch (const Triangle::IllegalTriangleException &e) {
-                    std::cout << "**** COULD NOT CREATE TRIANGLE!! ****\n";
                     // Should not happen
                     disconnected.erase(disconnected.begin());
                     continue;
@@ -214,21 +184,6 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
         Edge* left_edge = new_frontier[0]->a == left_n || new_frontier[0]->b == left_n ?
                           new_frontier[0] : new_frontier[1];
         Edge* right_edge = new_frontier[0] == left_edge ? new_frontier[1] : new_frontier[0];
-        std::cout << "Intersector = " << intersector << "\n";
-        std::cout << "\tA = " << intersector->a << "\n";
-        std::cout << "\tB = " << intersector->b << "\n";
-        std::cout << "\tLeft = " << intersector->left << "\n";
-        std::cout << "\tRigh = " << intersector->right << "\n";
-        std::cout << "Left = " << left_edge << "\n";
-        std::cout << "\tA = " << left_edge->a << "\n";
-        std::cout << "\tB = " << left_edge->b << "\n";
-        std::cout << "\tLeft = " << left_edge->left << "\n";
-        std::cout << "\tRigh = " << left_edge->right << "\n";
-        std::cout << "Right = " << right_edge << "\n";
-        std::cout << "\tA = " << right_edge->a << "\n";
-        std::cout << "\tB = " << right_edge->b << "\n";
-        std::cout << "\tLeft = " << right_edge->left << "\n";
-        std::cout << "\tRigh = " << right_edge->right << "\n";
         left_edge->left = intersector->left;
         left_edge->right = right_edge;
         right_edge->left = left_edge;
@@ -243,15 +198,6 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
         // Update mesh
         candidate = legalize(candidate, frontier);
         m_mesh.push_back(candidate);
-        std::cout << "AFTER UPDATING FRONTIER ( " << frontier->edges.size() << " )------\n";
-        for (int i=0; i<frontier->edges.size(); i++) {
-            std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
-            std::cout << "\tA = " << frontier->edges[i]->a << "\n";
-            std::cout << "\tB = " << frontier->edges[i]->b << "\n";
-            std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
-            std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
-        }
-        std::cout << "\n\n";
 
         // Left-side walk
         while(left_edge->angleWith(left_edge->left) < M_PI / 2) {
@@ -269,17 +215,6 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             else new_e = t->edges[2];
             frontier->edges.push_back(new_e);
 
-            std::cout << "left_edge = " << left_edge << "\n";
-            std::cout << "[L] BEFORE REMOVING PREV. EDGES ( " << frontier->edges.size() << " )------\n";
-            for (int i=0; i<frontier->edges.size(); i++) {
-                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
-                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
-                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
-                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
-                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
-            }
-            std::cout << "\n\n";
-
             // Remove prev. edges from frontier
             auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge);
             if (pos != frontier->edges.end()) frontier->edges.erase(pos);
@@ -289,28 +224,13 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             // Update left & right
             new_e->left = left_edge->left->left;
             new_e->right = left_edge->right;
-            std::cout << "HI!\n";
             left_edge->left->left->right = new_e;
-            std::cout << "HI2!\n";
             left_edge->right->left = new_e;
             left_edge->left->left = nullptr;
             left_edge->left->right = nullptr;
             left_edge->left = nullptr;
             left_edge->right = nullptr;
-            std::cout << "left_edge = " << left_edge << "\n";
-            std::cout << "[L] UPDATED LEFT&RIGHT ( " << frontier->edges.size() << " )------\n";
-            for (int i=0; i<frontier->edges.size(); i++) {
-                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
-                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
-                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
-                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
-                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
-            }
-            std::cout << "\n\n";
-            /* std::cout << "\nTriangle to legalize: " << t->type << "\n"; */
-            /* std::cout << "\t" << t->edges[0] << "->length = " << t->edges[0]->length << "\n"; */
-            /* std::cout << "\t" << t->edges[1] << "->length = " << t->edges[1]->length << "\n"; */
-            /* std::cout << "\t" << t->edges[2] << "->length = " << t->edges[2]->length << "\n"; */
+
             t = legalize(t, frontier);
             m_mesh.push_back(t);
             left_edge = new_e;
@@ -332,16 +252,6 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             else new_e = t->edges[2];
             frontier->edges.push_back(new_e);
 
-            std::cout << "right_edge = " << right_edge << "\n";
-            std::cout << "[R] BEFORE REMOVING PREV. EDGES ( " << frontier->edges.size() << " )------\n";
-            for (int i=0; i<frontier->edges.size(); i++) {
-                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
-                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
-                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
-                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
-                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
-            }
-            std::cout << "\n\n";
             // Remove prev. edges from frontier
             auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge);
             if (pos != frontier->edges.end()) frontier->edges.erase(pos);
@@ -357,28 +267,14 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             right_edge->right->right = nullptr;
             right_edge->left = nullptr;
             right_edge->right = nullptr;
-            std::cout << "right_edge = " << right_edge << "\n";
-            std::cout << "[R] AFTER UPDATING LEFT&RIGHT ( " << frontier->edges.size() << " )------\n";
-            for (int i=0; i<frontier->edges.size(); i++) {
-                std::cout << "Edge " << i << " = " << frontier->edges[i] << "\n";
-                std::cout << "\tA = " << frontier->edges[i]->a << "\n";
-                std::cout << "\tB = " << frontier->edges[i]->b << "\n";
-                std::cout << "\tLeft = " << frontier->edges[i]->left << "\n";
-                std::cout << "\tRigh = " << frontier->edges[i]->right << "\n";
-            }
-            std::cout << "\n\n";
 
             t = legalize(t, frontier);
-            std::cout << "After legalizing\n";
             m_mesh.push_back(t);
             right_edge = new_e;
-            std::cout << "Finished loop\n";
         }
        
         // TODO: Remove basins
     }
-
-    std::cout << "\nFINALIZING\n";
 
     // FINALIZATION 
    

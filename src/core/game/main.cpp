@@ -30,12 +30,12 @@ int main() {
     }
     // Obstacles
     for (auto i=0; i<6; i++) {
-        Terrain* obstacle = new Terrain(new ConvexPolygon({{0,0}, {0,50}, {50,50}, {50,0}}),
-                {std::rand() % 2000, std::rand() % 2000}, 50);
+        Terrain* obstacle = new Terrain(new ConvexPolygon({{0,0}, {0,50}, {50,50},
+                    {50,0}}), {std::rand() % 2000, std::rand() % 2000}, 50);
         elems.push_back(obstacle);
     }
 
-    sf::RenderWindow window(sf::VideoMode(200, 200), "Loading...");
+    sf::RenderWindow window(sf::VideoMode(700, 700), "Loading...");
 
     while (window.isOpen()) {
         // Get and process input

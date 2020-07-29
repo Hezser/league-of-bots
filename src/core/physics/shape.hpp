@@ -86,23 +86,26 @@ class Shape {
         } ShapeType;
 
         ShapeType type;
-        Coord center;
-        sf::Shape* getDrawable();
+        Coord getCenter();
+        virtual void setCenter(Coord center);
+        virtual sf::Shape* getDrawable() = 0;
         // TODO: Functions to modify drawable (color, outline, etc)
     
     protected:
         Shape(ShapeType type, Coord center);
         Shape(ShapeType type);  // Used for instantiating subclasses
+        Coord m_center;
         sf::Shape* drawable;
 };
 
 /* TODO: Delete? 
  * Cannot be used for elem shapes, as circles do not have edges or nodes to triangulate,
  * check for collisions, etc */
-class Circle: Shape {
+class Circle: public Shape {
     public:
         int radius;
         Circle(Coord center, int radius);
+        sf::Shape* getDrawable() override;
 
     private:
         Circle();
@@ -116,7 +119,10 @@ class Polygon: public Shape {
         std::vector<Edge*> edges;
         Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges);
         ~Polygon();
+        void setCenter(Coord center) override;
         void defineNeighboursFromCenter(Coord origin);
+        sf::Shape* getDrawable() override;
+
 
         struct InsufficientNodesException: public std::exception {
             const char* what() const throw();

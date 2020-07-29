@@ -83,7 +83,6 @@ Edge::Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr):
 /* Note that we do not delete its nodes, as nodes are meaningful even
  * if they do not belong to edges */
 Edge::~Edge() {
-    std::cout << "\n DELETING EDGE " << this << "\n\n";
     // Remove edge from a's edge_ptrs
     auto pos = std::find(a->edge_ptrs.begin(), a->edge_ptrs.end(), this);
     if (pos != a->edge_ptrs.end()) a->edge_ptrs.erase(pos);
@@ -206,22 +205,25 @@ Edge* Edge::ExistingEdgeException::getExistingEdge() {
     return edge;
 }
 
-/* struct Shape */
+/* class Shape */
 
 Shape::Shape(ShapeType type) {
     this->type = type;
 }
 
 Shape::Shape(ShapeType type, Coord center): Shape(type) {
-    this->center = center;
+    this->m_center = center;
 }
 
-sf::Shape* Shape::getDrawable() {
-    drawable->setPosition(center.x, center.y);
-    return drawable;
+Coord Shape::getCenter() {
+    return m_center;
 }
 
-/* struct Circle */
+void Shape::setCenter(Coord center) {
+    m_center = center;
+}
+
+/* class Circle */
 
 Circle::Circle(Coord center, int radius): Shape(circle, center) {
     this->radius = radius;
@@ -230,7 +232,12 @@ Circle::Circle(Coord center, int radius): Shape(circle, center) {
     this->drawable = d;
 }
 
-/* struct Polygon */
+sf::Shape* Circle::getDrawable() {
+    drawable->setPosition(m_center.x - radius, m_center.y - radius);
+    return drawable;
+}
+
+/* class Polygon */
 
 Polygon::Polygon(ShapeType subtype): Shape(subtype) {}
 
@@ -244,7 +251,7 @@ Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges): Shape(poly
     for (Node* n : nodes) {
         coords.push_back(n->coord);
     }
-    center = findCenter(coords);
+    m_center = findCenter(coords);
     // TODO: SFML does not supprot concave shapes, so we can't create the drawable
 }
 
@@ -258,6 +265,16 @@ Polygon::~Polygon() {
             auto pos = std::find(e->shape_ptrs.begin(), e->shape_ptrs.end(), this);
             if (pos != e->shape_ptrs.end()) e->shape_ptrs.erase(pos);
         }
+    }
+}
+
+void Polygon::setCenter(Coord center) {
+    Coord prev_center = m_center;
+    m_center = center;
+    Coord diff = {m_center.x - prev_center.x, m_center.y - prev_center.y};
+    for (Node* node : nodes) {
+        node->coord.x += diff.x;    
+        node->coord.y += diff.y;    
     }
 }
 
@@ -277,7 +294,7 @@ Coord Polygon::findCenter(std::vector<Coord> coords) {
 void Polygon::defineNeighboursFromCenter(Coord origin) {
     // Calculate r and theta with respect to the center
     for (Node* n : nodes) {
-        n->setOrigin(center);
+        n->setOrigin(m_center);
     }
 
     // Define left & right
@@ -301,18 +318,29 @@ void Polygon::defineNeighboursFromCenter(Coord origin) {
     }
 }
 
+sf::Shape* Polygon::getDrawable() {
+    unsigned int min_x = std::numeric_limits<unsigned int>::max();
+    unsigned int min_y = std::numeric_limits<unsigned int>::max();
+    for (Node* n : nodes) {
+        if (n->coord.x < min_x) min_x = n->coord.x;
+        if (n->coord.y < min_y) min_y = n->coord.y;
+    }
+    drawable->setPosition(min_x, min_y);
+    return drawable;
+}
+
 const char* Polygon::InsufficientNodesException::what() const throw() {
     return "Less than 3 nodes were given.";
 }
 
-/* struct ConvexPolygon */
+/* class ConvexPolygon */
 
 ConvexPolygon::ConvexPolygon(ShapeType subtype): Polygon(subtype) {}
 
 ConvexPolygon::ConvexPolygon(std::vector<Coord> coords): Polygon(convex_polygon) {
     if (coords.size() < 3) throw InsufficientNodesException();
 
-    center = findCenter(coords);
+    m_center = findCenter(coords);
 
     // Create nodes
     nodes = createNodes(coords);
@@ -365,12 +393,12 @@ void ConvexPolygon::constructDrawable(std::vector<Coord> coords) {
 std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {
     std::vector<Node*> nodes;
     for (Coord c : coords) {
-        nodes.push_back(new Node({c.x, c.y}, center));
+        nodes.push_back(new Node({c.x, c.y}, m_center));
     }
     return nodes;
 }
 
-/* struct Triangle */
+/* class Triangle */
 
 /* If an edge already exists as part of another triangle, it is important to use it in the new
  * triangle constructor instead of creating an identical one, in order to keep shape_ptrs 
@@ -379,7 +407,7 @@ std::vector<Node*> ConvexPolygon::createNodes(std::vector<Coord> coords) {
 // Used for the first triangle of the mesh
 Triangle::Triangle(Node* a, Node* b, Node* c): ConvexPolygon(triangle) {
     if (areCollinear(a, b, c)) throw IllegalTriangleException();
-    center = {(a->coord.x + b->coord.x + c->coord.x) / 3,
+    m_center = {(a->coord.x + b->coord.x + c->coord.x) / 3,
               (a->coord.y + b->coord.y + c->coord.y) / 3};
     nodes = {a, b, c};
     Edge* e;
@@ -410,35 +438,23 @@ Triangle::Triangle(Node* a, Node* b, Node* c): ConvexPolygon(triangle) {
 // Used for triangles created when adding a new node to the frontier
 Triangle::Triangle(Edge* e, Node* n): ConvexPolygon(triangle) {
     if (areCollinear(e->a, e->b, n)) throw IllegalTriangleException();
-    center = {(e->a->coord.x + e->b->coord.x + n->coord.x) / 3,
+    m_center = {(e->a->coord.x + e->b->coord.x + n->coord.x) / 3,
               (e->a->coord.y + e->b->coord.y + n->coord.y) / 3};
     nodes = {e->a, e->b, n};
     Edge* g;
     Edge* h;
-    std::cout << "Creating TRIANGLE(" << e << ", " << n << ")\n";
-    std::cout << "\te->a = " << e->a << "\n";
-    std::cout << "\te->b = " << e->b << "\n";
-    std::cout << "\tn = " << n << "\n";
     try {
         g = new Edge(e->a, n, this);
     } catch (Edge::ExistingEdgeException &ex) {
-        std::cout << "\tG EXISTS!\n";
         g = ex.getExistingEdge();
         g->shape_ptrs.push_back(this);
     }
     try {
         h = new Edge(e->b, n, this);
     } catch (Edge::ExistingEdgeException &ex) {
-        std::cout << "\tH EXISTS!\n";
         h = ex.getExistingEdge();
         h->shape_ptrs.push_back(this);
     }
-    std::cout << "\tg = " << g << "\n";
-    std::cout << "\t\tg->a = " << g->a << "\n";
-    std::cout << "\t\tg->b = " << g->b << "\n";
-    std::cout << "\th = " << h << "\n";
-    std::cout << "\t\th->a = " << h->a << "\n";
-    std::cout << "\t\th->b = " << h->b << "\n";
     edges = {e, g, h}; 
     e->shape_ptrs.push_back(this);
     constructDrawable({e->a->coord, e->b->coord, n->coord});
@@ -447,20 +463,13 @@ Triangle::Triangle(Edge* e, Node* n): ConvexPolygon(triangle) {
 // Used for triangles created when left/right-side walking
 Triangle::Triangle(Edge* e, Edge* g): ConvexPolygon(triangle) {
     Node* common_n = e->a == g->a || e->a == g->b ? e->a : e->b;
-    std::cout << "----- e = " << e << "\n";
-    std::cout << "\t----- e->a = " << e->a << "\n";
-    std::cout << "\t----- e->b = " << e->b << "\n";
-    std::cout << "----- g = " << g << "\n";
-    std::cout << "\t----- g->a = " << g->a << "\n";
-    std::cout << "\t----- g->b = " << g->b << "\n";
-    std::cout << "----- commmon node = " << common_n << "\n";
     std::vector<Node*> diff_n;
     if (e->a == common_n) diff_n.push_back(e->b);
     else diff_n.push_back(e->a);
     if (g->a == common_n) diff_n.push_back(g->b);
     else diff_n.push_back(g->a);
     if (areCollinear(common_n, diff_n[0], diff_n[1])) throw IllegalTriangleException();
-    center = {(common_n->coord.x + diff_n[0]->coord.x + diff_n[1]->coord.x) / 3,
+    m_center = {(common_n->coord.x + diff_n[0]->coord.x + diff_n[1]->coord.x) / 3,
               (common_n->coord.y + diff_n[0]->coord.y + diff_n[1]->coord.y) / 3};
     nodes = {common_n, diff_n[0], diff_n[1]};
     Edge* h;
@@ -514,7 +523,7 @@ bool Triangle::areCollinear(Node* a, Node* b, Node* c) {
     return false;
 }
 
-/* struct Hull */
+/* class Hull */
 
 Hull::Hull(Coord origin) {
     this->origin = origin;
