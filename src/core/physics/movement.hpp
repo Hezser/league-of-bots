@@ -25,16 +25,20 @@ typedef struct Move {
     };
 } Move;
 
+typedef struct LinearMove: public Move {
+    LinearMove(Coord start, Coord target, MovePriority priority);
+} LinearMove;
+
+typedef struct InstantMove: public Move {
+    InstantMove(Coord start, Coord target, MovePriority priority);
+} InstantMove;
+
 class MovePriorityQueue: public std::priority_queue<Move*, std::vector<Move*>, 
         Move::GreaterComparator> {
     public:
         void removeRightClickMove();
         void replaceRightClickMove(Move* move);
 };
-
-Move* constructLinearMove(Coord start, Coord target, MovePriority priority);
-
-Move* constructInstantMove(Coord start, Coord target, MovePriority priority);
 
 class MovementManager {
     public:

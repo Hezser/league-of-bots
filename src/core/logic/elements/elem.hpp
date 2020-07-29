@@ -20,8 +20,8 @@ class Elem {
         mutable std::mutex mutex;
         ElemType getType();
         bool isAlive();
-        Shape* getShape();
-        void setShape(Shape* shape);
+        ConvexPolygon* getShape();
+        void setShape(ConvexPolygon* shape);
         Coord getCenter();
         void setCenter(Coord center);
         Team getTeam();
@@ -33,11 +33,11 @@ class Elem {
     protected:
         ElemType m_type;
         bool m_alive;
-        Shape* m_shape;
+        ConvexPolygon* m_shape;
         Team m_team;
         int m_bounding_sphere_radius;
         Elem();
-        Elem(ElemType type, bool alive, Shape* shape, Coord center, Team team,
+        Elem(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team,
                 int boundingSphereRadius);
 };
 

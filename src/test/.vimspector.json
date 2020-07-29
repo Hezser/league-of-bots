@@ -1,0 +1,14 @@
+{
+    "configurations": {
+        "Launch": {
+            "adapter": "vscode-cpptools",
+            "configuration": {
+                "request": "launch",
+                "program": "src/test/nav_mesh-test",
+                "cwd": "/home/ser/dev/league-of-bots",
+                "externalConsole": true,
+                "MIMode": "gdb"
+            }
+        }
+    }
+}

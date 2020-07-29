@@ -9,21 +9,21 @@
 
 /* class bot */
 
-Bot::Bot(ElemType type, bool alive, Shape* shape, Coord center, Team team, 
+Bot::Bot(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team, 
         int bounding_sphere_radius, MovementManager* movement_manager): 
         Elem(type, alive, shape, center, team, bounding_sphere_radius), 
         m_movement_manager{movement_manager} {}
 
 void Bot::moveTowards(Coord target) {
     mutex.lock();
-    Move* move = constructLinearMove(m_center, target, right_click);
+    Move* move = new LinearMove(m_shape->getCenter(), target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
 
 void Bot::moveTo(Coord target) {
     mutex.lock();
-    Move* move = constructInstantMove(m_center, target, right_click);
+    Move* move = new InstantMove(m_shape->getCenter(), target, right_click);
     m_movement_manager->request(move);
     mutex.unlock();
 }
@@ -55,11 +55,15 @@ Ability* Bot::useAbility(AbilityKey key, Coord target) {
 /* class sai_bot */
 
 SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, new ConvexPolygon({{0,0}, {0,50},
-            {50,50}, {50, 0}}), start, team, 14, new MovementManager(this, 1.0f)) {
+            {50,50}, {50, 0}}), start, team, 14, new MovementManager(this, 2.5f)) {
     /* We initialize abilities after the bot is fully initialized so that the Ability
      * constructor can use the bot's members */
+    m_shape->getDrawable()->setFillColor(sf::Color::White);
+    if (m_team == white_team) m_shape->getDrawable()->setOutlineColor(sf::Color::Green);
+    else m_shape->getDrawable()->setOutlineColor(sf::Color::Red);
+    m_shape->getDrawable()->setOutlineThickness(2);
     m_abilities = {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
-        new SaiRAbility(this)};
+                   new SaiRAbility(this)};
 }
 
 void SaiBot::update(float ms) {
