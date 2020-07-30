@@ -1,0 +1,16 @@
+# Git ignores the following files and directories
+
+# Ignore binaries
+bin/*
+ 
+# Ignore linker and library files
+*.[oa]
+
+# Ignore executables and temporary files
+*~
+
+# Ignore scripts to compile, etc.
+*.sh
+
+# Ignore config files for Vimspector debugger
+.vimspector.json
