@@ -3,6 +3,6 @@
 **/*.o
 ./tags
 **/*.sh
-src/**/*!(.cpp|.hpp)
+**/.vimspector.json
 
 
