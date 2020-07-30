@@ -1,4 +1,4 @@
-# Git ignores the following files
+# Git ignores the following files and directories
 
 # Ignore binaries
 bin/*
