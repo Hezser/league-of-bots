@@ -1,11 +1,11 @@
 #ifndef BOT_HPP
 #define BOT_HPP
 
-#include <chrono>
-#include <vector>
 #include "elem.hpp"
 #include "ability.hpp"
-#include "../../physics/movement.hpp"
+#include "../../physics/movement_manager.hpp"
+#include <chrono>
+#include <vector>
 
 class Bot: public Elem {
     public:
@@ -20,12 +20,6 @@ class Bot: public Elem {
                 int bounding_sphere_radius, MovementManager* movement_manager);
         std::vector<Ability*> m_abilities;
         MovementManager* m_movement_manager;
-};
-
-class SaiBot: public Bot {
-    public:
-        SaiBot(Team team, Coord start);
-        void update(float ms) override;
 };
 
 #endif

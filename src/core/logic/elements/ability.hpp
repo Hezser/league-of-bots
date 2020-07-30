@@ -4,9 +4,9 @@
 #include <vector>
 #include <chrono>
 #include "elem.hpp"
-#include "../../physics/movement.hpp"
+#include "../../physics/movement_manager.hpp"
 
-// Forward-declared
+// Forward declaration
 class Bot;
 
 typedef enum AbilityKey {
@@ -29,41 +29,6 @@ class Ability: public Elem {
         Ability();
         Ability(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team,
                 Bot* bot, time_t cd, int bounding_sphere_radius);
-};
-
-class SaiQAbility: public Ability {        
-    public: 
-        SaiQAbility(Bot* bot);
-        bool cast(Coord target) override;
-        void update(float ms) override;
-        void handleBotCollision(Bot* bot) override;
-
-    private:
-        MovementManager* m_movement_manager;
-};
-
-class SaiWAbility: public Ability {        
-    public:                        
-        SaiWAbility(class Bot* bot);
-        bool cast(Coord target) override;
-        void update(float ms) override;
-        void handleBotCollision(Bot* bot) override;
-};
-
-class SaiEAbility: public Ability {        
-    public:                        
-        SaiEAbility(class Bot* bot);
-        bool cast(Coord target) override;
-        void update(float ms) override;
-        void handleBotCollision(Bot* bot) override;
-};
-
-class SaiRAbility: public Ability {        
-    public:                        
-        SaiRAbility(class Bot* bot);
-        bool cast(Coord target) override;
-        void update(float ms) override;
-        void handleBotCollision(Bot* bot) override;
 };
 
 #endif

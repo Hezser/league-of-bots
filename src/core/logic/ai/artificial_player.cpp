@@ -1,5 +1,4 @@
 #include <chrono>
-#include <iostream>
 #include "artificial_player.hpp"
 
 /* class ArtificialPlayer */

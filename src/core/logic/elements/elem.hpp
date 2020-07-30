@@ -1,11 +1,12 @@
 #ifndef ELEM_HPP
 #define ELEM_HPP
 
+#include "../../graphics/elements/coord.hpp"
+#include "../../graphics/elements/convex_polygon.hpp"
 #include <chrono>
 #include <vector>
 #include <mutex>
 #include <cmath>
-#include "../../physics/shape.hpp"
 
 typedef enum ElemType {  
     bot_t = 0, ability_t = 1, terrain_t = 2

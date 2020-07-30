@@ -3,13 +3,12 @@
 
 #include <vector>
 #include <exception>
-#include "shape.hpp"
+#include "map_size.hpp"
+#include "./elements/coord.hpp"
+#include "./elements/node.hpp"
+#include "./elements/triangle.hpp"
+#include "./elements/hull.hpp"
 #include "../logic/elements/terrain.hpp"
-
-typedef struct MapSize {
-    int x;
-    int y;
-} MapSize;
 
 typedef std::vector<Triangle*> TriangleMesh;
 

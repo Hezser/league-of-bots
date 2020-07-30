@@ -3,7 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <queue>
+#include <unordered_set>
 
 /* class NavMesh */
 

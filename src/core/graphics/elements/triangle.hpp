@@ -1,0 +1,27 @@
+#ifndef TRIANGLE_HPP
+#define TRIANGLE_HPP
+
+#include "node.hpp"
+#include "edge.hpp"
+#include "convex_polygon.hpp"
+#include <vector>
+
+class Triangle: public ConvexPolygon {
+    public:
+        Triangle(Node* a, Node* b, Node* c);
+        Triangle(Edge* e, Node* n);
+        Triangle(Edge* e, Edge* g);
+        Node* nodeOppositeToEdge(Edge* edge);
+        float angleOppositeToEdge(Edge* edge);
+        std::vector<Edge*> adjacentEdges(Edge* edge);
+
+        struct IllegalTriangleException: public std::exception {
+            const char* what() const noexcept;
+        };
+    
+    private:
+        Triangle();
+        bool areCollinear(Node* a, Node* b, Node* c);
+};
+
+#endif
