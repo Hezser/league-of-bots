@@ -1,8 +1,6 @@
 # Git ignores the following files
 
-**/*.o
-./tags
-**/*.sh
-**/.vimspector.json
-
-
+*.[oa]
+*~
+*.sh
+.vimspector.json
