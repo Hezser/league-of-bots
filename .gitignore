@@ -1,0 +1,8 @@
+# Git ignores the following files
+
+**/*.o
+./tags
+**/*.sh
+src/**/*!(.cpp|.hpp)
+
+
