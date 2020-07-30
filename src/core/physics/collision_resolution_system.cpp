@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) Sergio Hernandez - All Rights Reserved
+ * Author: Sergio Hernandez <contact.sergiohernandez@gmail.com>
+ * Date  : 30.07.2020
+ */
+
 #include "collision_resolution_system.hpp"
 #include "../logic/elements/bot.hpp"
 #include "../logic/elements/ability.hpp"
