@@ -1,9 +1,10 @@
 #ifndef PATH_FINDER_HPP
 #define PATH_FINDER_HPP
 
+#include "move.hpp"
+#include "../graphics/elements/coord.hpp"
+#include "../graphics/nav_mesh.hpp"
 #include <vector>
-#include "nav_mesh.hpp"
-#include "movement.hpp"
 
 typedef std::vector<Move> Path;
 

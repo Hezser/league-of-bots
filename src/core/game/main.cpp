@@ -8,10 +8,11 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include "../logic/elements/elem.hpp"
-#include "../logic/elements/bot.hpp"
+#include "../logic/elements/sai_bot.hpp"
 #include "../logic/elements/ability.hpp"
 #include "../logic/elements/terrain.hpp"
-#include "../physics/collision.hpp"
+#include "../physics/collision_detection_system.hpp"
+#include "../physics/collision_resolution_system.hpp"
 #include "../logic/ai/artificial_player.hpp"
 
 int main() {

@@ -1,19 +1,10 @@
-#ifndef COLLISION_HPP
-#define COLLISION_HPP
+#ifndef COLLISION_RESOLUTION_SYSTEM_HPP
+#define COLLISION_RESOLUTION_SYSTEM_HPP
 
 #include <vector>
 #include "../logic/elements/elem.hpp"
 
 typedef std::vector<Elem*> Collision;
-
-class CollisionDetectionSystem {
-    public:
-        // Meant to be used a posteriori
-        static std::vector<Collision> detect(std::vector<Elem*> elems);
-    private:
-        // Static class
-        CollisionDetectionSystem() {}
-};
 
 class CollisionResolutionSystem {
     public:

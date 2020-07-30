@@ -1,13 +1,12 @@
+#include "bot.hpp"
+#include "elem.hpp"
+#include "ability.hpp"
+#include "../../physics/linear_move.hpp"
+#include "../../physics/instant_move.hpp"
 #include <chrono>
 #include <vector>
 #include <cmath>
 #include <iostream>
-#include "bot.hpp"
-#include "elem.hpp"
-#include "ability.hpp"
-#include "../../physics/movement.hpp"
-
-/* class bot */
 
 Bot::Bot(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team, 
         int bounding_sphere_radius, MovementManager* movement_manager): 
@@ -50,23 +49,4 @@ Ability* Bot::useAbility(AbilityKey key, Coord target) {
         return ability;
     }
     return nullptr;
-}
-
-/* class sai_bot */
-
-SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, new ConvexPolygon({{0,0}, {0,50},
-            {50,50}, {50, 0}}), start, team, 14, new MovementManager(this, 2.5f)) {
-    /* We initialize abilities after the bot is fully initialized so that the Ability
-     * constructor can use the bot's members */
-    m_shape->getDrawable()->setFillColor(sf::Color::White);
-    if (m_team == white_team) m_shape->getDrawable()->setOutlineColor(sf::Color::Green);
-    else m_shape->getDrawable()->setOutlineColor(sf::Color::Red);
-    m_shape->getDrawable()->setOutlineThickness(2);
-    m_abilities = {new SaiQAbility(this), new SaiWAbility(this), new SaiEAbility(this), 
-                   new SaiRAbility(this)};
-}
-
-void SaiBot::update(float ms) {
-    m_movement_manager->update(ms);
-    // In the future, health, mana, experience, etc. will also need to be updated here
 }

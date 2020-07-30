@@ -1,10 +1,7 @@
+#include "elem.hpp"
 #include <cmath>
 #include <mutex>
 #include <vector>
-#include <iostream>
-#include "elem.hpp"
-
-/* class elem */
 
 Elem::Elem(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team, 
         int bounding_sphere_radius): m_type{type}, m_alive{alive}, m_shape{shape},
