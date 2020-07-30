@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) Sergio Hernandez - All Rights Reserved
+ * Author: Sergio Hernandez <contact.sergiohernandez@gmail.com>
+ * Date  : 30.07.2020
+ */
+
 #ifndef NODE_HPP
 #define NODE_HPP
 

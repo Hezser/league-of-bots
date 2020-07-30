@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) Sergio Hernandez - All Rights Reserved
+ * Author: Sergio Hernandez <contact.sergiohernandez@gmail.com>
+ * Date  : 30.07.2020
+ */
+
 #include "movement_manager.hpp"
 
 MovementManager::MovementManager(Elem* elem, float velocity): m_elem{elem},

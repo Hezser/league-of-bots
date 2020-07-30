@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) Sergio Hernandez - All Rights Reserved
+ * Author: Sergio Hernandez <contact.sergiohernandez@gmail.com>
+ * Date  : 30.07.2020
+ */
+
 #include "sai_q_ability.hpp"
 #include "bot.hpp"
 #include "../../physics/linear_move.hpp"

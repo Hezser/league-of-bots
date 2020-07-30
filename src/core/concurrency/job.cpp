@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) Sergio Hernandez - All Rights Reserved
+ * Author: Sergio Hernandez <contact.sergiohernandez@gmail.com>
+ * Date  : 30.07.2020
+ */
+
 #include "job.hpp"
 
 Job::Job(Action* action, uintptr_t param, JobPriority priority): action{action}, param{param},

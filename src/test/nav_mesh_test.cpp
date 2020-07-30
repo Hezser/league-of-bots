@@ -1,9 +1,14 @@
+/**
+ * Copyright (C) Sergio Hernandez - All Rights Reserved
+ * Author: Sergio Hernandez <contact.sergiohernandez@gmail.com>
+ * Date  : 30.07.2020
+ */
+
 #include <vector>
 #include <iostream>
 #include <thread>
 #include <SFML/Graphics.hpp>
-#include "../core/physics/nav_mesh.hpp"
-#include "../core/physics/shape.hpp"
+#include "../core/graphics/nav_mesh.hpp"
 #include "../core/logic/elements/terrain.hpp"
 
 void drawTerrain(sf::RenderWindow& window, std::vector<Terrain*> terrains) {
