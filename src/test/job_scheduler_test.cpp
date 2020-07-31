@@ -10,6 +10,8 @@
 #include <chrono>
 #include "../core/concurrency/job_scheduler.hpp"
 
+using namespace adamant::concurrency;
+
 std::mutex mutex;
 
 void action(uintptr_t param) {

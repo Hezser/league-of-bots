@@ -11,6 +11,10 @@
 #include "../core/graphics/nav_mesh.hpp"
 #include "../core/logic/elements/terrain.hpp"
 
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+
 void drawTerrain(sf::RenderWindow& window, std::vector<Terrain*> terrains) {
     for (Terrain* t : terrains) {
         sf::Shape* drawable = t->getShape()->getDrawable();
