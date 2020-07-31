@@ -8,6 +8,8 @@
 #include <cmath>
 #include <algorithm>
 
+using namespace adamant::graphics::elements;
+
 Hull::Hull(Coord origin) {
     this->origin = origin;
 }

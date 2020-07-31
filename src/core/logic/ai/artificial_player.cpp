@@ -7,7 +7,8 @@
 #include <chrono>
 #include "artificial_player.hpp"
 
-/* class ArtificialPlayer */
+using namespace adamant::logic::ai;
+using namespace adamant::logic::elements;
 
 ArtificialPlayer::ArtificialPlayer(Bot* bot, float update_interval, ArtificialMovementPolicy
         movement_policy, ArtificialAimingPolicy aiming_policy): m_bot{bot}, 

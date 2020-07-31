@@ -6,6 +6,9 @@
 
 #include "polygon.hpp"
 
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+
 Polygon::Polygon(ShapeType subtype): Shape(subtype) {}
 
 Polygon::Polygon(std::vector<Node*> nodes, std::vector<Edge*> edges): Shape(polygon) {

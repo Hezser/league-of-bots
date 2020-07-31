@@ -6,6 +6,8 @@
 
 #include "circle.hpp"
 
+using namespace adamant::graphics::elements;
+
 Circle::Circle(Coord center, int radius): Shape(circle, center) {
     this->radius = radius;
     sf::CircleShape* d = new sf::CircleShape();

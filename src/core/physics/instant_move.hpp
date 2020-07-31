@@ -8,10 +8,18 @@
 #define INSTANT_MOVE_HPP
 
 #include "move.hpp"
-#include "../graphics/elements/coord.hpp"
+#include "../graphics/coord.hpp"
+
+namespace adamant {
+namespace physics {
+namespace movement {
 
 typedef struct InstantMove: public Move {
-    InstantMove(Coord start, Coord target, MovePriority priority);
+    InstantMove(graphics::Coord start, graphics::Coord target, MovePriority priority);
 } InstantMove;
+
+}  // namespace movement
+}  // namespace physics
+}  // namespace adamant
 
 #endif

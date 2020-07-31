@@ -8,6 +8,8 @@
 #include "edge.hpp"
 #include <cmath>
 
+using namespace adamant::graphics::elements;
+
 Node::Node(Coord coord, Coord origin) {
     this->coord = coord;
     setOrigin(origin);

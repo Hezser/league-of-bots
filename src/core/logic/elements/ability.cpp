@@ -9,6 +9,10 @@
 #include "elem.hpp"
 #include "bot.hpp"
 
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+
 Ability::Ability(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team,
         Bot* bot, time_t cd, int bounding_sphere_radius): Elem(type, alive, shape, center,
         team, bounding_sphere_radius), m_bot{bot}, m_cd{cd},

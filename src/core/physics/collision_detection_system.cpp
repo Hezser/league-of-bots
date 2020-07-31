@@ -6,6 +6,10 @@
 
 #include "collision_detection_system.hpp"
 
+using namespace adamant::physics::collision;
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+
 std::vector<Collision> CollisionDetectionSystem::detect(std::vector<Elem*> elems) {
     // TODO: Collidables must be a class optimized for collision detection, like in Havok
     // Copy of vector elems

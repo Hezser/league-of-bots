@@ -7,6 +7,9 @@
 #include "linear_move.hpp"
 #include <cmath>
 
+using namespace adamant::physics::movement;
+using namespace adamant::graphics;
+
 LinearMove::LinearMove(Coord start, Coord target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
     std::vector<float> alpha_target = {(float)target.x - start.x, (float)target.y - start.y};

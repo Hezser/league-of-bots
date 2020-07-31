@@ -13,19 +13,28 @@
 #include <chrono>
 #include <vector>
 
+namespace adamant {
+namespace logic {
+namespace elements {
+
 class Bot: public Elem {
     public:
-        void moveTowards(Coord target);
-        void moveTo(Coord target);
-        Ability* useAbility(AbilityKey key, Coord target);
+        void moveTowards(graphics::Coord target);
+        void moveTo(graphics::Coord target);
+        Ability* useAbility(AbilityKey key, graphics::Coord target);
         virtual void update(float ms) = 0;
 
     protected:
         Bot();
-        Bot(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team,
-                int bounding_sphere_radius, MovementManager* movement_manager);
+        Bot(ElemType type, bool alive, graphics::elements::ConvexPolygon* shape, 
+                graphics::Coord center, Team team, int bounding_sphere_radius,
+                physics::movement::MovementManager* movement_manager);
         std::vector<Ability*> m_abilities;
-        MovementManager* m_movement_manager;
+        physics::movement::MovementManager* m_movement_manager;
 };
+
+}  // namespace elements
+}  // namespace logic
+}  // namespace adamant
 
 #endif

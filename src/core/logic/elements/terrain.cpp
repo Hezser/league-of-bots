@@ -8,6 +8,10 @@
 #include "elem.hpp"
 #include <vector>
 
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+
 Terrain::Terrain(ConvexPolygon* shape, Coord center, int bounding_sphere_radius):
         Elem(terrain_t, true, shape, center, neutral_team, bounding_sphere_radius) {}
 

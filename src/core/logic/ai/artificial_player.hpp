@@ -10,6 +10,10 @@
 #include <chrono>
 #include "../elements/bot.hpp"
 
+namespace adamant {
+namespace logic {
+namespace ai {
+
 typedef enum ArtificialMovementPolicy {
     random_movement = 0
 } ArtificialMovementPolicy;
@@ -20,8 +24,8 @@ typedef enum ArtificialAimingPolicy {
 
 class ArtificialPlayer {
     public:
-        ArtificialPlayer(Bot* bot, float update_interval, ArtificialMovementPolicy
-                movement_policy, ArtificialAimingPolicy aiming_policy);
+        ArtificialPlayer(logic::elements::Bot* bot, float update_interval,
+                ArtificialMovementPolicy movement_policy, ArtificialAimingPolicy aiming_policy);
         float getUpdateInterval();
         void setUpdateInterval(float update_interval);
         ArtificialMovementPolicy getMovementPolicy();
@@ -31,7 +35,7 @@ class ArtificialPlayer {
         void play();
 
     private:
-        Bot* m_bot;
+        logic::elements::Bot* m_bot;
         float m_update_interval;  // In ms
         std::chrono::steady_clock::time_point m_last_played;
         ArtificialMovementPolicy m_movement_policy;
@@ -39,5 +43,9 @@ class ArtificialPlayer {
         void moveBotRandomly();
         // TODO: add accuracy when implementing ability-casting
 };
+
+}  // namespace ai
+}  // namespace logic
+}  // namespace adamant
 
 #endif

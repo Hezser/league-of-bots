@@ -9,12 +9,20 @@
 
 #include "ability.hpp"
 
+namespace adamant {
+namespace logic {
+namespace elements {
+
 class SaiRAbility: public Ability {        
     public:                        
         SaiRAbility(class Bot* bot);
-        bool cast(Coord target) override;
+        bool cast(graphics::Coord target) override;
         void update(float ms) override;
         void handleBotCollision(Bot* bot) override;
 };
+
+}  // namespace elements
+}  // namespace logic
+}  // namespace adamant
 
 #endif

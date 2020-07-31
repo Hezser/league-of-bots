@@ -9,6 +9,10 @@
 #include <mutex>
 #include <vector>
 
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+
 Elem::Elem(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team, 
         int bounding_sphere_radius): m_type{type}, m_alive{alive}, m_shape{shape},
         m_team{team}, m_bounding_sphere_radius{bounding_sphere_radius} {

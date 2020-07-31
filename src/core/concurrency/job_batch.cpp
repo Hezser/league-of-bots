@@ -6,6 +6,8 @@
 
 #include "job_batch.hpp"
 
+using namespace adamant::concurrency;
+
 // Generic constructor
 JobBatch::JobBatch(std::vector<Job*> jobs): m_jobs{jobs} {
     status = new JobStatus;

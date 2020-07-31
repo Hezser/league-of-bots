@@ -9,10 +9,19 @@
 
 #include "elem.hpp"
 
+namespace adamant {
+namespace logic {
+namespace elements {
+
 class Terrain: public Elem {
     public:
-        Terrain(ConvexPolygon* shape, Coord center, int bounding_sphere_radius);
+        Terrain(graphics::elements::ConvexPolygon* shape, graphics::Coord center,
+                int bounding_sphere_radius);
         void update(float ms) override;
 };
+
+}  // namespace elements
+}  // namespace logic
+}  // namespace adamant
 
 #endif

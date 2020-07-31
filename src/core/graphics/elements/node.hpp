@@ -7,8 +7,12 @@
 #ifndef NODE_HPP
 #define NODE_HPP
 
-#include "coord.hpp"
+#include "../coord.hpp"
 #include <vector>
+
+namespace adamant {
+namespace graphics {
+namespace elements {
 
 // Forward declaration
 class Edge;
@@ -37,5 +41,9 @@ class Node {
     private:
         Node();
 };
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

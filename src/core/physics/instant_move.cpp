@@ -6,6 +6,9 @@
 
 #include "instant_move.hpp"
 
+using namespace adamant::physics::movement;
+using namespace adamant::graphics;
+
 InstantMove::InstantMove(Coord start, Coord target, MovePriority priority) {
     // Convert the target vector to a basis where the start is the origin
     this->start = start;

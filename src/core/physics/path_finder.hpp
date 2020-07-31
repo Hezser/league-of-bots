@@ -8,19 +8,27 @@
 #define PATH_FINDER_HPP
 
 #include "move.hpp"
-#include "../graphics/elements/coord.hpp"
+#include "../graphics/coord.hpp"
 #include "../graphics/nav_mesh.hpp"
 #include <vector>
+
+namespace adamant {
+namespace physics {
+namespace movement {
 
 typedef std::vector<Move> Path;
 
 class PathFinder {
     public:
-        PathFinder(NavMesh);
-        Path findPath(Coord start, Coord target);
+        PathFinder(graphics::NavMesh);
+        Path findPath(graphics::Coord start, graphics::Coord target);
 
     private:
-        NavMesh m_nav_mesh;
+        graphics::NavMesh m_nav_mesh;
 };
+
+}  // namespace movement
+}  // namespace physics
+}  // namespace adamant
 
 #endif

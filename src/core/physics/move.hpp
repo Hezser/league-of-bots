@@ -7,16 +7,20 @@
 #ifndef MOVE_HPP
 #define MOVE_HPP
 
-#include "../graphics/elements/coord.hpp"
+#include "../graphics/coord.hpp"
 #include <vector>
+
+namespace adamant {
+namespace physics {
+namespace movement {
 
 typedef enum MovePriority {
     right_click = 0, own_ability = 1, enemy_ability = 2
 } MovePriority;
 
 typedef struct Move {
-    Coord start;
-    Coord target;
+    graphics::Coord start;
+    graphics::Coord target;
     std::vector<float> unit_travel;
     int distance;
     int travelled;
@@ -29,5 +33,9 @@ typedef struct Move {
         bool operator() (const Move* lhs, const Move* rhs);
     };
 } Move;
+
+}  // namespace movement
+}  // namespace physics
+}  // namespace adamant
 
 #endif

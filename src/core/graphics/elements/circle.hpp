@@ -7,9 +7,13 @@
 #ifndef CIRCLE_HPP
 #define CIRCLE_HPP
 
-#include "coord.hpp"
+#include "../coord.hpp"
 #include "shape.hpp"
 #include <SFML/Graphics.hpp>
+
+namespace adamant {
+namespace graphics {
+namespace elements {
 
 /* TODO: Delete? 
  * Cannot be used for elem shapes, as circles do not have edges or nodes to triangulate,
@@ -23,6 +27,10 @@ class Circle: public Shape {
     private:
         Circle();
 };
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif
 

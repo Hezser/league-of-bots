@@ -7,12 +7,16 @@
 #ifndef ELEM_HPP
 #define ELEM_HPP
 
-#include "../../graphics/elements/coord.hpp"
+#include "../../graphics/coord.hpp"
 #include "../../graphics/elements/convex_polygon.hpp"
 #include <chrono>
 #include <vector>
 #include <mutex>
 #include <cmath>
+
+namespace adamant {
+namespace logic {
+namespace elements {
 
 typedef enum ElemType {  
     bot_t = 0, ability_t = 1, terrain_t = 2
@@ -27,10 +31,10 @@ class Elem {
         mutable std::mutex mutex;
         ElemType getType();
         bool isAlive();
-        ConvexPolygon* getShape();
-        void setShape(ConvexPolygon* shape);
-        Coord getCenter();
-        void setCenter(Coord center);
+        graphics::elements::ConvexPolygon* getShape();
+        void setShape(graphics::elements::ConvexPolygon* shape);
+        graphics::Coord getCenter();
+        void setCenter(graphics::Coord center);
         Team getTeam();
         int getBoundingSphereRadius();
         void setBoundingSphereRadius(int radius);
@@ -40,12 +44,16 @@ class Elem {
     protected:
         ElemType m_type;
         bool m_alive;
-        ConvexPolygon* m_shape;
+        graphics::elements::ConvexPolygon* m_shape;
         Team m_team;
         int m_bounding_sphere_radius;
         Elem();
-        Elem(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team,
-                int boundingSphereRadius);
+        Elem(ElemType type, bool alive, graphics::elements::ConvexPolygon* shape,
+                graphics::Coord center, Team team, int boundingSphereRadius);
 };
+
+}  // namespace elements
+}  // namespace logic
+}  // namespace adamant
 
 #endif

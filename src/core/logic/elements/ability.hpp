@@ -12,6 +12,10 @@
 #include "elem.hpp"
 #include "../../physics/movement_manager.hpp"
 
+namespace adamant {
+namespace logic {
+namespace elements {
+
 // Forward declaration
 class Bot;
 
@@ -24,7 +28,7 @@ class Ability: public Elem {
         time_t getCd();
         void setCd(time_t cd);
         std::chrono::steady_clock::time_point getLastUsed();
-        virtual bool cast(Coord target) = 0;
+        virtual bool cast(graphics::Coord target) = 0;
         virtual void update(float ms) = 0;
         virtual void handleBotCollision(Bot* bot) = 0;
 
@@ -33,8 +37,13 @@ class Ability: public Elem {
         time_t m_cd;
         std::chrono::steady_clock::time_point m_last_used;
         Ability();
-        Ability(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team,
-                Bot* bot, time_t cd, int bounding_sphere_radius);
+        Ability(ElemType type, bool alive, graphics::elements::ConvexPolygon* shape, 
+                graphics::Coord center, Team team, Bot* bot, time_t cd,
+                int bounding_sphere_radius);
 };
+
+}  // namespace elements
+}  // namespace logic
+}  // namespace adamant
 
 #endif

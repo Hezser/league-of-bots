@@ -10,7 +10,11 @@
 #include <vector>
 #include "../logic/elements/elem.hpp"
 
-typedef std::vector<Elem*> Collision;
+namespace adamant {
+namespace physics {
+namespace collision {
+
+typedef std::vector<logic::elements::Elem*> Collision;
 
 class CollisionResolutionSystem {
     public:
@@ -19,5 +23,9 @@ class CollisionResolutionSystem {
         // Static class
         CollisionResolutionSystem() {}
 };
+
+}  // namespace collision
+}  // namespace physics
+}  // namespace adamant
 
 #endif

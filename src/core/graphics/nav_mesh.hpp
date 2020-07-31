@@ -10,21 +10,24 @@
 #include <vector>
 #include <exception>
 #include "map_size.hpp"
-#include "./elements/coord.hpp"
+#include "./coord.hpp"
 #include "./elements/node.hpp"
 #include "./elements/triangle.hpp"
 #include "./elements/hull.hpp"
 #include "../logic/elements/terrain.hpp"
 
-typedef std::vector<Triangle*> TriangleMesh;
+namespace adamant {
+namespace graphics {
+
+typedef std::vector<graphics::elements::Triangle*> TriangleMesh;
 
 class NavMesh {
     public:
         // May throw InsufficientNodesException or FailedTriangulationException
-        NavMesh(std::vector<Terrain*> terrains, MapSize map_size);
+        NavMesh(std::vector<logic::elements::Terrain*> terrains, MapSize map_size);
         MapSize getMapSize();
         TriangleMesh getMesh();
-        std::vector<Node*> getNodes();
+        std::vector<elements::Node*> getNodes();
 
         struct InsufficientNodesException: public std::exception {
             const char* what() const throw();
@@ -38,11 +41,15 @@ class NavMesh {
         MapSize m_map_size;
         TriangleMesh m_mesh;
         Coord m_origin;
-        std::vector<Node*> m_nodes;
-        Triangle* legalize(Triangle* candidate, Hull* frontier);
-        void triangulate(std::vector<Terrain*> terrains);
+        std::vector<graphics::elements::Node*> m_nodes;
+        graphics::elements::Triangle* legalize(graphics::elements::Triangle* candidate, 
+                graphics::elements::Hull* frontier);
+        void triangulate(std::vector<logic::elements::Terrain*> terrains);
         void populateNodes();
-        Coord avgCoord(std::vector<Node*> nodes);
+        Coord avgCoord(std::vector<graphics::elements::Node*> nodes);
 };
+
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

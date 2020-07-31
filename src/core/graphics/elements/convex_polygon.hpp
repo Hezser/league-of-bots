@@ -7,9 +7,13 @@
 #ifndef CONVEX_POLYGON_HPP
 #define CONVEX_POLYGON_HPP
 
-#include "coord.hpp"
+#include "../coord.hpp"
 #include "polygon.hpp"
 #include <vector>
+
+namespace adamant {
+namespace graphics {
+namespace elements {
 
 class ConvexPolygon: public Polygon {
     public:
@@ -20,5 +24,9 @@ class ConvexPolygon: public Polygon {
         void constructDrawable(std::vector<Coord> coords);
         std::vector<Node*> createNodes(std::vector<Coord> coords);
 };
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

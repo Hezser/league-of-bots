@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace adamant::graphics::elements;
+
 Edge::Edge(Node* a, Node* b) {
     Edge* existing_edge = a->getEdgeWith(b);
     if (existing_edge != nullptr) throw ExistingEdgeException(existing_edge);

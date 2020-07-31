@@ -11,7 +11,9 @@
 #include <vector>
 #include <unordered_set>
 
-/* class NavMesh */
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
 
 // May throw InsufficientNodesException or FailedTriangulationException
 NavMesh::NavMesh(std::vector<Terrain*> terrains, MapSize map_size): m_map_size{map_size} {

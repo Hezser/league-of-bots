@@ -10,6 +10,9 @@
 #include "job.hpp"
 #include <vector>
 
+namespace adamant {
+namespace concurrency {
+
 class JobBatch {
     public:
         JobStatus* status;  // It's public because of the atomic operations
@@ -23,5 +26,8 @@ class JobBatch {
     private:
         std::vector<Job*> m_jobs;
 };
+
+}  // namespace concurrency
+}  // namespace adamant
 
 #endif

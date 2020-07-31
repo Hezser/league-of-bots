@@ -21,6 +21,11 @@
 #include "../physics/collision_resolution_system.hpp"
 #include "../logic/ai/artificial_player.hpp"
 
+using namespace adamant::logic::ai;
+using namespace adamant::logic::elements;
+using namespace adamant::physics::collision;
+using namespace adamant::graphics::elements;
+
 int main() {
     // TODO: Use tai_clock when C++20 is released; system_clock can be altered by changing the time of the system
     std::chrono::system_clock::time_point last_update = std::chrono::system_clock::now();

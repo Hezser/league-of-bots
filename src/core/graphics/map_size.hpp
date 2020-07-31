@@ -7,9 +7,15 @@
 #ifndef MAP_SIZE_HPP
 #define MAP_SIZE_HPP
 
+namespace adamant {
+namespace graphics {
+
 typedef struct MapSize {
     int x;
     int y;
 } MapSize;
+
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

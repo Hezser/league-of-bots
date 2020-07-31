@@ -7,9 +7,13 @@
 #ifndef EDGE_HPP
 #define EDGE_HPP
 
-#include "coord.hpp"
+#include "../coord.hpp"
 #include "node.hpp"
 #include <vector>
+
+namespace adamant {
+namespace graphics {
+namespace elements {
 
 // Forward declaration
 class Polygon;
@@ -51,5 +55,9 @@ class Edge {
         int direction(Node* a, Node* b, Node* c);
         Edge();
 };
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

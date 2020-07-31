@@ -12,9 +12,13 @@
 #include "move.hpp"
 #include "../logic/elements/elem.hpp"
 
+namespace adamant {
+namespace physics {
+namespace movement {
+
 class MovementManager {
     public:
-        MovementManager(Elem* elem, float velocity);
+        MovementManager(logic::elements::Elem* elem, float velocity);
         bool update(float ms);
         void request(Move* move);
         float getVelocity();
@@ -28,9 +32,13 @@ class MovementManager {
                 void replaceRightClickMove(Move* move);
         };
 
-        Elem* m_elem;
+        logic::elements::Elem* m_elem;
         MovePriorityQueue m_moves;
         float m_velocity;
 };
+
+}  // namespace movement
+}  // namespace physics
+}  // namespace adamant
 
 #endif

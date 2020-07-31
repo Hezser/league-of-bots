@@ -10,6 +10,11 @@
 #include "sai_e_ability.hpp"
 #include "sai_r_ability.hpp"
 
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+using namespace adamant::physics::movement;
+
 SaiBot::SaiBot(Team team, Coord start): Bot(bot_t, true, new ConvexPolygon({{0,0}, {0,50},
             {50,50}, {50, 0}}), start, team, 14, new MovementManager(this, 2.5f)) {
     /* We initialize abilities after the bot is fully initialized so that the Ability

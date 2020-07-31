@@ -7,8 +7,12 @@
 #ifndef SHAPE_HPP
 #define SHAPE_HPP
 
-#include "coord.hpp"
+#include "../coord.hpp"
 #include <SFML/Graphics.hpp>
+
+namespace adamant {
+namespace graphics {
+namespace elements {
 
 class Shape {
     public:
@@ -28,5 +32,9 @@ class Shape {
         Coord m_center;
         sf::Shape* drawable;
 };
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif
