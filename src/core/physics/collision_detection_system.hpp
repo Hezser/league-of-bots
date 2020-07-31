@@ -10,15 +10,23 @@
 #include "../logic/elements/elem.hpp"
 #include <vector>
 
-typedef std::vector<Elem*> Collision;
+namespace adamant {
+namespace physics {
+namespace collision {
+
+typedef std::vector<logic::elements::Elem*> Collision;
 
 class CollisionDetectionSystem {
     public:
         // Meant to be used a posteriori
-        static std::vector<Collision> detect(std::vector<Elem*> elems);
+        static std::vector<Collision> detect(std::vector<logic::elements::Elem*> elems);
     private:
         // Static class
         CollisionDetectionSystem() {}
 };
+
+}  // namespace collision
+}  // namespace physics
+}  // namespace adamant
 
 #endif

@@ -12,6 +12,9 @@
 #include <mutex>
 #include <atomic>
 
+namespace adamant {
+namespace concurrency {
+
 typedef void Action(uintptr_t param);
 
 typedef enum JobPriority {
@@ -41,5 +44,8 @@ class Job {
         uintptr_t param;
         JobPriority priority;
 };
+
+}  // namespace concurrency
+}  // namespace adamant
 
 #endif

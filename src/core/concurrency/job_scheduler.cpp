@@ -12,6 +12,8 @@
 #include <boost/fiber/fiber.hpp>
 #include "job_scheduler.hpp"
 
+using namespace adamant::concurrency;
+
 void JobScheduler::work(std::shared_future<void> signal) {
     while(signal.wait_for(std::chrono::seconds(0)) == std::future_status::timeout) {
         // Wait for a job

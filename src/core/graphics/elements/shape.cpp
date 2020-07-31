@@ -6,6 +6,9 @@
 
 #include "shape.hpp"
 
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+
 Shape::Shape(ShapeType type) {
     this->type = type;
 }

@@ -6,6 +6,10 @@
 
 #include "movement_manager.hpp"
 
+using namespace adamant::physics::movement;
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+
 MovementManager::MovementManager(Elem* elem, float velocity): m_elem{elem},
         m_velocity{velocity} {}
 

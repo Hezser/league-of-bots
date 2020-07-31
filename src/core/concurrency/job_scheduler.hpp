@@ -15,6 +15,9 @@
 #include <thread>
 #include <future>
 
+namespace adamant {
+namespace concurrency {
+
 class JobScheduler {
     public:
         JobScheduler();
@@ -34,5 +37,8 @@ class JobScheduler {
         std::promise<void> m_exit_signal;
         void work(std::shared_future<void> signal);
 };
+
+}  // namespace concurrency
+}  // namespace adamant
 
 #endif

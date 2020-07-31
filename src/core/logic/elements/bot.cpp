@@ -14,6 +14,11 @@
 #include <cmath>
 #include <iostream>
 
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+using namespace adamant::physics::movement;
+
 Bot::Bot(ElemType type, bool alive, ConvexPolygon* shape, Coord center, Team team, 
         int bounding_sphere_radius, MovementManager* movement_manager): 
         Elem(type, alive, shape, center, team, bounding_sphere_radius), 

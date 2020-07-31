@@ -8,10 +8,18 @@
 #define LINEAR_MOVE_HPP
 
 #include "move.hpp"
-#include "../graphics/elements/coord.hpp"
+#include "../graphics/coord.hpp"
+
+namespace adamant {
+namespace physics {
+namespace movement {
 
 typedef struct LinearMove: public Move {
-    LinearMove(Coord start, Coord target, MovePriority priority);
+    LinearMove(graphics::Coord start, graphics::Coord target, MovePriority priority);
 } LinearMove;
+
+}  // namespace movement
+}  // namespace physics
+}  // namespace adamant
 
 #endif

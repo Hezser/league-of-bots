@@ -7,9 +7,15 @@
 #ifndef COORD_HPP
 #define COORD_HPP
 
+namespace adamant {
+namespace graphics {
+
 typedef struct Coord {
     int x;
     int y;
 } Coord;
+
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

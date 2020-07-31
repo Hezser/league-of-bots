@@ -8,6 +8,9 @@
 #include "../logic/elements/bot.hpp"
 #include "../logic/elements/ability.hpp"
 
+using namespace adamant::physics::collision;
+using namespace adamant::logic::elements;
+
 void CollisionResolutionSystem::resolve(std::vector<Collision> collisions) {
     for (auto c : collisions) {
         // Bot-bot collision

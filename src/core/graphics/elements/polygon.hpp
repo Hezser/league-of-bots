@@ -7,11 +7,15 @@
 #ifndef POLYGON_HPP
 #define POLYGON_HPP
 
-#include "coord.hpp"
+#include "../coord.hpp"
 #include "node.hpp"
 #include "edge.hpp"
 #include "shape.hpp"
 #include <SFML/Graphics.hpp>
+
+namespace adamant {
+namespace graphics {
+namespace elements {
 
 /* TODO: Polygons are not usable at the moment, as SFML does not support concave shapes
  *       However, there is no need for them now (DELETE?) */
@@ -34,5 +38,9 @@ class Polygon: public Shape {
         Polygon(ShapeType subtype);  // Used for instantiating subclasses
         Coord findCenter(std::vector<Coord> coords);
 };
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

@@ -7,6 +7,8 @@
 #include "triangle.hpp"
 #include <cmath>
 
+using namespace adamant::graphics::elements;
+
 /* If an edge already exists as part of another triangle, it is important to use it in the new
  * triangle constructor instead of creating an identical one, in order to keep shape_ptrs 
  * updated */
@@ -129,4 +131,3 @@ bool Triangle::areCollinear(Node* a, Node* b, Node* c) {
     if (area == 0) return true;
     return false;
 }
-

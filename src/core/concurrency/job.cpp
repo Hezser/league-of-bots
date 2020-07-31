@@ -6,6 +6,8 @@
 
 #include "job.hpp"
 
+using namespace adamant::concurrency;
+
 Job::Job(Action* action, uintptr_t param, JobPriority priority): action{action}, param{param},
         priority{priority} {
     status = new JobStatus;

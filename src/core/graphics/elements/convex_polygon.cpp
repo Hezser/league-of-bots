@@ -7,6 +7,8 @@
 #include "convex_polygon.hpp"
 #include <algorithm>
 
+using namespace adamant::graphics::elements;
+
 ConvexPolygon::ConvexPolygon(ShapeType subtype): Polygon(subtype) {}
 
 ConvexPolygon::ConvexPolygon(std::vector<Coord> coords): Polygon(convex_polygon) {

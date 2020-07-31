@@ -7,10 +7,14 @@
 #ifndef HULL_HPP
 #define HULL_HPP
 
-#include "coord.hpp"
+#include "../coord.hpp"
 #include "node.hpp"
 #include "edge.hpp"
 #include <vector>
+
+namespace adamant {
+namespace graphics {
+namespace elements {
 
 class Hull {
     public:
@@ -21,6 +25,10 @@ class Hull {
 
     private:
         Hull();
-} ;
+};
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif

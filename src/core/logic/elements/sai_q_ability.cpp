@@ -8,6 +8,11 @@
 #include "bot.hpp"
 #include "../../physics/linear_move.hpp"
 
+using namespace adamant::logic::elements;
+using namespace adamant::graphics;
+using namespace adamant::graphics::elements;
+using namespace adamant::physics::movement;
+
 SaiQAbility::SaiQAbility(Bot* bot): Ability(ability_t,
         false, new ConvexPolygon({{0,0}, {0,5}, {5,5}, {5,0}}), {0,0}, bot->getTeam(), bot,
         2000, 5), m_movement_manager{new MovementManager(this, 3.5f)} {

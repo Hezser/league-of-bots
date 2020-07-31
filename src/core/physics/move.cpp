@@ -6,6 +6,8 @@
 
 #include "move.hpp"
 
+using namespace adamant::physics::movement;
+
 bool operator < (const Move& lhs, const Move& rhs) {
     return lhs.priority < rhs.priority;
 }

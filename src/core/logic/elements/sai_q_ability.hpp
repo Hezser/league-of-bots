@@ -9,15 +9,23 @@
 
 #include "ability.hpp"
 
+namespace adamant {
+namespace logic {
+namespace elements {
+
 class SaiQAbility: public Ability {        
     public: 
         SaiQAbility(Bot* bot);
-        bool cast(Coord target) override;
+        bool cast(graphics::Coord target) override;
         void update(float ms) override;
         void handleBotCollision(Bot* bot) override;
 
     private:
-        MovementManager* m_movement_manager;
+        physics::movement::MovementManager* m_movement_manager;
 };
+
+}  // namespace elements
+}  // namespace logic
+}  // namespace adamant
 
 #endif

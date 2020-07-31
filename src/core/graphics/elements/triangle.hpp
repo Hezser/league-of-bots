@@ -12,6 +12,10 @@
 #include "convex_polygon.hpp"
 #include <vector>
 
+namespace adamant {
+namespace graphics {
+namespace elements {
+
 class Triangle: public ConvexPolygon {
     public:
         Triangle(Node* a, Node* b, Node* c);
@@ -29,5 +33,9 @@ class Triangle: public ConvexPolygon {
         Triangle();
         bool areCollinear(Node* a, Node* b, Node* c);
 };
+
+}  // namespace elements
+}  // namespace graphics
+}  // namespace adamant
 
 #endif
