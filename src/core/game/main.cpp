@@ -80,7 +80,8 @@ int main() {
         }
 
         // Update elements
-        std::chrono::duration<float, std::milli> elapsed = std::chrono::system_clock::now() - last_update;
+        std::chrono::duration<float, std::milli> elapsed = std::chrono::system_clock::now()
+            - last_update;
         last_update = std::chrono::system_clock::now();
         for (auto elem : elems) {
             elem->update(elapsed.count());
