@@ -22,8 +22,8 @@ typedef struct Move {
     graphics::Coord start;
     graphics::Coord target;
     std::vector<float> unit_travel;
-    int distance;
-    int travelled;
+    float distance;
+    float travelled;
     MovePriority priority;
 
     friend bool operator < (const Move& lhs, const Move& rhs);

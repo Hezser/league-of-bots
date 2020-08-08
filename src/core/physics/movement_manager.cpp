@@ -5,6 +5,7 @@
  */
 
 #include "movement_manager.hpp"
+#include <iostream>
 
 using namespace adamant::physics::movement;
 using namespace adamant::logic::elements;
@@ -23,15 +24,15 @@ bool MovementManager::update(float ms) {
             continue;
         }
         // Update the move
-        int d = std::min((int) std::round(m_velocity * ms), move->distance - move->travelled);
+        float prev_x = move->travelled * move->unit_travel[0];
+        float prev_y = move->travelled * move->unit_travel[1];
+        float d = std::min(m_velocity * ms, move->distance - move->travelled);
         move->travelled += d;
         // Calculate next coord
-        int x = (int) (move->travelled * move->unit_travel[0]);
-        int y = (int) (move->travelled * move->unit_travel[1]);
-        int prev_x = (int) ((move->travelled-d) * move->unit_travel[0]);
-        int prev_y = (int) ((move->travelled-d) * move->unit_travel[1]);
-        int step_x = x - prev_x;
-        int step_y = y - prev_y;
+        float this_x = move->travelled * move->unit_travel[0];
+        float this_y = move->travelled * move->unit_travel[1];
+        int step_x = (int) this_x - (int) prev_x;
+        int step_y = (int) this_y - (int) prev_y;
         // Update the elem's coord
         m_elem->mutex.lock();
         Coord coord = m_elem->getCenter();
