@@ -6,6 +6,7 @@
 
 #include "node.hpp"
 #include "edge.hpp"
+#include "polygon.hpp"
 #include <cmath>
 
 using namespace adamant::graphics::elements;
@@ -45,6 +46,28 @@ bool Node::isOn(Edge* edge) {
        coord.x <= std::min(edge->a->coord.x, edge->b->coord.x) &&
       (coord.y <= std::max(edge->a->coord.y, edge->b->coord.y) &&
        coord.y <= std::min(edge->a->coord.y, edge->b->coord.y))) return true;
+    return false;
+}
+
+bool Node::isRestrictedWith(Node* node) {
+    for (Edge* e_ptr1 : edge_ptrs) {
+        for (Edge* e_ptr2 : node->edge_ptrs) {
+            for (Polygon* s_ptr1 : e_ptr1->shape_ptrs) {
+                for (Polygon* s_ptr2 : e_ptr2->shape_ptrs) {
+                    // They belong to the same shape
+                    if (s_ptr1->type != Shape::triangle && s_ptr1 == s_ptr2) {
+                        for (Edge* e_shape : s_ptr1->edges) {
+                            if ((e_shape->a == this && e_shape->b == node) || 
+                                (e_shape->a == node && e_shape->b == this)) goto cont;
+                        }
+                        // They also are not connected
+                        return true;
+                        cont:;
+                    }
+                }       
+            }
+        }
+    }
     return false;
 }
 

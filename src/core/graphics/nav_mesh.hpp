@@ -45,6 +45,7 @@ class NavMesh {
         graphics::elements::Triangle* legalize(graphics::elements::Triangle* candidate, 
                 graphics::elements::Hull* frontier);
         void triangulate(std::vector<logic::elements::Terrain*> terrains);
+        void removeTrianglesWithin(std::vector<logic::elements::Terrain*> terrains);
         void populateNodes();
         Coord avgCoord(std::vector<graphics::elements::Node*> nodes);
 };

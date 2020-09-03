@@ -29,6 +29,7 @@ class Node {
         Edge* getEdgeWith(Node* node);
         void setOrigin(Coord origin);
         bool isOn(Edge* edge);
+        bool isRestrictedWith(Node* node);
 
         struct RComparator {
             bool operator() (Node* lhs, Node* rhs);

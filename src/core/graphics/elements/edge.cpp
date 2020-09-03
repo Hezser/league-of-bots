@@ -8,6 +8,7 @@
 #include "polygon.hpp"
 #include <algorithm>
 #include <cmath>
+#include <iostream> // delete
 
 using namespace adamant::graphics::elements;
 
@@ -74,23 +75,36 @@ bool Edge::hasAtLeft(Edge* edge) {
     return false;
 }
 
-float Edge::angleWith(Edge* edge) {
-    Node* common_n = a == edge->a || a == edge->b ? a : b;
-    if (((common_n != a && common_n != b)) || (common_n != edge->a && common_n != edge->b)) {
-        return -1;
+double Edge::angleWith(Edge* edge) {
+    Node* common_n = commonNodeWith(edge);
+    if (common_n == nullptr || (left != edge && edge->left != this)) return -1;
+    Node* left_n;
+    Node* right_n;
+    if (left == edge) {
+        left_n = common_n == edge->a ? edge->b : edge->a;
+        right_n = common_n == a ? b : a;
+    } else {
+        right_n = common_n == edge->a ? edge->b : edge->a;
+        left_n = common_n == a ? b : a;
     }
-    Node* a_n = a == common_n ? b : a;
-    Node* b_n = edge->a == common_n ? edge->b : edge->a;
-    float a_n_theta = std::atan2((double) a_n->coord.y - common_n->coord.y,
-            (double) a_n->coord.x - common_n->coord.x);
-    if (a_n_theta < 0) a_n_theta += 2 * M_PI;
-    float b_n_theta = std::atan2((double) b_n->coord.y - common_n->coord.y,
-            (double) b_n->coord.x - common_n->coord.x);
-    if (b_n_theta < 0) b_n_theta += 2 * M_PI;
-    float angle = std::abs(b_n_theta - a_n_theta);
-    bool is_reflex = a_n->getEdgeWith(b_n) != nullptr;
+
+    // Calculate angle
+    double left_n_theta = std::atan2((double) left_n->coord.y - common_n->coord.y,
+            (double) left_n->coord.x - common_n->coord.x);
+    if (left_n_theta < 0) left_n_theta += 2 * M_PI;
+    double right_n_theta = std::atan2((double) right_n->coord.y - common_n->coord.y,
+            (double) right_n->coord.x - common_n->coord.x);
+    if (right_n_theta < 0) right_n_theta += 2 * M_PI;
+    double angle = std::abs(left_n_theta - right_n_theta);
+
+    // Adjust angle to be the outer angle of the hull/polygon
+    int det = (common_n->coord.x - right_n->coord.x) * (left_n->coord.y - common_n->coord.y) -
+                (left_n->coord.x - common_n->coord.x) * (common_n->coord.y - right_n->coord.y);
+    bool is_reflex = det > 0;
     if (is_reflex && angle < M_PI) angle += M_PI;
-    return std::abs(angle);
+    else if (!is_reflex && angle > M_PI) angle -= M_PI;
+
+    return angle;
 }
 
 float Edge::avgR() {

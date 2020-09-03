@@ -27,12 +27,16 @@ Edge* Hull::getIntersectingEdge(Node* node) {
         Edge* e = edges[i];
         /* The node's angle is within the edge's angles (it intersects with it),
          * accounting for the exception of when e passes through theta=0 */
-        if ((e->a->theta > node->theta && e->b->theta < node->theta) || 
-             (e->b->theta > node->theta && e->a->theta < node->theta) ||
-             (e->a->theta > node->theta && e->b->theta > node->theta && 
-                    std::abs(e->a->theta - e->b->theta) >= M_PI) ||
-             (e->a->theta == node->theta)) {
-            float e_to_node = e->shortestDistanceTo(node->coord);
+        if (((e->a->theta >= node->theta && e->b->theta <= node->theta && 
+             std::abs(e->a->theta - node->theta) <= M_PI &&
+             std::abs(e->b->theta - node->theta) <= M_PI) || 
+            (e->b->theta >= node->theta && e->a->theta <= node->theta &&
+             std::abs(e->a->theta - node->theta) <= M_PI &&
+             std::abs(e->b->theta - node->theta) <= M_PI) ||
+            (e->a->theta >= node->theta && e->b->theta >= node->theta && 
+             std::abs(e->a->theta - e->b->theta) >= M_PI) ||
+            (e->a->theta <= node->theta && e->b->theta <= node->theta && 
+             std::abs(e->a->theta - e->b->theta) >= M_PI)) && !e->isCollinearWithNode(node)) {
             // Pick the closest intersector to the node
             if (j == -1 || e->shortestDistanceTo(node->coord) <
                 edges[j]->shortestDistanceTo(node->coord)) j = i;
@@ -78,7 +82,7 @@ Edge* Hull::getIntersectingEdge(Node* node) {
         }
     }
 
-    if (j == -1) return nullptr; 
+    if (j == -1) return nullptr;
 
     return edges[j];
 }

@@ -29,7 +29,6 @@ class Polygon: public Shape {
         void defineNeighboursFromCenter(Coord origin);
         sf::Shape* getDrawable() override;
 
-
         struct InsufficientNodesException: public std::exception {
             const char* what() const throw();
         };

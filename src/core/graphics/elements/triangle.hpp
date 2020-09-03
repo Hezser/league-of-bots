@@ -16,6 +16,8 @@ namespace adamant {
 namespace graphics {
 namespace elements {
 
+/* ONLY USE THIS CLASS FOR MESHES AND TRIANGULATION */
+/* NEVER USE AS SHAPES OF ELEMENTS, USE ConvexPolygon INSTEAD */
 class Triangle: public ConvexPolygon {
     public:
         Triangle(Node* a, Node* b, Node* c);

@@ -6,7 +6,6 @@
 
 #include "nav_mesh.hpp"
 #include <cmath>
-#include <iostream>
 #include <algorithm>
 #include <vector>
 #include <unordered_set>
@@ -18,6 +17,7 @@ using namespace adamant::graphics::elements;
 // May throw InsufficientNodesException or FailedTriangulationException
 NavMesh::NavMesh(std::vector<Terrain*> terrains, MapSize map_size): m_map_size{map_size} {
     triangulate(terrains);
+    removeTrianglesWithin(terrains);
     populateNodes();
 }
 
@@ -280,7 +280,7 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             m_mesh.push_back(t);
             right_edge = new_e;
         }
-       
+
         // TODO: Remove basins
     }
 
@@ -289,10 +289,7 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
     Edge* initial_edge = frontier->edges[0];
     Edge* edge = initial_edge;
     do {
-        if(edge->angleWith(edge->left) < M_PI / 2) {
-            Node* left_n = edge->left->a == edge->a ||
-                           edge->left->a == edge->b ?
-                           edge->left->b : edge->left->a;
+        if(edge->angleWith(edge->left) < M_PI - std::numeric_limits<double>::epsilon()) {
             Triangle* t;
             try { 
                 t = new Triangle(edge, edge->left);
@@ -320,6 +317,13 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             edge->right->left = new_e;
             edge->left->left = nullptr;
             edge->left->right = nullptr;
+
+            // Update initial edge so we do not loop forever
+            if (initial_edge == edge || initial_edge == edge->left) {
+                initial_edge = new_e->right;
+            }
+
+            // Finish updating left & right
             edge->left = nullptr;
             edge->right = nullptr;
 
@@ -334,10 +338,21 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
     delete frontier;
 }
 
+void NavMesh::removeTrianglesWithin(std::vector<Terrain*> terrains) {
+    for (auto i=0; i<m_mesh.size(); i++) {
+        for (Edge* e : m_mesh[i]->edges) {
+            if (e->a->isRestrictedWith(e->b)) {
+                m_mesh.erase(m_mesh.begin() + i--);
+                break;
+            }   
+        }
+    }
+}
+
 void NavMesh::populateNodes() {
-    // Add intermediate nodes at each edge
     std::unordered_set<Edge*> visited;
     for (Triangle* t : m_mesh) {
+        // Add intermediate nodes at each edge
         for (Edge* e : t->edges) {
             if (visited.find(e) == visited.end()) {
                 visited.insert(e);
@@ -354,6 +369,10 @@ void NavMesh::populateNodes() {
                 }
             }
         }
+        // Add middle node
+        Coord center = t->getCenter();
+        Node* n = new Node(center, m_origin);
+        m_nodes.push_back(n);
     }
 }
 

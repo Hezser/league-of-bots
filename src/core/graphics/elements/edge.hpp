@@ -31,7 +31,7 @@ class Edge {
         Edge(Node* a, Node* b, Edge* left, Edge* right, Polygon* shape_ptr);
         ~Edge();
         bool hasAtLeft(Edge* edge);
-        float angleWith(Edge* edge);
+        double angleWith(Edge* edge);
         float avgR();
         bool isCollinearWithNode(Node* node);
         bool intersectsWith(std::vector<Edge*> edges);
