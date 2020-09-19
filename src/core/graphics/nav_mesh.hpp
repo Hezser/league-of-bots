@@ -19,35 +19,37 @@
 namespace adamant {
 namespace graphics {
 
-typedef std::vector<graphics::elements::Triangle*> TriangleMesh;
+using TriangleMesh = std::vector<graphics::elements::Triangle*>;
 
 class NavMesh {
+    const MapSize m_map_size;
+    TriangleMesh m_mesh;
+    Coord m_origin;
+    std::vector<graphics::elements::Node*> m_nodes;
+
+    void drawFirstTriangle(std::vector<graphics::elements::Node*>& nodes, graphics::elements::Hull& frontier);
+    graphics::elements::Triangle* legalize(graphics::elements::Triangle* candidate);
+    void sideWalk(graphics::elements::Edge* edge, graphics::elements::Edge* neighbour, graphics::elements::Hull& frontier);
+    void finalWalk(graphics::elements::Edge* initial_edge, graphics::elements::Hull& frontier);
+    void triangulate(std::vector<logic::elements::Terrain*>& terrains);
+    void removeTrianglesWithin(std::vector<logic::elements::Terrain*>& terrains);
+    void populateNodes();
+    Coord avgCoord(std::vector<graphics::elements::Node*>& nodes) const;
+
     public:
         // May throw InsufficientNodesException or FailedTriangulationException
         NavMesh(std::vector<logic::elements::Terrain*> terrains, MapSize map_size);
-        MapSize getMapSize();
-        TriangleMesh getMesh();
-        std::vector<elements::Node*> getNodes();
+        MapSize getMapSize() const;
+        TriangleMesh getMesh() const;
+        std::vector<elements::Node*> getNodes() const;
 
         struct InsufficientNodesException: public std::exception {
-            const char* what() const throw();
+            const char* what() const noexcept;
         };
 
         struct FailedTriangulationException: public std::exception {
-            const char* what() const throw();
+            const char* what() const noexcept;
         };
-
-    private:
-        MapSize m_map_size;
-        TriangleMesh m_mesh;
-        Coord m_origin;
-        std::vector<graphics::elements::Node*> m_nodes;
-        graphics::elements::Triangle* legalize(graphics::elements::Triangle* candidate, 
-                graphics::elements::Hull* frontier);
-        void triangulate(std::vector<logic::elements::Terrain*> terrains);
-        void removeTrianglesWithin(std::vector<logic::elements::Terrain*> terrains);
-        void populateNodes();
-        Coord avgCoord(std::vector<graphics::elements::Node*> nodes);
 };
 
 }  // namespace graphics

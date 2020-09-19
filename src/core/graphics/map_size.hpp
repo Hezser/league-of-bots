@@ -7,12 +7,14 @@
 #ifndef MAP_SIZE_HPP
 #define MAP_SIZE_HPP
 
+#include <cstdint>
+
 namespace adamant {
 namespace graphics {
 
 typedef struct MapSize {
-    int x;
-    int y;
+    int_least16_t x;
+    int_least16_t y;
 } MapSize;
 
 }  // namespace graphics

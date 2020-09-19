@@ -7,12 +7,14 @@
 #ifndef COORD_HPP
 #define COORD_HPP
 
+#include <cstdint>
+
 namespace adamant {
 namespace graphics {
 
 typedef struct Coord {
-    int x;
-    int y;
+    int_fast16_t x;
+    int_fast16_t y;
 } Coord;
 
 }  // namespace graphics

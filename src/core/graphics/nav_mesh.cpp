@@ -29,7 +29,43 @@ const char* NavMesh::FailedTriangulationException::what() const throw() {
     return "No triangles could be created.";
 }
 
-Triangle* NavMesh::legalize(Triangle* candidate, Hull* frontier) {
+void NavMesh::drawFirstTriangle(std::vector<Node*>& nodes, Hull& frontier) {
+    int i = 0;
+    bool done = false;
+    Triangle* t;
+    while(!done && i < nodes.size()) {
+        for (auto j=i+1; j<nodes.size(); ++j) {
+            for (auto k=j+1; k<nodes.size(); ++k) {
+                if (j <= k) {
+                    try {
+                        t = new Triangle(nodes[i], nodes[j], nodes[k]);
+                    } catch (const Triangle::IllegalTriangleException &e) {
+                        continue;
+                    }
+                    nodes.erase(nodes.begin() + k);
+                    nodes.erase(nodes.begin() + j);
+                    nodes.erase(nodes.begin() + i);
+                    m_mesh.push_back(t);
+                    done = true;
+                    goto end;
+                }    
+            }
+        }
+        ++i;
+        end:;
+    }
+
+    // Failed creating initial triangle
+    if (m_mesh.empty()) throw FailedTriangulationException();
+
+    // Order the edges; left and right are considered by looking from the origin of the hull
+    t->defineNeighboursFromCenter(m_origin);
+    frontier.edges.push_back(t->edges[0]);
+    frontier.edges.push_back(t->edges[1]);
+    frontier.edges.push_back(t->edges[2]);
+}
+
+Triangle* NavMesh::legalize(Triangle* candidate) {
     int i = 0;
     // TODO: Does not consider legalizations after legalizing once
     while (i < 3) {
@@ -75,16 +111,115 @@ Triangle* NavMesh::legalize(Triangle* candidate, Hull* frontier) {
     return candidate;
 }
 
+void NavMesh::sideWalk(Edge* edge, Edge* neighbour, Hull& frontier) {
+    while(edge->angleWith(neighbour) < M_PI / 2) {
+        Triangle* t;
+        try { 
+            t = new Triangle(edge, neighbour);
+        } catch (const Triangle::IllegalTriangleException &e) {
+            break;
+        }
+
+        Edge* new_e;
+        if (t->edges[0] != edge && t->edges[0] != neighbour) new_e = t->edges[0];
+        else if (t->edges[1] != edge && t->edges[1] != neighbour) 
+            new_e = t->edges[1];
+        else new_e = t->edges[2];
+        frontier.edges.push_back(new_e);
+
+        // Remove prev. edges from frontier
+        auto pos = std::find(frontier.edges.begin(), frontier.edges.end(), edge);
+        if (pos != frontier.edges.end()) frontier.edges.erase(pos);
+        pos = std::find(frontier.edges.begin(), frontier.edges.end(), neighbour);
+        if (pos != frontier.edges.end()) frontier.edges.erase(pos);
+
+        // Update left & right
+        if (neighbour == edge->left) {
+            new_e->left = edge->left->left;
+            new_e->right = edge->right;
+            edge->left->left->right = new_e;
+            edge->right->left = new_e;
+            edge->left->left = nullptr;
+            edge->left->right = nullptr;
+            edge->left = nullptr;
+            edge->right = nullptr;
+        } else {
+            new_e->left = edge->left;
+            new_e->right = edge->right->right;
+            edge->left->right = new_e;
+            edge->right->right->left = new_e;
+            edge->right->left = nullptr;
+            edge->right->right = nullptr;
+            edge->left = nullptr;
+            edge->right = nullptr;
+        }
+
+        t = legalize(t);
+        m_mesh.push_back(t);
+        if (neighbour == edge->left) neighbour = new_e->left;
+        else neighbour = new_e->right;
+        edge = new_e;
+    } 
+}
+
+void NavMesh::finalWalk(Edge* initial_edge, Hull& frontier) {
+    Edge* edge = initial_edge;
+    do {
+        if (edge->angleWith(edge->left) < M_PI - std::numeric_limits<double>::epsilon()) {
+            Triangle* t;
+            try { 
+                t = new Triangle(edge, edge->left);
+            } catch (const Triangle::IllegalTriangleException &e) {
+                edge = edge->left;
+                continue;
+            }
+
+            Edge* new_e;
+            if (t->edges[0] != edge && t->edges[0] != edge->left) new_e = t->edges[0];
+            else if (t->edges[1] != edge && t->edges[1] != edge->left) new_e = t->edges[1];
+            else new_e = t->edges[2];
+            frontier.edges.push_back(new_e);
+
+            // Remove prev. edges from frontier
+            auto pos = std::find(frontier.edges.begin(), frontier.edges.end(), edge);
+            if (pos != frontier.edges.end()) frontier.edges.erase(pos);
+            pos = std::find(frontier.edges.begin(), frontier.edges.end(), edge->left);
+            if (pos != frontier.edges.end()) frontier.edges.erase(pos);
+
+            // Update left & right
+            new_e->left = edge->left->left;
+            new_e->right = edge->right;
+            edge->left->left->right = new_e;
+            edge->right->left = new_e;
+            edge->left->left = nullptr;
+            edge->left->right = nullptr;
+
+            // Update initial edge so we do not loop forever
+            if (initial_edge == edge || initial_edge == edge->left) {
+                initial_edge = new_e->right;
+            }
+
+            // Finish updating left & right
+            edge->left = nullptr;
+            edge->right = nullptr;
+
+            t = legalize(t);
+            m_mesh.push_back(t);
+            edge = new_e;
+        } else {
+            edge = edge->left;
+        }
+    } while (edge != initial_edge);
+}
+
 /* This is a custom implementation of:
  * A faster circle-sweep Delaunay triangulation algorithm
  * Ahmad Biniaz and Gholamhossein Dastghaibyfard
  * http://cglab.ca/~biniaz/papers/Sweep%20Circle.pdf */
 /* This implementation features restricted areas, corresponding to terrain
  * and other elements of the game */
-void NavMesh::triangulate(std::vector<Terrain*> terrains) {
+void NavMesh::triangulate(std::vector<Terrain*>& terrains) {
 
-    // INITIALIZATION
-    
     // Get nodes
     for (Terrain* t : terrains) {
         for (Node* n : t->getShape()->nodes) {
@@ -95,7 +230,7 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
 
     m_mesh = TriangleMesh();
     m_origin = avgCoord(m_nodes);
-    Hull* frontier = new Hull(m_origin);
+    Hull frontier = Hull(m_origin);
 
     // Add corner nodes
     Node* n = new Node({0, 0}, m_origin);
@@ -110,49 +245,21 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
     for (Node* n : disconnected) {
         n->setOrigin(m_origin);
     }
+    // TODO: Either just use nodes, or make disconnected a queue
     std::sort(disconnected.begin(), disconnected.end(), Node::RComparator());
 
     // Try all possible initial triangles in order of distance to the origin
-    int i = 0;
-    bool done = false;
-    Triangle* t;
-    while(!done && i < disconnected.size()) {
-        for (auto j=i+1; j<disconnected.size(); j++) {
-            for (auto k=j+1; k<disconnected.size(); k++) {
-                if (j <= k) {
-                    try {
-                        t = new Triangle(disconnected[i], disconnected[j], disconnected[k]);
-                    } catch (const Triangle::IllegalTriangleException &e) {
-                        continue;
-                    }
-                    disconnected.erase(disconnected.begin() + k);
-                    disconnected.erase(disconnected.begin() + j);
-                    disconnected.erase(disconnected.begin() + i);
-                    m_mesh.push_back(t);
-                    done = true;
-                    goto end;
-                }    
-            }
-        }
-        i++;
-        end:;
+    try {
+        drawFirstTriangle(disconnected, frontier);
+    } catch (const FailedTriangulationException &e) {
+        throw e;
     }
 
-    // Failed creating initial triangle
-    if (m_mesh.empty()) throw FailedTriangulationException();
-
-    // Order the edges; left and right are considered by looking from the origin of the hull
-    t->defineNeighboursFromCenter(m_origin);
-    frontier->edges.push_back(t->edges[0]);
-    frontier->edges.push_back(t->edges[1]);
-    frontier->edges.push_back(t->edges[2]);
-
-    // TRIANGULATION
-    
+    // Triangulate all nodes until none are disconnected
     while(!disconnected.empty()) {
         n = disconnected[0];
         // Create new triangle
-        Edge* intersector = frontier->getIntersectingEdge(n);
+        Edge* intersector = frontier.getIntersectingEdge(n);
         if (intersector == nullptr) {
             disconnected.erase(disconnected.begin());
             continue;
@@ -160,7 +267,7 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
         Triangle* candidate;
         try {
             candidate = new Triangle(intersector, n);
-        } catch (Triangle::IllegalTriangleException) {
+        } catch (const Triangle::IllegalTriangleException &e) {
             /* Attempt to create triangles with the right and left edge of intersector
              * One of them is guaranteed to not be collinear with n, because
              * we return the closest intersecting edge to n. Both of them are also
@@ -181,8 +288,8 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
             }
         }
         
-        auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), intersector);
-        frontier->edges.erase(pos);
+        auto pos = std::find(frontier.edges.begin(), frontier.edges.end(), intersector);
+        frontier.edges.erase(pos);
         disconnected.erase(disconnected.begin());
         
         /* Update frontier. We need the intersector as reference, but it may be deleted while
@@ -200,146 +307,25 @@ void NavMesh::triangulate(std::vector<Terrain*> terrains) {
         intersector->right->left = right_edge;
         intersector->left = nullptr;
         intersector->right = nullptr;
-        frontier->edges.push_back(left_edge);
-        frontier->edges.push_back(right_edge);
+        frontier.edges.push_back(left_edge);
+        frontier.edges.push_back(right_edge);
         
         // Update mesh
-        candidate = legalize(candidate, frontier);
+        candidate = legalize(candidate);
         m_mesh.push_back(candidate);
 
-        // Left-side walk
-        while(left_edge->angleWith(left_edge->left) < M_PI / 2) {
-            Triangle* t;
-            try { 
-                t = new Triangle(left_edge, left_edge->left);
-            } catch (const Triangle::IllegalTriangleException &e) {
-                break;
-            }
-
-            Edge* new_e;
-            if (t->edges[0] != left_edge && t->edges[0] != left_edge->left) new_e = t->edges[0];
-            else if (t->edges[1] != left_edge && t->edges[1] != left_edge->left) 
-                new_e = t->edges[1];
-            else new_e = t->edges[2];
-            frontier->edges.push_back(new_e);
-
-            // Remove prev. edges from frontier
-            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge);
-            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-            pos = std::find(frontier->edges.begin(), frontier->edges.end(), left_edge->left);
-            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-
-            // Update left & right
-            new_e->left = left_edge->left->left;
-            new_e->right = left_edge->right;
-            left_edge->left->left->right = new_e;
-            left_edge->right->left = new_e;
-            left_edge->left->left = nullptr;
-            left_edge->left->right = nullptr;
-            left_edge->left = nullptr;
-            left_edge->right = nullptr;
-
-            t = legalize(t, frontier);
-            m_mesh.push_back(t);
-            left_edge = new_e;
-        } 
-
-        // Right-side walk
-        while(right_edge->angleWith(right_edge->right) < M_PI / 2) {
-            Triangle* t;
-            try { 
-                t = new Triangle(right_edge, right_edge->right);
-            } catch (const Triangle::IllegalTriangleException &e) {
-                break;
-            }
-
-            Edge* new_e;
-            if (t->edges[0] != right_edge && t->edges[0] != right_edge->right) new_e = t->edges[0];
-            else if (t->edges[1] != right_edge && t->edges[1] != right_edge->right) 
-                new_e = t->edges[1];
-            else new_e = t->edges[2];
-            frontier->edges.push_back(new_e);
-
-            // Remove prev. edges from frontier
-            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge);
-            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-            pos = std::find(frontier->edges.begin(), frontier->edges.end(), right_edge->right);
-            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-
-            // Update left & right
-            new_e->left = right_edge->left;
-            new_e->right = right_edge->right->right;
-            right_edge->left->right = new_e;
-            right_edge->right->right->left = new_e;
-            right_edge->right->left = nullptr;
-            right_edge->right->right = nullptr;
-            right_edge->left = nullptr;
-            right_edge->right = nullptr;
-
-            t = legalize(t, frontier);
-            m_mesh.push_back(t);
-            right_edge = new_e;
-        }
+        sideWalk(left_edge, left_edge->left, frontier);
+        sideWalk(right_edge, right_edge->right, frontier);
 
         // TODO: Remove basins
     }
 
-    // FINALIZATION 
-   
-    Edge* initial_edge = frontier->edges[0];
-    Edge* edge = initial_edge;
-    do {
-        if(edge->angleWith(edge->left) < M_PI - std::numeric_limits<double>::epsilon()) {
-            Triangle* t;
-            try { 
-                t = new Triangle(edge, edge->left);
-            } catch (const Triangle::IllegalTriangleException &e) {
-                edge = edge->left;
-                continue;
-            }
-
-            Edge* new_e;
-            if (t->edges[0] != edge && t->edges[0] != edge->left) new_e = t->edges[0];
-            else if (t->edges[1] != edge && t->edges[1] != edge->left) new_e = t->edges[1];
-            else new_e = t->edges[2];
-            frontier->edges.push_back(new_e);
-
-            // Remove prev. edges from frontier
-            auto pos = std::find(frontier->edges.begin(), frontier->edges.end(), edge);
-            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-            pos = std::find(frontier->edges.begin(), frontier->edges.end(), edge->left);
-            if (pos != frontier->edges.end()) frontier->edges.erase(pos);
-
-            // Update left & right
-            new_e->left = edge->left->left;
-            new_e->right = edge->right;
-            edge->left->left->right = new_e;
-            edge->right->left = new_e;
-            edge->left->left = nullptr;
-            edge->left->right = nullptr;
-
-            // Update initial edge so we do not loop forever
-            if (initial_edge == edge || initial_edge == edge->left) {
-                initial_edge = new_e->right;
-            }
-
-            // Finish updating left & right
-            edge->left = nullptr;
-            edge->right = nullptr;
-
-            t = legalize(t, frontier);
-            m_mesh.push_back(t);
-            edge = new_e;
-        } else {
-            edge = edge->left;
-        }
-    } while (edge != initial_edge);
-
-    delete frontier;
+    Edge* initial_edge = frontier.edges[0];
+    finalWalk(initial_edge, frontier);
 }
 
-void NavMesh::removeTrianglesWithin(std::vector<Terrain*> terrains) {
-    for (auto i=0; i<m_mesh.size(); i++) {
+void NavMesh::removeTrianglesWithin(std::vector<Terrain*>& terrains) {
+    for (auto i=0; i<m_mesh.size(); ++i) {
         for (Edge* e : m_mesh[i]->edges) {
             if (e->a->isRestrictedWith(e->b)) {
                 m_mesh.erase(m_mesh.begin() + i--);
@@ -356,8 +342,8 @@ void NavMesh::populateNodes() {
         for (Edge* e : t->edges) {
             if (visited.find(e) == visited.end()) {
                 visited.insert(e);
-                std::vector<int> xs = {e->a->coord.x, e->b->coord.x};
-                std::vector<int> ys = {e->a->coord.y, e->b->coord.y};
+                std::vector<int_fast16_t> xs = {e->a->coord.x, e->b->coord.x};
+                std::vector<int_fast16_t> ys = {e->a->coord.y, e->b->coord.y};
                 std::sort(xs.begin(), xs.end());
                 std::sort(ys.begin(), ys.end());
                 // Do not create intermediate nodes for small edges
@@ -376,7 +362,7 @@ void NavMesh::populateNodes() {
     }
 }
 
-Coord NavMesh::avgCoord(std::vector<Node*> nodes) {
+Coord NavMesh::avgCoord(std::vector<Node*>& nodes) const {
     Coord max = {0, 0};  // Assuming no negative values, as coordinates are always positive
     Coord min = {m_map_size.x, m_map_size.y};
     for (auto n : nodes) {
@@ -388,14 +374,14 @@ Coord NavMesh::avgCoord(std::vector<Node*> nodes) {
     return {(max.x + min.x) / 2, (max.y + min.y) / 2};
 }
 
-MapSize NavMesh::getMapSize() {
+MapSize NavMesh::getMapSize() const {
     return m_map_size;
 }
 
-TriangleMesh NavMesh::getMesh() {
+TriangleMesh NavMesh::getMesh() const {
     return m_mesh;
 }
 
-std::vector<Node*> NavMesh::getNodes() {
+std::vector<Node*> NavMesh::getNodes() const {
     return m_nodes;
 }
